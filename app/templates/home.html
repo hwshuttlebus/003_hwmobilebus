@@ -1,0 +1,76 @@
+<!doctype html>
+<html >
+  <head>
+    <meta charset="utf-8">
+    <title></title>
+    
+    <!-- <meta name="description" content=""> -->
+    <!-- <meta name="viewport" content="width=device-width"> -->
+    <meta http-equiv="Content-Type" content="text/html; charset=UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1">
+	<base href="/"/>
+    <!-- Place favicon.ico and apple-touch-icon.png in the root directory -->
+    <!-- build:css(.) styles/vendor.css -->
+    <!-- bower:css -->
+    <link rel="stylesheet" href="/static/lib/bower_components/bootstrap/dist/css/bootstrap.css" />
+    <!-- endbower -->
+    <!-- endbuild -->
+    <!-- build:css(.tmp) styles/main.css -->
+    <link rel="stylesheet" href="static/mbus.css">
+    <!-- endbuild -->
+  </head>
+
+  <body ng-app="hwmobilebusApp">
+	
+
+	 <div id="header" class="header navbar navbar-static-top">
+		<div class="navbar-inner">
+			<div class="container">
+				<button type="button" class="btn btn-navbar" data-toggle="collapse" data-target=".nav-collapse">
+				</button>
+				<a class="brand" href="/">AngularFlask</a>
+				<div class="nav-collapse collapse">
+					<ul class="nav pull-right">
+						<li class="">
+							<a href="/">Home</a>
+						</li>
+					</ul>
+				</div>
+			</div>
+		</div>
+	</div>
+	<div class="container page">
+		<div id="content" class="container main" ng-view>
+		</div>
+
+		<hr>
+		<footer id="footer" class="footer">
+			<div class="footer-left">
+				<a href="/about">About</a> |
+				<a href="/">Home</a>
+			</div>
+			<div class="footer-right">
+				<span>&copy; 2013 AngularFlask</span>
+			</div>
+		</footer>
+	</div>
+
+	 <script src="/static/lib/bower_components/angular/angular.js"></script>
+	 <script src="/static/lib/bower_components/angular-animate/angular-animate.js"></script>
+	 <script src="/static/lib/bower_components/angular-cookies/angular-cookies.js"></script>
+	 <script src="/static/lib/bower_components/angular-resource/angular-resource.js"></script>
+	 <script src="/static/lib/bower_components/angular-route/angular-route.js"></script>
+	 <script src="/static/lib/bower_components/angular-sanitize/angular-sanitize.js"></script>
+	 <script src="/static/lib/bower_components/angular-touch/angular-touch.js"></script>
+	 <script src="/static/lib/bower_components/angular-baidu-map/dist/angular-baidu-map.min.js"></script>
+	 <script src="/static/lib/bower_components/angular-ui-bootstrap/ui-bootstrap-tpls-0.14.3.min.js"></script>    <!-- endbower -->
+	 
+	 <script src="/static/scripts/app.js"></script>
+	 <script src="/static/scripts/controllers/currentlocation.js"></script>
+	 <script src="/static/scripts/services/businfo-service.js"></script>
+	 <script src="/static/scripts/controllers/baidumap.js"></script>
+	 <script src="/static/scripts/directives/mbus-baidumap.js"></script>
+	 <script src="/static/scripts/directives/mbus-loading.js"></script>
+	 <script src="/static/scripts/directives/mbus-editbus.js"></script>
+</body>
+</html>

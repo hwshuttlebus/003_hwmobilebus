@@ -1,0 +1,142 @@
+<div class="container" ng-controller="BaidumapCtrl">
+    <div class="row clearfix" >
+        <div class="col-md-4 column">
+            <uib-accordion>
+                <div uib-accordion-group class="panel-default" is-open="accordionstatus.openbusinfo">
+                    <uib-accordion-heading>
+                        莘庄线<i class="pull-right glyphicon" ng-class="{'glyphicon-chevron-down': accordionstatus.openbusinfo, 'glyphicon-chevron-right': !accordionstatus.openbusinfo}"></i>
+                    </uib-accordion-heading>
+                    <div class="panel-body">
+                        <table class="table">
+                            <tbody>
+                                <tr>
+                                    <td class="text-right">车牌号：</td>
+                                    <td>{a buslicense a}{a businfo a}</td>
+                                </tr>
+                                <tr>
+                                    <td class="text-right">车长：</td>
+                                    <td>{a captain a}<span> </span><span>{a captainphone a}</span></td>
+                                </tr>
+                                <tr>
+                                    <td class="text-right">司机：</td>
+                                    <td>{a driver a}<span> </span><span>{a driverphone a}</span></td>
+                                </tr>
+                                <tr>
+                                    <td class="text-right">车辆颜色：</td>
+                                    <td>{a buscolor a}</td>
+                                </tr>
+                                <tr>
+                                    <td class="text-right">座位数：</td>
+                                    <td>{a usedseat a}<span>/</span><span>{a totalseat a}</span></td>
+                                </tr>
+                                <tr>
+                                    <td class="text-right">停靠位置：</td>
+                                    <td><a href="book.jpg">点击查看</a></td>
+                                </tr>
+                            </tbody>
+                        </table>
+                    </div>
+                </div>
+            </uib-accordion>
+            <uib-tabset active="active">
+                <uib-tab index="0" heading="上行" select="tocomptabselect()">
+                    <img src="cat.jpg" align="center" width="100%">
+                    <table class="table">
+                        <tbody>
+                            <tr ng-repeat="station in tocompanystations track by $index">
+                                <td>
+                                    <img src="cat.jpg" align="left" width="50px">
+                                </td>
+                                <td>
+                                    <p class="text-muted">{a station.name a}</p>
+                                    <small class="text-muted">{a station.description a}</small>
+                                </td>
+                                <td align="right">
+                                    <p class="text-muted">07:05<span>发车</span></p>
+                                    <small class="text-muted">计划<span>{a station.time a}</span><span>发车</span></small>
+                                </td>
+                            </tr>
+
+                            <tr>
+                                <td>
+                                    <img src="cat.jpg" align="left" width="50px">
+                                </td>
+                                <td>
+                                    <p class="text-muted">莘松路莘东路</p>
+                                    <small class="text-muted">工商银行对面</small>
+                                </td>
+                                <td align="right">
+                                    <p class="text-muted">07:10<span>发车</span></p>
+                                    <small class="text-muted">计划<span>07:08</span><span>发车</span></small>
+                                </td>
+                            </tr>
+                            <tr>
+                                <td>
+                                    <img src="cat.jpg" align="left" width="50px">
+                                </td>
+                                <td>
+                                    <p><strong class="text-success">莘建东路<span class="text-primary"> 离我最近</span></strong></p>
+                                    <small class="text-muted">绿地科技岛广场对面</small>
+                                </td>
+                                <td align="right">
+                                    <p><strong class="text-success">约<span>7</span><span>分钟</span></strong></p>
+                                    <small class="text-muted">计划<span>07:20</span><span>发车</span></small>
+                                </td>
+                            </tr>
+                            <tr>
+                                <td>
+                                    <img src="cat.jpg" align="left" width="50px">
+                                </td>
+                                <td>
+                                    <p><strong>沪闵路报春路</strong></p>
+                                    <small class="text-muted"></small>
+                                </td>
+                                <td align="right">
+                                    <p class="text-muted">约<span>15</span><span>分钟</span></p>
+                                    <small class="text-muted">计划<span>07:25</span><span>发车</span></small>
+                                </td>
+                            </tr>
+                            <tr>
+                                <td>
+                                    <img src="cat.jpg" align="left" width="50px">
+                                </td>
+                                <td>
+                                    <p><strong>霍尼韦尔</strong></p>
+                                    <small class="text-muted"></small>
+                                </td>
+                                <td align="right">
+                                    <p class="text-muted">约<span>55</span><span>分钟</span></p>
+                                    <small class="text-muted">计划<span>07:30</span><span>到达</span></small>
+                                </td>
+                            </tr>
+                        </tbody>
+                    </table>
+                </uib-tab>
+                <uib-tab index="1" heading="下行" select="tohometabselect()">
+                    <img src="cat.jpg" align="center" width="100%">
+                    <table class="table">
+                        <tbody>
+                            <tr ng-repeat="station2 in tohomestations track by $index">
+                                <td>
+                                    <img src="cat.jpg" align="left" width="50px">
+                                </td>
+                                <td>
+                                    <p class="text-muted">{a station2.name a}</p>
+                                    <small class="text-muted">{a station2.description a}</small>
+                                </td>
+                                <td align="right">
+                                    <p class="text-muted">07:05<span>发车</span></p>
+                                    <small class="text-muted">计划<span>{a station2.time a}</span><span>到达</span></small>
+                                </td>
+                            </tr>
+                        </tbody>
+                    </table>
+                </uib-tab>
+            </uib-tabset>
+        </div>
+        <div class="col-md-8 column">
+            <button type="button" class="btn btn-primary btn-block" ng-click="reload()">点击刷新地图</button>
+            <mbus-baidumap></mbus-baidumap>
+        </div>
+    </div>
+</div>

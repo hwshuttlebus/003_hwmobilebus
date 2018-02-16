@@ -1,7 +1,9 @@
 from . import api
-from .. models import Bus, Station
+from .. models import Bus, Station, User, Post
+from .. models import mBus, mStation, mUser, DiagramData
 from flask import request, jsonify
 from .. import db
+from .authentication import auth
 
 @api.route('/ebusdata/bus/', methods=['POST'])
 def post_businfo():
@@ -20,6 +22,7 @@ def post_businfo():
     db.session.add(busrec)
     db.session.commit()
     return jsonify(busrec.to_json())
+
 
 
 @api.route('/ebusdata/station/', methods=['POST'])
@@ -57,20 +60,17 @@ def post_end_handle():
                     'all bus in database: ' : [item3.to_json() for item3 in qresultbus]})
 
 
-
-
-
-
-
-
-
-
-
-
-
-
-
-
+@api.route('/getdata/')
+def get_test_data():
+    try:
+        users = User.query.all()
+        posts = Post.query.all()
+        return jsonify({'all users: ': [item.to_json() for item in users],
+                        'all posts: ': [item2.to_json() for item2 in posts]})
+    except Exception as e:
+        users = None
+        posts = None
+        return jsonify({'Oops! Something wrong!':'%s' %e })
 
 
 

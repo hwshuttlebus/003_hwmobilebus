@@ -4,6 +4,14 @@ from sqlalchemy import engine_from_config, pool
 from logging.config import fileConfig
 import logging
 
+#********************customized part begin******************************
+# used to tell flask-migrate ignore the read only database table object
+def include_object(object, name, type_, reflected, compare_to):
+    if type_ == 'table' and name in ('users', 'posts'):
+        return False
+    return True
+#********************customized part end******************************
+
 # this is the Alembic Config object, which provides
 # access to the values within the .ini file in use.
 config = context.config
@@ -73,8 +81,9 @@ def run_migrations_online():
     context.configure(connection=connection,
                       target_metadata=target_metadata,
                       process_revision_directives=process_revision_directives,
-                      **current_app.extensions['migrate'].configure_args)
-
+                      include_object=include_object,
+                      **current_app.extensions['migrate'].configure_args
+                      )
     try:
         with context.begin_transaction():
             context.run_migrations()

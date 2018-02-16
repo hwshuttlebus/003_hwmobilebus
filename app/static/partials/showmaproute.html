@@ -1,0 +1,10 @@
+<div ng-if="isDirToCompany">
+    <baidu-map map-options="mapOptions" loaded="loadmap(map)" 
+        offline="offlineOpts" click="clicklatlon(e)">
+    </baidu-map>
+</div>
+<div ng-if="!isDirToCompany">
+    <baidu-map map-options="mapOptions" loaded="loadmap(map)" 
+        offline="offlineOpts" click="clicklatlon(e)">
+    </baidu-map>
+</div>

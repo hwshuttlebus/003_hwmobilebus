@@ -23,6 +23,9 @@ class DevelopmentConfig(Config):
     SQLALCHEMY_DATABASE_URI = os.environ.get('DEV_DATABASE_URL') or \
         'mysql+pymysql://root:honeywell+123@localhost/shuttlebus'
         #'sqlite:///' + os.path.join(basedir, 'data-dev.sqlite')
+    SQLALCHEMY_BINDS = {
+        'tests':    'sqlite:///c:\hzj/04_work/14_shuttle_bus/01_research/01_web_server_flask/02_test2\shuttlebusTest/flasky/data-dev.sqlite'
+    }
 
 class TestingConfig(Config):
     TESTING = True
