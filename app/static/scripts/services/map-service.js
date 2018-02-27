@@ -24,25 +24,30 @@ angular.module('hwmobilebusApp')
     };
 
     /* refresh map */
-    var refreshmap = function (map, inputstations) {
+    this.refreshmap = function (ismapedit, inputstations) {
+        if (true == ismapedit) {
+            var maplocal = mapedit;
+        } else {
+            var maplocal = map;
+        }
         /* delete all markers */
-        deleteallMarkers(map);
+        deleteallMarkers(maplocal);
         /* delete all search route */
-        removedrivingroute(map);
+        removedrivingroute(maplocal);
         /* re-render route and markers */
-        loadroute(map, inputstations);
+        loadroute(maplocal, inputstations);
     };
   
     /* delete all Markers */
-    var deleteallMarkers = function (map, markerarray) {
-        for (var i=0; i<markerarray.length; i++) {
-            map.removeOverlay(markerarray[i]);
+    var deleteallMarkers = function (map) {
+        for (var i=0; i<map.markerarray.length; i++) {
+            map.map.removeOverlay(map.markerarray[i]);
         }
     };
   
     /* remove route */
-    var removedrivingroute = function () {
-        $scope.driving.clearResults();
+    var removedrivingroute = function (map) {
+        map.driving.clearResults();
     };
 
     /* create route */
@@ -105,4 +110,24 @@ angular.module('hwmobilebusApp')
         }
         driving.search(pointArray[0], pointArray[pointArray.length-1], {waypoints: parray2});
     };
+
+    this.createmarker = function (id) {
+        /* create a dtragable marker on the center of current map */
+        var mapCenter = mapedit.map.getCenter();
+        var point = new BMap.Point(mapCenter.lng, mapCenter.lat);
+        var newmarker = {
+            marker: null,
+            stationid: 0,
+        };
+        newmarker.marker = new BMap.Marker(point);
+        mapedit.map.addOverlay(newmarker.marker);
+        newmarker.marker.setAnimation(BMAP_ANIMATION_DROP);
+        newmarker.marker.enableDragging();
+        newmarker.stationid = id;
+        return newmarker;
+    }
+
+    this.removemarker = function (marker) {
+        mapedit.map.removeOverlay(marker);
+    }
   });

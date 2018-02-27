@@ -1,18 +1,35 @@
 'use strict';
 
 angular.module('hwmobilebusApp')
-    .controller('MapeditCtrl', function ($scope, $filter, $uibModal, BusinfoService, MapService) {
+    .controller('MapeditCtrl', function ($scope, $filter, $uibModal, $window, BusinfoService, MapService) {
     
+    var busid = 15;
+
     /* location for libing Road campus */
     var longitude = 121.620443;
     var latitude = 31.201002;
-
+    /* state machine for load route */
+    var RouteLoadFSM = {
+      initstate: true,
+      maploaded: false,
+      stationget: false,
+      routeloaded: false
+    };
+    var maptemp;
     /* default direction to company */
     $scope.isDirToCompany = true;
+    $scope.map = null;
+    /* loading control */
+    $scope.loadctrl = {
+      businfo: true,
+      stationinfo: true,
+      mapinfo: true
+    };
+
 
     /* store all bus info */
-    var businfo = BusinfoService.getbusinfo({id: 8}, function () {
-       /* define campus */
+    BusinfoService.getbusinfo({id:busid}, function(businfo) {
+      /* define campus */
       $scope.campus = [{Name: "李冰路", ID: 1},{Name: "环科路",ID: 2}];
       $scope.businfo = businfo;
       $scope.oldbusinfo = angular.copy($scope.businfo);
@@ -21,27 +38,30 @@ angular.module('hwmobilebusApp')
           $scope.selectedcampus = $scope.campus[i];
         }
       }
+      $scope.loadctrl.businfo = false;
+    }, function (error) {
+      console.log('error:'+error.status);
     });
 
+
     /* get all station info */
-    var stationinfo = BusinfoService.getstationinfo({id: '8'}, function () {
+    BusinfoService.getstationinfo({id: busid}, function (stationinfo) {
       var templocal;
       var countup = 0;
       var countdown = 0;  
+
       for (var i=0; i<stationinfo.length; i++) {
         if (true == stationinfo[i].dirtocompany) {
           /* transfer date string to object */
           templocal = stationinfo[i];
-          templocal.datetime = new Date("2000-01-01T"+stationinfo[i].time+":00");
+          templocal.datetime = new Date("2018-01-01T"+stationinfo[i].time+":00");
           templocal.icon = "/static/images/"+String.fromCharCode(65+countup)+".png";
           countup++;
           $scope.tocompanystations.push(templocal);
-
-          var parsedDate = $filter('date')(templocal.datetime, 'HH:mm');
         } else {
           /* transfer date string to object */
           templocal = stationinfo[i];
-          templocal.datetime = new Date("2000-01-01T"+stationinfo[i].time+":00");
+          templocal.datetime = new Date("2018-01-01T"+stationinfo[i].time+":00");
           templocal.icon = "/static/images/"+String.fromCharCode(65+countdown)+".png";
           countdown++;
           $scope.tohomestations.push(templocal);
@@ -51,9 +71,30 @@ angular.module('hwmobilebusApp')
       /* backup */
       $scope.oldtocompstation = angular.copy($scope.tocompanystations);
       $scope.oldtohomestation = angular.copy($scope.tohomestations);
-    });
 
-    
+      /* render route if map ready */
+      if (true == RouteLoadFSM.maploaded) {
+        var inputstations;
+        if (true == $scope.isDirToCompany) {
+            inputstations = $scope.tocompanystations;
+        } else {
+            inputstations = $scope.tohomestations;
+        }
+        MapService.loadmapedit(maptemp, inputstations);
+        /* state change to route loaded */
+        RouteLoadFSM.maploaded = false;
+        RouteLoadFSM.routeloaded = true;
+        $scope.loadctrl.mapinfo = false;
+      } else if (true == RouteLoadFSM.initstate) {
+        RouteLoadFSM.initstate = false;
+        RouteLoadFSM.stationget = true;
+      }
+
+      $scope.loadctrl.stationinfo = false;
+    }, function (error) {
+
+    });
+  
     $scope.offlineOpts = {
         /* no network condition */
         retryInterval: 10000,
@@ -74,22 +115,31 @@ angular.module('hwmobilebusApp')
 
     $scope.loadmapedit = function (map) {
         var inputstations;
-        $scope.map = map;
+
         if (true == $scope.isDirToCompany) {
             inputstations = $scope.tocompanystations;
         } else {
             inputstations = $scope.tohomestations;
         }
-        MapService.loadmapedit($scope.map, inputstations);
+
+        /* state machine handle */
+        if (true == RouteLoadFSM.stationget) {
+          MapService.loadmapedit(map, inputstations);
+          /* enter route loaded state */
+          RouteLoadFSM.stationget = false;
+          RouteLoadFSM.routeloaded = true;
+        } else if (true == RouteLoadFSM.initstate) {
+          maptemp = map;
+          RouteLoadFSM.initstate = false;
+          RouteLoadFSM.maploaded = true;
+        }
+
+        $scope.loadctrl.mapinfo = false;
     };
 
     $scope.tocompanystations = [];
     $scope.tohomestations = [];
     $scope.selected = 0;
-    $scope.newmarker = {
-      marker: null,
-      stationid: 0,
-    };
     $scope.tooltipctrl = {
       mapeditenablett: false
     };
@@ -140,15 +190,7 @@ angular.module('hwmobilebusApp')
     $scope.editmapenable = function (id) {
       $scope.editctrl.mapeditenable = true;
       $scope.tooltipctrl.mapeditenablett = true;
-      /* create a draggable marker on center of current map */
-      var mapCenter = $scope.map.getCenter();
-      var point = new BMap.Point(mapCenter.lng,mapCenter.lat);
-      $scope.newmarker.marker = new BMap.Marker(point);
-      $scope.map.addOverlay($scope.newmarker.marker);
-      $scope.newmarker.marker.setAnimation(BMAP_ANIMATION_DROP);
-      $scope.newmarker.marker.enableDragging();
-      /* record which station */
-      $scope.newmarker.stationid = id;
+      $scope.newmarker = MapService.createmarker(id);
     };
 
     $scope.editmapsubmit = function () {
@@ -176,8 +218,8 @@ angular.module('hwmobilebusApp')
       }
       
       /* reload map */
-      $scope.map.removeOverlay($scope.newmarker.marker);
-      $scope.refreshmap(newstations);
+      MapService.removemarker($scope.newmarker.marker);
+      MapService.refreshmap(true, newstations);
       
       $scope.editctrl.submit2=true;
       $scope.editctrl.cancel2=true;
@@ -187,7 +229,7 @@ angular.module('hwmobilebusApp')
     $scope.editmapcancel = function () {
       $scope.editctrl.mapeditenable = false;
       $scope.editctrl.mapeditenablett = false;
-      $scope.map.removeOverlay($scope.newmarker.marker);
+      MapService.removemarker($scope.newmarker.marker);
     };
 
     $scope.addnewstation = function () {
@@ -212,7 +254,7 @@ angular.module('hwmobilebusApp')
         lon: $scope.newmarker.marker.getPosition().lat,
         name: "",
         time: "7:00",
-        datetime: new Date("2000-01-01T07:00")
+        datetime: new Date("2018-01-01T07:00")
       };
       newstations.push(newstation);
     };
@@ -237,23 +279,56 @@ angular.module('hwmobilebusApp')
      };
 
     $scope.submit = function () {
+      var busStationinfo = new BusinfoService();
+      busStationinfo.bus_name = $scope.businfo.name;
+      busStationinfo.bus_cz_name  = $scope.businfo.cz_name;
+      busStationinfo.bus_cz_phone = $scope.businfo.cz_phone;
+      busStationinfo.bus_sj_name = $scope.businfo.sj_name;
+      busStationinfo.bus_sj_phone = $scope.businfo.sj_phone;
+      busStationinfo.bus_seat_num = $scope.businfo.seat_num;
+      busStationinfo.bus_equip_id = $scope.businfo.equip_id;
+      busStationinfo.bus_color = $scope.businfo.color;
+      busStationinfo.bus_buslicense = $scope.businfo.buslicense;
+      busStationinfo.bus_campus = $scope.businfo.campus;
+      /* ensure do not post company itself into database */
+      busStationinfo.station_tocompany = [];
+      busStationinfo.station_tohome = [];
+      for (var i=0; i<$scope.tocompanystations.length-1; i++) {
+        /* transfer datetime to string */
+        var parsedDate = $filter('date')($scope.tocompanystations[i].datetime, 'HH:mm');
+        $scope.tocompanystations[i].time = parsedDate;
+        busStationinfo.station_tocompany.push($scope.tocompanystations[i]);
+      }
+      for (var j=1; j<$scope.tohomestations.length; j++) {
+        /* transfer datetime to string */
+        var parsedDate = $filter('date')($scope.tohomestations[j].datetime, 'HH:mm');
+        $scope.tohomestations[j].time = parsedDate;
+        busStationinfo.station_tohome.push($scope.tohomestations[j]);
+      }
 
+      //console.log(JSON.stringify(busStationinfo,null, 4));
+
+      busStationinfo.$updatestation({id: busid}, function (res) {
+        console.log(res);
+        $window.location.reload();
+      }, function (error) {
+        console.log(error.status);
+      });
     };
 
     $scope.tocomptabselect = function () {
         $scope.isDirToCompany = true;
-        /*
-        if (true == $scope.firstload) {
-          $scope.firstload = false;
-          refreshmap();
+        /* only refresh when route is loaded */
+        if (true == RouteLoadFSM.routeloaded) {
+          MapService.refreshmap(true, $scope.tocompanystations);
         }
-        */
       };
   
     $scope.tohometabselect = function () {
         $scope.isDirToCompany = false;
-        /*
-        refreshmap();
-        */
+        /* only refresh when route is loaded */
+        if (true == RouteLoadFSM.routeloaded) {
+          MapService.refreshmap(true, $scope.tohomestations);
+        }
       };
 });

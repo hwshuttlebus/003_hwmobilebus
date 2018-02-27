@@ -242,16 +242,16 @@ class mStation(db.Model):
 
     @staticmethod
     def from_json(json_post, isdirtocompany):
-        name = json_post.get('station_name')
-        description = json_post.get('station_description')
-        time = json_post.get('station_time')
+        name = json_post.get('name')
+        description = json_post.get('description')
+        time = json_post.get('time')
         if time is not None:
             datetimeobj = datetime.strptime(time.strip(), '%H:%M').time()
         else:
             datetimeobj = datetime.strptime('7:30', '%H:%M').time()
-        lat = json_post.get('station_lat')
-        lon = json_post.get('station_lon')
-        campus = json_post.get('station_campus')
+        lat = json_post.get('lat')
+        lon = json_post.get('lon')
+        campus = json_post.get('campus')
         return mStation(name=name, description=description, time=datetimeobj,
                        dirtocompany=isdirtocompany, lat=lat, lon=lon, campus=campus)
 

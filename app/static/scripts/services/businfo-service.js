@@ -35,6 +35,13 @@ angular.module('hwmobilebusApp')
           params: {
             id: '@id'
           }
+        },
+        updatestation: {
+          method: 'POST',
+          url: BASE+'mbusdata/BusStation/:id',
+          params: {
+            id: '@id'
+          }
         }
       });
   });

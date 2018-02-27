@@ -12,7 +12,7 @@ angular.module('hwmobilebusApp')
     $scope.tocompanystations = [];
     $scope.tohomestations = [];
 
-    var businfo = BusinfoService.getbusinfo({id: '8'}, function () {
+    var businfo = BusinfoService.getbusinfo({id: '15'}, function () {
       $scope.captain= businfo.cz_name;
       $scope.driver= businfo.sj_name;
       $scope.captainphone= businfo.cz_phone;
@@ -22,7 +22,7 @@ angular.module('hwmobilebusApp')
       $scope.buscolor= businfo.color;
     });
 
-    var stationinfo = BusinfoService.getstationinfo({id: '8'}, function () {
+    var stationinfo = BusinfoService.getstationinfo({id: '15'}, function () {
       for (var loopi=0; loopi<stationinfo.length; loopi++) {
         if (true == stationinfo[loopi].dirtocompany) {
           $scope.tocompanystations.push(stationinfo[loopi]);

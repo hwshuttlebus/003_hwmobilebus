@@ -8,10 +8,6 @@ def index():
     return render_template('index.html')
     #return make_response(open('app/templates/home.html').read())
 
-@main.route('/busEdit.html')
-def busedit():
-    return render_template('server_partial/busEdit.html')
-
 @main.route('/delstationModal.html')
 def delstationModal():
     return render_template('server_partial/delstationModal.html')

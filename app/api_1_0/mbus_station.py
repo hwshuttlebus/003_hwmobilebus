@@ -5,6 +5,77 @@ from .authentication import auth
 from .. models import db, mStation, mBus
 
 
+@api.route('/mbusdata/BusStation/<int:id>', methods=['POST'])
+def update_mbusinfo(id):
+    stationrec1 = []
+    stationrec2 = []
+    try:
+        bus = mBus.from_json(request.json)
+        #handle bus information first
+        busrec = mBus.query.get_or_404(id)
+        #update
+        busrec.name = bus.name
+        busrec.cz_name = bus.cz_name
+        busrec.cz_phone = bus.cz_phone
+        busrec.sj_name = bus.sj_name
+        busrec.sj_phone = bus.sj_phone
+        busrec.seat_num = bus.seat_num
+        busrec.equip_id = bus.equip_id
+        busrec.recordtime = bus.recordtime
+        busrec.color = bus.color
+        busrec.buslicense = bus.buslicense
+        busrec.campus = bus.campus
+    except Exception as e:
+        return jsonify({'ERROR occur when try to parse station_to_company structure!': '%s' %e})
+    
+    #handle station information next
+    #delete all the related station
+    stations = busrec.stations.all()
+    for item in stations:
+        db.session.delete(item)
+        db.session.commit()
+
+    #direction: to company
+    station_tocompany = request.json.get('station_tocompany')
+    if station_tocompany is not None:
+        try:
+            for item in station_tocompany:
+                station1 = mStation.from_json(item, True)
+                temp = station1
+                #update relationship
+                temp.mbus = busrec
+                stationrec1.append(temp)
+        except Exception as e:
+            return jsonify({'ERROR occur when try to parse station_to_company structure!':'%s' %e })
+
+    #direction: to home
+    station_tohome = request.json.get('station_tohome')
+    if station_tohome is not None:
+        try:
+            for item in station_tohome:
+                station2 = mStation.from_json(item, False)
+                temp = station2
+                #update relationship
+                temp.mbus = busrec
+                stationrec2.append(temp)
+        except Exception as e:
+            return jsonify({'ERROR occur when try to parse station_tohome structure!':'%s' %e })
+    
+    db.session.add(busrec)
+    db.session.commit()
+
+    for item2 in stationrec1:
+        db.session.add(item2)
+    for item3 in stationrec2:
+        db.session.add(item3)
+    db.session.commit()
+
+    return jsonify({'added bus record: ': busrec.to_json(), 
+                    'added station1 record: ': [item.to_json() for item in stationrec1],
+                    'added station2 record: ': [item.to_json() for item in stationrec2]})
+
+
+
 @api.route('/mbusdata/BusStation/', methods=['POST'])
 def post_mbusinfo():
     stationrec1 = []
@@ -98,12 +169,8 @@ def post_mbusinfo():
 
 @api.route('/mbusdata/BusStation/bus/<int:id>', methods=['GET'])
 def get_bus(id):
-    busrec = mBus.query.filter_by(id=id).first()
-    if busrec is not None:
-        return jsonify(busrec.to_json())
-    else:
-        return jsonify({'ERROR': 'No such bus data'})
-
+    busrec = mBus.query.get_or_404(id)
+    return jsonify(busrec.to_json())
 
 @api.route('/mbusdata/BusStation/bus/delete/<int:id>', methods=['POST'])
 def delete_bus(id):
@@ -115,7 +182,7 @@ def delete_bus(id):
 
 @api.route('/mbusdata/BusStation/station/delete/<int:id>',methods=['POST'])
 def delete_station(id):
-    stationrec = mStation.query.get_or_404(id=id)
+    stationrec = mStation.query.get_or_404(id)
     db.session.delete(stationrec)
     db.session.commit()
     return jsonify({'deleted station:' : stationrec.to_json()})

@@ -21,7 +21,7 @@ angular.module('hwmobilebusApp')
     $scope.isDirToCompany = true;
 
     /* collection all bus stop markers */
-    var stationinfo = BusinfoService.getstationinfo({id: '8'}, function () {
+    var stationinfo = BusinfoService.getstationinfo({id: '15'}, function () {
       for (var loopi=0; loopi<stationinfo.length; loopi++) {
         if (true == stationinfo[loopi].dirtocompany) {
           tocompanystations.push(stationinfo[loopi]);
