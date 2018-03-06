@@ -132,6 +132,7 @@ class mBus(db.Model):
     __tablename__ = 'mbuses'
     id = db.Column(db.Integer, primary_key=True)
     name = db.Column(db.String(64), index=True)
+    number = db.Column(db.Integer, default=0)
     cz_name = db.Column(db.String(64), default="")
     cz_phone = db.Column(db.String(30), default="")
     sj_name = db.Column(db.String(64), default="")
@@ -157,6 +158,7 @@ class mBus(db.Model):
         json_post = {
             'id': self.id,
             'name': self.name,
+            'number': self.number,
             'cz_name': self.cz_name,
             'cz_phone': self.cz_phone,
             'sj_name': self.sj_name,
@@ -176,6 +178,7 @@ class mBus(db.Model):
     @staticmethod
     def from_json(json_post):
         name = json_post.get('bus_name')
+        number = json_post.get('bus_number')
         cz_name = json_post.get('bus_cz_name')
         cz_phone = json_post.get('bus_cz_phone')
         sj_name = json_post.get('bus_sj_name')
@@ -188,7 +191,7 @@ class mBus(db.Model):
  
         return mBus(name=name, cz_name=cz_name, cz_phone=cz_phone,sj_name=sj_name, 
                     sj_phone=sj_phone, seat_num=seat_num, equip_id=equip_id,
-                    color=color, buslicense=buslicense, campus=campus)
+                    color=color, buslicense=buslicense, campus=campus, number=number)
 
     @staticmethod
     def update_gps(json_post):

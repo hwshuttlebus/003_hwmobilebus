@@ -10,6 +10,7 @@
 angular.module('hwmobilebusApp')
   .service('BusinfoService', function ($resource) {
     var BASE = 'http://localhost:5000/api/v1.0/';
+    //var BASE = 'http://c4bbe084.ngrok.io/api/v1.0/'
     /* REST API for query busstation information */
     return $resource(BASE,
       {},
@@ -17,6 +18,14 @@ angular.module('hwmobilebusApp')
         getbusinfo: {
           method: 'GET',
           url: BASE+'mbusdata/BusStation/bus/:id',
+          params: {
+            id: '@id'
+          }
+        },
+        getallbus: {
+          method: 'GET',
+          isArray: true,
+          url: BASE+'mbusdata/BusStation/businfo/',
           params: {
             id: '@id'
           }
@@ -39,6 +48,17 @@ angular.module('hwmobilebusApp')
         updatestation: {
           method: 'POST',
           url: BASE+'mbusdata/BusStation/:id',
+          params: {
+            id: '@id'
+          }
+        },
+        addbusstation: {
+          method: 'POST',
+          url: BASE+'mbusdata/BusStation\\/',
+        },
+        delbus: {
+          method: 'POST',
+          url: BASE+'mbusdata/BusStation/bus/delete/:id',
           params: {
             id: '@id'
           }

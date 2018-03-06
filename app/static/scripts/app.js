@@ -38,9 +38,17 @@ angular
       templateUrl: 'static/partials/currentlocation.html',
       controller: 'CurrentlocationCtrl'
     })
+    .when('/busList', {
+      templateUrl: 'static/partials/busList.html',
+      controller: 'BuslistCtrl'
+    })
     .when('/busEditmain', {
       templateUrl: 'static/partials/busEditmain.html',
       controller: 'MapeditCtrl'
+    })
+    .when('/busListEdit', {
+      templateUrl: 'static/partials/busListEdit.html',
+      controller: 'BuseditCtrl'
     })
     .otherwise({
       redirectTo: '/home'

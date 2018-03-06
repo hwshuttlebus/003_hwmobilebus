@@ -1,33 +1,49 @@
-<div class="container" ng-controller="BaidumapCtrl">
+<div id="smallfont" class="container">
+    <div class="spinner" ng-show="loadctrl.businfo||loadctrl.stationinfo||loadctrl.mapinfo">
+        <div class="loader" ></div>
+    </div>
     <div class="row clearfix" >
         <div class="col-md-4 column">
             <uib-accordion>
                 <div uib-accordion-group class="panel-default" is-open="accordionstatus.openbusinfo">
                     <uib-accordion-heading>
-                        莘庄线<i class="pull-right glyphicon" ng-class="{'glyphicon-chevron-down': accordionstatus.openbusinfo, 'glyphicon-chevron-right': !accordionstatus.openbusinfo}"></i>
+                        <table class="table">
+                            <tbody>
+                                <td style="width:5% ; vertical-align: middle">
+                                    <div class="label label-as-badge round-custom">{a businfo.number a}</div>
+                                </td>
+                                <td style="width:65%; vertical-align: middle">{a businfo.name a}</td>
+                                <td style="width:25%; vertical-align: middle; font-size:12px; color: #008EE8">详细信息</td>
+                                <td style="vertical-align: middle">
+                                    <i class="pull-right glyphicon" 
+                                       ng-class="{'glyphicon-chevron-down': accordionstatus.openbusinfo, 'glyphicon-chevron-right': !accordionstatus.openbusinfo}">
+                                    </i>
+                                </td>
+                            </tbody>
+                        </table>
                     </uib-accordion-heading>
                     <div class="panel-body">
                         <table class="table">
                             <tbody>
                                 <tr>
                                     <td class="text-right">车牌号：</td>
-                                    <td>{a buslicense a}{a businfo a}</td>
+                                    <td>{a businfo.license a}</td>
                                 </tr>
                                 <tr>
                                     <td class="text-right">车长：</td>
-                                    <td>{a captain a}<span> </span><span>{a captainphone a}</span></td>
+                                    <td>{a businfo.cz_name a}<span> </span><span>{a businfo.cz_phone a}</span></td>
                                 </tr>
                                 <tr>
                                     <td class="text-right">司机：</td>
-                                    <td>{a driver a}<span> </span><span>{a driverphone a}</span></td>
+                                    <td>{a businfo.sj_name a}<span> </span><span>{a businfo.sj_phone a}</span></td>
                                 </tr>
                                 <tr>
                                     <td class="text-right">车辆颜色：</td>
-                                    <td>{a buscolor a}</td>
+                                    <td>{a businfo.color a}</td>
                                 </tr>
                                 <tr>
                                     <td class="text-right">座位数：</td>
-                                    <td>{a usedseat a}<span>/</span><span>{a totalseat a}</span></td>
+                                    <td>{a businfo.seat_num a}<span>/</span><span>{a totalseat a}</span></td>
                                 </tr>
                                 <tr>
                                     <td class="text-right">停靠位置：</td>
@@ -38,25 +54,39 @@
                     </div>
                 </div>
             </uib-accordion>
+
+            <div class="btn-group btn-group-justified">
+                <label class="btn btn-info btn-custom radioBtnActive" ng-model="isDirToCompany" 
+                    uib-btn-radio="true">上行</label>
+                <label class="btn btn-info btn-custom radioBtnActive" ng-model="isDirToCompany" 
+                    uib-btn-radio="false" >下行</label>
+            </div>
+
+            <table class="table">
+                <tbody>
+                    <tr ng-repeat="station in stations track by $index">
+                        <th style="width:5%">
+                            <div class="label label-as-badge pin-custom">
+                                <span>{a station.char a}</span>
+                            </div>
+                        </th>
+                        <td>
+                            <p class="text-muted">{a station.name a}</p>
+                            <small class="text-muted">{a station.description a}</small>
+                        </td>
+                        <td align="right">
+                            <p class="text-muted">07:05<span>发车</span></p>
+                            <small class="text-muted">计划<span>{a station.time a}</span><span>发车</span></small>
+                        </td>
+                    </tr>
+                </tbody>
+            </table>
+
             <uib-tabset active="active">
                 <uib-tab index="0" heading="上行" select="tocomptabselect()">
-                    <img src="cat.jpg" align="center" width="100%">
                     <table class="table">
                         <tbody>
-                            <tr ng-repeat="station in tocompanystations track by $index">
-                                <td>
-                                    <img src="cat.jpg" align="left" width="50px">
-                                </td>
-                                <td>
-                                    <p class="text-muted">{a station.name a}</p>
-                                    <small class="text-muted">{a station.description a}</small>
-                                </td>
-                                <td align="right">
-                                    <p class="text-muted">07:05<span>发车</span></p>
-                                    <small class="text-muted">计划<span>{a station.time a}</span><span>发车</span></small>
-                                </td>
-                            </tr>
-
+                           
                             <tr>
                                 <td>
                                     <img src="cat.jpg" align="left" width="50px">
@@ -136,7 +166,9 @@
         </div>
         <div class="col-md-8 column">
             <button type="button" class="btn btn-primary btn-block" ng-click="reload()">点击刷新地图</button>
-            <mbus-baidumap></mbus-baidumap>
+            <baidu-map map-options="mapOptions" loaded="loadmap(map)" 
+                offline="offlineOpts" click="clicklatlon(e)">
+            </baidu-map>
         </div>
     </div>
 </div>

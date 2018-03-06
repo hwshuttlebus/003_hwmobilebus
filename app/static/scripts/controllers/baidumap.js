@@ -10,9 +10,7 @@
 angular.module('hwmobilebusApp')
   .controller('BaidumapCtrl', function ($scope, $location, $interval, BusinfoService, MapService) {
 
-    /* location for libing Road campus */
-    var longitude = 121.620443;
-    var latitude = 31.201002;
+    
     var tocompanystations = [];
     var tohomestations = [];
     var markerarray = [];
@@ -31,47 +29,9 @@ angular.module('hwmobilebusApp')
       }
     });
     
-    $scope.offlineOpts = {
-      /* no network condition */
-      retryInterval: 10000,
-      txt: '当前设备未联网'
-    };
-
-    /* mapOptions */
-    $scope.mapOptions = {
-      centerAndZoom: {
-        longitude: longitude,
-        latitude: latitude,
-        zoom: 15
-      },
-      enableKeyboard: true,
-      disableDragging: false,
-      enableScrollWheelZoom: true
-    };
-
-    $scope.loadmap = function (map) {
-      var inputstations;
-      $scope.map = map;
-      if (true == $scope.isDirToCompany) {
-        inputstations = tocompanystations;
-      } else {
-        inputstations = tohomestations;
-      }
-      MapService.loadmap($scope.map, inputstations);
-    };
+    
     
    
-
-   /*
-    $scope.loadmap = function (map) {
-      $scope.loading = true;
-      $scope.map = map;
-      if (true == $scope.isDirToCompany) {
-        $scope.loadroute($scope.map, tocompanystations);
-      } else {
-        $scope.loadroute($scope.map, tohomestations);
-      }
-    }*/
 
     /* refresh map */
     $scope.refreshmap = function (inputstations) {
@@ -178,14 +138,4 @@ angular.module('hwmobilebusApp')
       */
     };
 
-    
-    
-    $scope.clicklatlon = function (e) {
-      //alert('The coordinate you chose is: ' + e.point.lng + ' : ' + e.point.lat);
-    };
-
-    $scope.accordionstatus = {
-      openbusinfo:false,
-      openmap:false
-    };
   });

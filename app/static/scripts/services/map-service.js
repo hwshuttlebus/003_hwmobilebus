@@ -13,18 +13,18 @@ angular.module('hwmobilebusApp')
         driving: null
     };
 
-    this.loadmap = function (map, stations) {
+    this.loadmap = function (map, stations, completefunc) {
         map.map = map;
-        loadroute(map, stations);
+        loadroute(map, stations, completefunc);
     };
 
-    this.loadmapedit = function (map, stations) {
+    this.loadmapedit = function (map, stations, completefunc) {
         mapedit.map = map;
-        loadroute(mapedit, stations);
+        loadroute(mapedit, stations, completefunc);
     };
 
     /* refresh map */
-    this.refreshmap = function (ismapedit, inputstations) {
+    this.refreshmap = function (ismapedit, inputstations, loadmapcomplete) {
         if (true == ismapedit) {
             var maplocal = mapedit;
         } else {
@@ -35,7 +35,7 @@ angular.module('hwmobilebusApp')
         /* delete all search route */
         removedrivingroute(maplocal);
         /* re-render route and markers */
-        loadroute(maplocal, inputstations);
+        loadroute(maplocal, inputstations, loadmapcomplete);
     };
   
     /* delete all Markers */
@@ -51,7 +51,7 @@ angular.module('hwmobilebusApp')
     };
 
     /* create route */
-    var loadroute = function (mapobj, inputstations) {
+    var loadroute = function (mapobj, inputstations, completefunc) {
         map = mapobj.map;
         var pointArray = new Array();
         var stations = inputstations;
@@ -108,22 +108,40 @@ angular.module('hwmobilebusApp')
             var p = e.target;
             alert("marker: " + p.getPosition().lng + "," + p.getPosition.lat);
         }
-        driving.search(pointArray[0], pointArray[pointArray.length-1], {waypoints: parray2});
+
+        if (pointArray.length>=2) {
+            driving.search(pointArray[0], pointArray[pointArray.length-1], {waypoints: parray2});
+            /* set callback function for complete use */
+            driving.setSearchCompleteCallback(completefunc);
+        } else if (pointArray.length == 1){
+            /* for add new , only one station is added condition */
+            var iconpath = "/static/images/A.png";
+            var IconEntity = new BMap.Icon(iconpath, new BMap.Size(23, 36));
+            var wayPointIconHtml='<div style="position: absolute; margin: 0px; padding: 0px; width: 36px; height: 40px; overflow: hidden;"><img src='+iconpath+' style="display: none; border:none;margin-left:-11px; margin-top:-35px; "></div>'
+            var myPoint = new BMap.Marker(pointArray[0], {icon: IconEntity});
+            
+            /* record all markers */
+            markerarray.push(myPoint);
+            map.addOverlay(myPoint);
+            mapobj.markerarray = markerarray;
+        }
     };
 
-    this.createmarker = function (id) {
+    this.createmarker = function (id, selectid) {
         /* create a dtragable marker on the center of current map */
         var mapCenter = mapedit.map.getCenter();
         var point = new BMap.Point(mapCenter.lng, mapCenter.lat);
         var newmarker = {
             marker: null,
-            stationid: 0,
+            selectid: 0,
+            id: 0
         };
         newmarker.marker = new BMap.Marker(point);
         mapedit.map.addOverlay(newmarker.marker);
         newmarker.marker.setAnimation(BMAP_ANIMATION_DROP);
         newmarker.marker.enableDragging();
-        newmarker.stationid = id;
+        newmarker.selectid = selectid;
+        newmarker.id = id;
         return newmarker;
     }
 

@@ -4,7 +4,7 @@ from datetime import datetime
 from .authentication import auth
 from .. models import db, mStation, mBus
 
-
+#update as per bus id
 @api.route('/mbusdata/BusStation/<int:id>', methods=['POST'])
 def update_mbusinfo(id):
     stationrec1 = []
@@ -15,6 +15,7 @@ def update_mbusinfo(id):
         busrec = mBus.query.get_or_404(id)
         #update
         busrec.name = bus.name
+        busrec.number = bus.number
         busrec.cz_name = bus.cz_name
         busrec.cz_phone = bus.cz_phone
         busrec.sj_name = bus.sj_name
@@ -75,7 +76,7 @@ def update_mbusinfo(id):
                     'added station2 record: ': [item.to_json() for item in stationrec2]})
 
 
-
+#add as per name and campus
 @api.route('/mbusdata/BusStation/', methods=['POST'])
 def post_mbusinfo():
     stationrec1 = []
@@ -88,6 +89,7 @@ def post_mbusinfo():
         if busrec is not None:
             #update
             busrec.name = bus.name
+            busrec.number = bus.number
             busrec.cz_name = bus.cz_name
             busrec.cz_phone = bus.cz_phone
             busrec.sj_name = bus.sj_name
@@ -154,13 +156,22 @@ def post_mbusinfo():
             return jsonify({'ERROR occur when try to parse station_tohome structure!':'%s' %e })
     
     db.session.add(busrec)
-    db.session.commit()
+    try:
+        db.session.commit()
+    except Exception as e:
+        db.session.rollback()
+        return jsonify({'ERROR occur when try to parse station_tohome structure!':'%s' %e })
 
     for item2 in stationrec1:
         db.session.add(item2)
     for item3 in stationrec2:
         db.session.add(item3)
-    db.session.commit()
+
+    try:
+        db.session.commit()
+    except Exception as e:
+        db.session.rollback()
+        return jsonify({'ERROR occur when try to parse station_tohome structure!':'%s' %e })
 
     return jsonify({'added bus record: ': busrec.to_json(), 
                     'added station1 record: ': [item.to_json() for item in stationrec1],
@@ -171,6 +182,15 @@ def post_mbusinfo():
 def get_bus(id):
     busrec = mBus.query.get_or_404(id)
     return jsonify(busrec.to_json())
+
+@api.route('/mbusdata/BusStation/businfo/', methods=['GET'])
+def get_allbus():
+    returnrec = [];
+    busrecs = mBus.query.all()
+    for item in busrecs:
+        if item.name is not "" and item.name is not None:
+            returnrec.append(item.to_json())
+    return jsonify(returnrec)
 
 @api.route('/mbusdata/BusStation/bus/delete/<int:id>', methods=['POST'])
 def delete_bus(id):
@@ -196,6 +216,7 @@ def get_bus_related_stations(id):
     for stationrec in stationrecs:
         returnrec.append(stationrec.to_json())
 
+    '''
     arrCompTime = '8:30'
     LeaveComTime = '17:15'
     arrCampus = busrec.campus
@@ -212,6 +233,7 @@ def get_bus_related_stations(id):
     temp = mStation(name="霍尼韦尔", time=datetime.strptime(LeaveComTime, '%H:%M').time(),
                      dirtocompany=False, lat=lat, lon=lon, campus=arrCampus)
     returnrec.append(temp.to_json())
+    '''
 
     #sort by time before response
     returnrec = sorted(returnrec, key=lambda x: x['time'])

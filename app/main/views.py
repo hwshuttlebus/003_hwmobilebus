@@ -8,12 +8,10 @@ def index():
     return render_template('index.html')
     #return make_response(open('app/templates/home.html').read())
 
-@main.route('/delstationModal.html')
-def delstationModal():
-    return render_template('server_partial/delstationModal.html')
+@main.route('/infoModal.html')
+def infoModal():
+    return render_template('server_partial/infoModal.html')
 
 @main.route('/ngtemplates/showmaproute.html')
 def showmap():
     return render_template('/ngtemplates/showmaproute.html')
-
-
