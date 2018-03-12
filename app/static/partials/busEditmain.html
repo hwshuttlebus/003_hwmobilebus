@@ -103,6 +103,16 @@
 							   placeholder="例：13812345678"/>
 					</div>
 				</div>
+				<div class="form-group">
+					<label class="col-xs-4 control-label" for="equipid">GPS设备ID：</label>
+					<div class="col-xs-8">
+						<input class="form-control input-sm" id="equipid" type="number"
+							   ng-model="businfo.equip_id"
+							   ng-model-options="{updateOn: 'default'}"
+							   ng-change="buschange()"
+							   placeholder="修改时请确保各班车GPS设备ID唯一性"/>
+					</div>
+				</div>
 			</form>
 			<div class="tabtable">
 				<uib-tabset active="active">
@@ -149,7 +159,7 @@
 										</table>
 									</td>
 									<td>
-										<button type="button" class="close" ng-hide="station.id=='company'" ng-click="delconfirm(station.id, station.datetime, $index)" >&times</button>
+										<button type="button" class="close" ng-click="delconfirm(station.id, station.datetime, $index)" >&times</button>
 									</td>
 								</tr>
 							</tbody>
@@ -190,7 +200,7 @@
 										</table>
 									</td>
 									<td>
-										<button type="button" class="close" ng-hide="station.id=='company'" ng-click="delconfirm(station.id, station.datetime, $index)" >&times</button>
+										<button type="button" class="close" ng-click="delconfirm(station.id, station.datetime, $index)" >&times</button>
 									</td>
 								</tr>
 							</tbody>

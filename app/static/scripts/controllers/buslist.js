@@ -50,7 +50,11 @@ angular.module('hwmobilebusApp')
     });
 
     $scope.selsearch = function ($item, $model, $label) {
-        InterfService.setbusid(allbuslocal[$item.index].id);
+        $scope.onselect(allbuslocal[$item.index].id);
+    };
+
+    $scope.onselect = function (id) {
+        InterfService.setbusid(id);
         $location.url('/currentlocation');
     };
 

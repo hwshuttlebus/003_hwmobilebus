@@ -6,6 +6,25 @@ from flask_login import UserMixin
 from werkzeug.security import generate_password_hash, check_password_hash
 from itsdangerous import TimedJSONWebSignatureSerializer as Serializer
 from flask import current_app, url_for
+from math import radians, cos, sin, asin, sqrt
+from dateutil import tz
+import time
+
+def haversine(lon1, lat1, lon2, lat2):
+    """
+    Calculate the great circle distance between two points 
+    on the earth (specified in decimal degrees)
+    """
+    # convert decimal degrees to radians 
+    lon1, lat1, lon2, lat2 = map(radians, [lon1, lat1, lon2, lat2])
+
+    # haversine formula 
+    dlon = lon2 - lon1 
+    dlat = lat2 - lat1 
+    a = sin(dlat/2)**2 + cos(lat1) * cos(lat2) * sin(dlon/2)**2
+    c = 2 * asin(sqrt(a)) 
+    r = 6371 # Radius of earth in kilometers. Use 3956 for miles
+    return c * r * 1000 # meters for unit
 
 class Bus(db.Model):
     __tablename__ = 'buses'
@@ -149,6 +168,11 @@ class mBus(db.Model):
     lon = db.Column(db.Float(precision='11,8'), default=0)
     recordtime = db.Column(db.DateTime())
 
+    #client location data
+    curridx = db.Column(db.Integer, default=0xFF)
+    lefttime = db.Column(db.Integer, default=0)
+    abntime = db.Column(db.Integer,default=0)
+
     #interface for restapi use
     def to_json(self):
         if self.recordtime is not None:
@@ -171,6 +195,9 @@ class mBus(db.Model):
             'color': self.color,
             'buslicense': self.buslicense,
             'campus': self.campus,
+            'currindx': self.curridx,
+            'lefttime': self.lefttime,
+            'abntime': self.abntime,
             'stations': url_for('api.get_bus_related_stations', id=self.id, _external=True)
         }
         return json_post
@@ -194,7 +221,166 @@ class mBus(db.Model):
                     color=color, buslicense=buslicense, campus=campus, number=number)
 
     @staticmethod
+    def locCoreAlgorithm(currentidx, lefttime, busrec, station, lon, lat):
+        nowtimetk = time.time()
+
+        print('!!!current location: '+str(lon)+', '+str(lat))
+        if currentidx <= (len(station)-2):
+            print('!!!station[currentidx+1].lon, station[currentidx+1].lat:'+str(station[currentidx+1].lon)+', '+str(station[currentidx+1].lat))
+        averagespeed = 15#about 60km/h bus average speed
+        if busrec.abntime is None:
+            abntime = 0
+        else:
+            abntime = busrec.abntime
+
+        if currentidx <= (len(station)-2):
+            leftdist = haversine(lon, lat, station[currentidx+1].lon, station[currentidx+1].lat)
+            lefttime = (leftdist*1.5/averagespeed)/60 # unit-->minute
+            print('!!!leftdist and lefttime:'+str(leftdist)+',  '+str(lefttime))
+            #if current leftdistance greater than 3000 meters and current lefttime greater than last lefttime
+            #regard it for mistake calculated for currentindex
+            if (leftdist > 3000) and (busrec.lefttime < lefttime):
+                #abnormal case
+                #handle based on abnormal time.
+                if abntime == 0:
+                    #the first time abnormal only record time tick
+                    abntime = nowtimetk
+                else:
+                    if (nowtimetk - abntime) >= 30:
+                        #during 30 seconds, the bus is always far from dest station
+                        ##recalculate the current station once
+                        abntime = nowtimetk
+                        currentidx = mBus.getnearstation(station, lon, lat)
+                        print('!!!recalculate the current station once index:'+str(currentidx))
+                        if currentidx <= (len(station)-2):
+                            leftdist = haversine(lon, lat, station[currentidx+1].lon, station[currentidx+1].lat)
+                            lefttime = (leftdist/averagespeed)/60
+                            print('!!!leftdist and lefttime:'+str(leftdist)+',  '+str(lefttime))
+            else:
+                #normal case
+                #if in abnormal case before, regard enter normal state when following condition meet:
+                #   during 10 seconds the bus location is near to dest station
+                print('!!!!!!!!!!!!!!!!!!!!')
+                print(nowtimetk)
+                print(abntime)
+                if ((nowtimetk-abntime)<=10) and (abntime!=0):
+                    print('!!! re-enter normal state')
+                    abntime = 0
+                if leftdist <= 30.0:
+                    #arrived and index to next station
+                    currentidx = currentidx+1      
+                    print('!!!#arrived and index to next station index:　'+str(currentidx))
+                    if currentidx <= (len(station)-2):
+                        leftdist = haversine(lon, lat, station[currentidx+1].lon, station[currentidx+1].lat)
+                        lefttime = (leftdist*1.5/averagespeed)/60 # unit-->minute
+
+        return currentidx, lefttime, abntime
+    
+    @staticmethod
+    def getnearstation(stations, lon, lat):
+        #iterate stations
+        for idx, item in enumerate(stations):
+            distnew = haversine(item.lon, item.lat, lon, lat)
+            if idx == 0:
+                distold = distnew
+                retindex = 0
+            elif distnew < distold:
+                retindex = idx
+                distold = distnew
+        return retindex
+
+    @staticmethod
+    def calbuslocation(busrec, lon, lat):
+        #init variable
+        currentidx = 0xFF       
+        lefttime = 0
+        abntime = 0
+        
+        
+
+        stations = busrec.stations.order_by(mStation.time).all()
+        #get current Beijing time
+        from_zone = tz.gettz('UTC')
+        to_zone = tz.gettz('Aisa/Shanghai')
+
+        #utcnowtime= datetime.utcnow()
+        #utcnowtime = utcnowtime.replace(tzinfo=from_zone)
+        #nowtime = utcnowtime.astimezone(to_zone)
+
+        utcnowtime = datetime.strptime('2018-03-08T07:35:21', '%Y-%m-%dT%H:%M:%S')
+        nowtime = utcnowtime
+
+        #define string const for time
+        towkstart = "06:30:00"
+        towkend = "10:00:00"
+        tohmstart = "16:55:00"
+        tohmend = "20:00:00"
+
+        #transfer to datetime object
+        strprefix = nowtime.strftime('%Y-%m-%dT')
+
+        towkstartobj = datetime.strptime(strprefix+towkstart, '%Y-%m-%dT%H:%M:%S')
+        towkendobj = datetime.strptime(strprefix+towkend, '%Y-%m-%dT%H:%M:%S')
+        tohmstartobj = datetime.strptime(strprefix+tohmstart, '%Y-%m-%dT%H:%M:%S')
+        tohmendobj = datetime.strptime(strprefix+tohmend, '%Y-%m-%dT%H:%M:%S')
+
+        print(nowtime)
+        nowtime = nowtime.replace(tzinfo=None)
+        
+        print(towkstartobj)
+        print(towkendobj)
+        print(tohmstartobj)
+        print(tohmendobj)
+        print(nowtime)
+
+        #judge whether in work time and filter related station
+        stationup = []
+        stationdown = []
+        for item in stations:
+            if (True == item.dirtocompany):
+                stationup.append(item)
+            else:
+                stationdown.append(item)
+        #ENTER CORE ASSESSMENT ALGUORITHM 
+        if (((nowtime >= towkstartobj) and (nowtime <= towkendobj)) or
+             ((nowtime >= tohmstartobj) and (nowtime <= tohmendobj))):
+
+             
+            if ((nowtime >= towkstartobj) and (nowtime <= towkendobj)):
+                print('!!!enter to company procedure')
+                station = stationup
+            else:
+                print('!!!enter to home procedure')
+                station = stationdown
+
+            if (busrec.curridx == 0xFF) and ((busrec.recordtime < towkstartobj) or (busrec.recordtime < tohmstartobj)):
+                #first time recv valid gps data after enter shuttle bus time
+                if nowtime.time() <= station[0].time:
+                    #GPS data recv before arrive at first stop
+                    currentidx = -1
+                    print('!!!GPS data recv before arrive at first stop')
+                    currentidx, lefttime, abntime = mBus.locCoreAlgorithm(currentidx, lefttime, busrec, station, lon, lat)
+                else:
+                    #GPS data recv after the first stop
+                    #should find the nearest station index for current bus location
+                    currentidx = mBus.getnearstation(station, lon, lat)
+                    print('!!!GPS data recv after the first stop latest index is:' +str(currentidx))
+            else:
+                #already recv valid gps data after enter shuttle bus time
+                #re-calculate the left distance and left time
+                currentidx = busrec.curridx
+                print('!!!re-calculate the left distance and left time current idex:'+str(currentidx))
+                currentidx, lefttime, abntime = mBus.locCoreAlgorithm(currentidx, lefttime, busrec, station, lon, lat)
+
+        else:
+            #not in shuttle bus time, return invalid data
+            print('!!!not in shuttle bus time, return invalid data')
+          
+        return currentidx, lefttime, abntime
+
+    @staticmethod
     def update_gps(json_post):
+        #parse json data
         equip_id = json_post.get('bus_equip_id')
         lat = json_post.get('bus_lat')
         lon = json_post.get('bus_lon')
@@ -204,9 +390,12 @@ class mBus(db.Model):
         else:
             datetimeobj = datetime.strptime('2000-01-01T12:12:12', '%Y-%m-%dT%H:%M:%S')
 
+        #update
         busrec = mBus.query.filter_by(equip_id=equip_id).first()
         if busrec is not None:
-            #update
+            #first update location
+            busrec.curridx, busrec.lefttime, busrec.abntime = mBus.calbuslocation(busrec, lon, lat)
+            #next update json data
             busrec.equip_id = equip_id
             busrec.lat = lat
             busrec.lon = lon

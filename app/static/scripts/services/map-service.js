@@ -58,7 +58,7 @@ angular.module('hwmobilebusApp')
         var markerarray = [];
 
         for (var loopi=0; loopi<stations.length;loopi++){
-            pointArray[loopi] = new BMap.Point(stations[loopi].lat,stations[loopi].lon);
+            pointArray[loopi] = new BMap.Point(stations[loopi].lon, stations[loopi].lat);
         }
 
         /* save internal stations(except start/end station) */
@@ -126,7 +126,7 @@ angular.module('hwmobilebusApp')
             mapobj.markerarray = markerarray;
         }
     };
-
+    /* create marker for map edit */
     this.createmarker = function (id, selectid) {
         /* create a dtragable marker on the center of current map */
         var mapCenter = mapedit.map.getCenter();
@@ -143,9 +143,71 @@ angular.module('hwmobilebusApp')
         newmarker.selectid = selectid;
         newmarker.id = id;
         return newmarker;
+    };
+
+    this.removemarker = function (ismapedit, marker) {
+        if (true == ismapedit) {
+            mapedit.map.removeOverlay(marker);
+        } else {
+            map.map.removeOverlay(marker);
+        }
+    };
+
+    this.getDist = function(ismapedit, point1, point2) {
+        if (false == ismapedit) {
+            var maplocal = map.map;
+        } else {
+            var maplocal = mapedit.map;
+        }
+        var pttarget = new BMap.Point(point1.lon, point1.lat);
+        var ptsrc = new BMap.Point(point2.lon, point2.lat);
+        var dist = (maplocal.getDistance(ptsrc, pttarget)).toFixed(2);
+        return dist;
     }
 
-    this.removemarker = function (marker) {
-        mapedit.map.removeOverlay(marker);
+    this.updatemarker = function (ismapedit, oldmarker, lon, lat) {
+        if (null != oldmarker) {
+            this.removemarker(ismapedit, oldmarker);
+        }
+        var point = new BMap.Point(lon, lat);
+        //var iconpath = "/static/images/mappoint.png";
+        //var IconEntity = new BMap.Icon(iconpath, new BMap.Size(50, 36));
+        //var newmarker = new BMap.Marker(point, {icon: IconEntity});
+        var newmarker = new BMap.Marker(point);
+        if (false == ismapedit) {
+            map.map.addOverlay(newmarker);
+        } else {
+            mapedit.map.addOverlay(newmarker);
+        }
+        
+        return newmarker;
     }
+
+    /*
+    this.getnearstation = function (ismapedit, stations, point) {
+        var ptsrc;
+        var dist=0;
+        var disttarget=0;
+        var retidx=0;
+        if (false == ismapedit) {
+            var maplocal = map.map;
+        } else {
+            var maplocal = mapedit.map;
+        }
+
+        var pttarget = new BMap.Point(point.lng, point.lat);
+        for (var i=0; i<stations.length; i++) {
+            ptsrc = new BMap.Point(stations[i].lon, stations[i].lat);
+            dist = (maplocal.getDistance(ptsrc, pttarget)).toFixed(2);
+            dist = parseFloat(dist);
+            if (0==i) {
+                disttarget = dist;
+            }else if (dist < disttarget) {
+                retidx = i;
+                disttarget = dist;
+            }
+        }
+        return retidx;
+    };
+    */
   });

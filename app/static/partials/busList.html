@@ -30,13 +30,13 @@
 					<tbody>
 						<tr id="smallfont" ng-class="{ active: currentbus == bus.id }" 
 							ng-repeat="bus in allbus track by $index"
-							ng-click="gotoBus(bus.id)" >
+							ng-click="onselect(bus.id)" >
 							<th style="width:5%">
 								<div class="label label-as-badge round-custom">{a bus.number a}</div>
 							</th>
 							<th style="width:90%; vertical-align: middle">{a bus.name a}</td>
                             <th align="right" style="width:5%; vertical-align: middle">
-                                <a href="08&09xinzhuanglinecurrentlocation.html"><i class="glyphicon glyphicon-chevron-right" color="#707070"></i></a>
+                                <i class="glyphicon glyphicon-chevron-right" color="#707070"></i>
                             </th>
 						</tr>
 					</tbody>

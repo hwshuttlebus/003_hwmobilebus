@@ -13,6 +13,7 @@ angular.module('hwmobilebusApp')
     /* default direction to company */
     $scope.isDirToCompany = true;
     $scope.map = null;
+
     /* define campus */
     $scope.campus = [{Name: "李冰路", ename:"libingroad", ID: 1, longitude: 121.620443, latitude: 31.201002},
                      {Name: "环科路", ename:"huankeroad", ID: 2, longitude: 121.611466, latitude: 31.182958}];
@@ -34,8 +35,8 @@ angular.module('hwmobilebusApp')
       $scope.loadctrl.mapinfo = true;
       $scope.loadctrl.submit = false;
       $scope.selectedcampus = $scope.campus[0];
-      $scope.tocompanystations.push(InterfService.gencompstation(true, $scope.selectedcampus.longitude, $scope.selectedcampus.latitude));
-      $scope.tohomestations.push(InterfService.gencompstation(false, $scope.selectedcampus.longitude, $scope.selectedcampus.latitude));
+      $scope.tocompanystations.push(InterfService.gencompstation(true, $scope.selectedcampus.latitude, $scope.selectedcampus.longitude));
+      $scope.tohomestations.push(InterfService.gencompstation(false, $scope.selectedcampus.latitude, $scope.selectedcampus.longitude));
     };
 
     var initbusstation = function () {
@@ -67,8 +68,6 @@ angular.module('hwmobilebusApp')
         var stationinfo = [];
 
         stationinfo = inputstationinfo;
-        stationinfo.push(InterfService.gencompstation(true, $scope.selectedcampus.longitude, $scope.selectedcampus.latitude));
-        stationinfo.push(InterfService.gencompstation(false, $scope.selectedcampus.longitude, $scope.selectedcampus.latitude));
 
         for (var i=0; i<stationinfo.length; i++) {
           if (true == stationinfo[i].dirtocompany) {
@@ -101,6 +100,9 @@ angular.module('hwmobilebusApp')
               inputstations = $scope.tohomestations;
           }
           MapService.loadmapedit(maptemp, inputstations, loadmapcomplete);
+          if (inputstations.length < 2) {
+            $scope.loadctrl.mapinfo = false;
+          }
           /* state change to route loaded */
           RouteLoadFSM.maploaded = false;
           RouteLoadFSM.routeloaded = true;
@@ -217,16 +219,16 @@ angular.module('hwmobilebusApp')
         /* not in add new procedure , find the modified one */
         for (var i=0; i<newstations.length; i++) {
           if ((newstations[i].id == $scope.newmarker.id) && (newstations[i].selectid == $scope.newmarker.selectid)) {
-            newstations[i].lat = $scope.newmarker.marker.getPosition().lng;
-            newstations[i].lon = $scope.newmarker.marker.getPosition().lat;
+            newstations[i].lat = $scope.newmarker.marker.getPosition().lat;
+            newstations[i].lon = $scope.newmarker.marker.getPosition().lng;
             break;
           }
         }
       }
       /* sort by time */
-      InterfService.sortStation(newstations,$scope.newmarker.marker.getPosition().lng,$scope.newmarker.marker.getPosition().lat);
+      InterfService.sortStation(newstations,$scope.newmarker.marker.getPosition().lat,$scope.newmarker.marker.getPosition().lng);
       /* reload map */
-      MapService.removemarker($scope.newmarker.marker);
+      MapService.removemarker(true, $scope.newmarker.marker);
       MapService.refreshmap(true, newstations, loadmapcomplete);
       /* clear flag */
       if (newstations.length < 2) {
@@ -240,7 +242,7 @@ angular.module('hwmobilebusApp')
     $scope.editmapcancel = function () {
       $scope.editctrl.mapeditenable = false;
       $scope.editctrl.mapeditenablett = false;
-      MapService.removemarker($scope.newmarker.marker);
+      MapService.removemarker(true, $scope.newmarker.marker);
     };
 
     $scope.addnewstation = function () {
@@ -262,8 +264,8 @@ angular.module('hwmobilebusApp')
         campus: $scope.campus.ename,
         description: "",
         dirtocompany: $scope.isDirToCompany,
-        lat: $scope.newmarker.marker.getPosition().lng,
-        lon: $scope.newmarker.marker.getPosition().lat,
+        lat: $scope.newmarker.marker.getPosition().lat,
+        lon: $scope.newmarker.marker.getPosition().lng,
         name: "",
         time: "7:00",
         datetime: new Date("2018-01-01T07:00")
@@ -338,21 +340,17 @@ angular.module('hwmobilebusApp')
       /* ensure do not post company itself into database */
       busStationinfo.station_tocompany = [];
       busStationinfo.station_tohome = [];
-      for (var i=0; i<$scope.tocompanystations.length-1; i++) {
-        if ("company" != $scope.tocompanystations[i].id) {
-          /* transfer datetime to string */
-          var parsedDate = $filter('date')($scope.tocompanystations[i].datetime, 'HH:mm');
-          $scope.tocompanystations[i].time = parsedDate;
-          busStationinfo.station_tocompany.push($scope.tocompanystations[i]);
-        }
+      for (var i=0; i<$scope.tocompanystations.length; i++) {
+        /* transfer datetime to string */
+        var parsedDate = $filter('date')($scope.tocompanystations[i].datetime, 'HH:mm');
+        $scope.tocompanystations[i].time = parsedDate;
+        busStationinfo.station_tocompany.push($scope.tocompanystations[i]);
       }
-      for (var j=1; j<$scope.tohomestations.length; j++) {
-        if ("company" != $scope.tohomestations[j].id) {
-          /* transfer datetime to string */
-          var parsedDate = $filter('date')($scope.tohomestations[j].datetime, 'HH:mm');
-          $scope.tohomestations[j].time = parsedDate;
-          busStationinfo.station_tohome.push($scope.tohomestations[j]);
-        }
+      for (var j=0; j<$scope.tohomestations.length; j++) {
+        /* transfer datetime to string */
+        var parsedDate = $filter('date')($scope.tohomestations[j].datetime, 'HH:mm');
+        $scope.tohomestations[j].time = parsedDate;
+        busStationinfo.station_tohome.push($scope.tohomestations[j]);
       }
 
       console.log(JSON.stringify(busStationinfo,null, 4));

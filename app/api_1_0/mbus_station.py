@@ -198,7 +198,9 @@ def delete_bus(id):
     if busrec is not None:
         db.session.delete(busrec)
         db.session.commit()
-    return jsonify({'deleted bus:': busrec.to_json()})
+        return jsonify({'deleted bus:': busrec.to_json()})
+    else:
+        return jsonify({'ERROR!': 'busrec is None'})
 
 @api.route('/mbusdata/BusStation/station/delete/<int:id>',methods=['POST'])
 def delete_station(id):

@@ -8,11 +8,13 @@
  * Controller of the hwmobilebusApp
  */
 angular.module('hwmobilebusApp')
-  .controller('CurrentlocationCtrl', function ($scope, $http, $window, $location, BusinfoService, InterfService, MapService) {
+  .controller('CurrentlocationCtrl', function ($scope, $http, $window, $location, $interval, BusinfoService, InterfService, MapService) {
     /* location for libing Road campus */
     var longitude = 121.620443;
     var latitude = 31.201002;
+    var currentidx = 0; /* current index in stations */
     var maptemp;
+    var busmarker = null;
     /* state machine for load route */
     var RouteLoadFSM = {
       initstate: true,
@@ -21,10 +23,35 @@ angular.module('hwmobilebusApp')
       routeloaded: false
     };
     
-    
     var loadmapcomplete = function () {
       $scope.loadctrl.mapinfo = false;
       $scope.$apply();
+    };
+
+    /* function to be called when all data is get */
+    var allinfoget = function () {
+      /* update station as per direction */
+      updatestation();
+      /* update current html attribute */
+      updateattr();
+      /* state change to route loaded */
+      RouteLoadFSM.maploaded = false;
+      RouteLoadFSM.routeloaded = true;
+    };
+
+    var getbus = function (isinit) {
+      BusinfoService.getbusinfo({id:$scope.busid}, function(businfo) {
+        $scope.businfo = businfo;
+        $scope.loadctrl.businfo = false;
+
+        /* during periodic procedure, update location after get bus info */
+        if (false == isinit) {
+          /* update current html attribute */
+          updateattr();
+        }
+      }, function (error) {
+        console.log('error:'+error.status);
+      });
     };
 
     var initbusstation = function () {
@@ -33,12 +60,7 @@ angular.module('hwmobilebusApp')
       $scope.loadctrl.stationinfo = true;
       $scope.loadctrl.mapinfo = true;
       /* store all bus info */
-      BusinfoService.getbusinfo({id:$scope.busid}, function(businfo) {
-        $scope.businfo = businfo;
-        $scope.loadctrl.businfo = false;
-      }, function (error) {
-        console.log('error:'+error.status);
-      });
+      getbus(true);
 
       /* get all station info */
       BusinfoService.getstationinfo({id: $scope.busid}, function (inputstationinfo) {
@@ -48,8 +70,6 @@ angular.module('hwmobilebusApp')
         var stationinfo = [];
 
         stationinfo = inputstationinfo;
-        stationinfo.push(InterfService.gencompstation(true, longitude, latitude));
-        stationinfo.push(InterfService.gencompstation(false, longitude, latitude));
 
         for (var i=0; i<stationinfo.length; i++) {
           if (true == stationinfo[i].dirtocompany) {
@@ -80,14 +100,11 @@ angular.module('hwmobilebusApp')
               inputstations = $scope.tohomestations;
           }
           MapService.loadmap(maptemp, inputstations, loadmapcomplete);
-          /* state change to route loaded */
-          RouteLoadFSM.maploaded = false;
-          RouteLoadFSM.routeloaded = true;
+          allinfoget();
         } else if (true == RouteLoadFSM.initstate) {
           RouteLoadFSM.initstate = false;
           RouteLoadFSM.stationget = true;
         }
-
         $scope.loadctrl.stationinfo = false;
       }, function (error) {
 
@@ -102,6 +119,63 @@ angular.module('hwmobilebusApp')
       }
     };
 
+    /* function to update specific attribute in html based on result of server */
+    var updateattr = function () {
+      var distance, lefttime;
+      /* recalculate lefttime in Integer:  the smallest integer greater than or equal to a number. */
+      lefttime = Math.ceil($scope.businfo.lefttime);
+      if (0 ==  lefttime) {
+        lefttime = 1;
+      }
+      /* update html attribute */
+      for (var i=0; i<$scope.stations.length; i++) {
+        if (0xFF == $scope.businfo.currindx) {
+          $scope.stations[i].attr3 = "greyout";
+          $scope.stations[i].attr2 = "greyout";
+          $scope.stations[i].attr1 = "greyout";
+          $scope.stations[i].locinfo = "不在班车运行时间内"
+        } else {
+          if (i <= $scope.businfo.currindx) {
+            $scope.stations[i].attr3 = "greyout";
+            $scope.stations[i].attr2 = "greyout";
+            $scope.stations[i].attr1 = "greyout";
+            $scope.stations[i].locinfo = "已到站"
+          } else if ((i>$scope.businfo.currindx) && (i<($scope.stations.length-1))){
+            $scope.stations[i].attr3 = "";
+            $scope.stations[i].attr2 = "";
+            $scope.stations[i].attr1 = "normal";
+            if (i != ($scope.businfo.currindx+1)) {
+              $scope.stations[i].attr1 = "";
+              distance = MapService.getDist(false, $scope.stations[$scope.businfo.currindx+1], $scope.stations[i+1]);
+              lefttime = Math.ceil(lefttime+distance*1.5/15/60);
+            }
+            $scope.stations[i].locinfo = "约"+lefttime+"分钟";
+          } else/* i == $scope.stations.length-1 */ {
+            $scope.stations[i].attr3 = "redhighlight";
+            $scope.stations[i].attr2 = "";
+            $scope.stations[i].attr1 = "";
+            if ($scope.businfo.currindx == $scope.stations.length) {
+              $scope.stations[i].locinfo = "已到站"
+            } else if ($scope.businfo.currindx == ($scope.stations.length-1)){
+              $scope.stations[i].locinfo = "约"+lefttime+"分钟";
+            } else {
+              distance = MapService.getDist(false, $scope.stations[$scope.businfo.currindx+1], $scope.stations[i]);
+              lefttime = Math.ceil(lefttime+distance*1.5/15/60);
+              $scope.stations[i].locinfo = "约"+lefttime+"分钟";
+            }
+          } 
+        }
+        /* update map bus marker */
+        busmarker =  MapService.updatemarker(false, busmarker, $scope.businfo.lon, $scope.businfo.lat);
+      }
+    };
+
+    var updateloc = function () {
+      getbus(false);
+    };
+
+    /* update location for every 3 seconds */
+    var myInterval = $interval(updateloc, 3000);
 
     $scope.usedseat= "";
     $scope.tocompanystations = [];
@@ -151,9 +225,7 @@ angular.module('hwmobilebusApp')
       if (true == RouteLoadFSM.stationget) {
         /* loadmap when station is get or in newly added bus procedure */
         MapService.loadmap(map, inputstations, loadmapcomplete);
-        /* enter route loaded state */
-        RouteLoadFSM.stationget = false;
-        RouteLoadFSM.routeloaded = true;
+        allinfoget();
         if (inputstations.length < 2) {
           $scope.loadctrl.mapinfo = false;
         }
@@ -168,4 +240,8 @@ angular.module('hwmobilebusApp')
       updatestation();
     });
 
+    /* stop periodical get after route change */
+    $scope.$on("$destroy", function() {
+      $interval.cancel(myInterval);
+    });
 });

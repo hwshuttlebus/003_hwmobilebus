@@ -66,103 +66,21 @@
                 <tbody>
                     <tr ng-repeat="station in stations track by $index">
                         <th style="width:5%">
-                            <div class="label label-as-badge pin-custom">
+                            <div ng-attr-id="{a station.attr3 a}" class="label label-as-badge pin-custom">
                                 <span>{a station.char a}</span>
                             </div>
                         </th>
                         <td>
-                            <p class="text-muted">{a station.name a}</p>
-                            <small class="text-muted">{a station.description a}</small>
+                            <p id="{a station.attr1 + 'font' a}"  class="text-muted">{a station.name a}</p>
+                            <small id="{a station.attr2 + 'font' a}" class="text-muted">{a station.description a}</small>
                         </td>
                         <td align="right">
-                            <p class="text-muted">07:05<span>发车</span></p>
-                            <small class="text-muted">计划<span>{a station.time a}</span><span>发车</span></small>
+                            <p id="{a station.attr1 + 'font' a}" class="text-muted">{a station.locinfo a}</p>
+                            <small id="{a station.attr2 + 'font' a}" class="text-muted">计划<span>{a station.time a}</span><span>到站</span></small>
                         </td>
                     </tr>
                 </tbody>
             </table>
-
-            <uib-tabset active="active">
-                <uib-tab index="0" heading="上行" select="tocomptabselect()">
-                    <table class="table">
-                        <tbody>
-                           
-                            <tr>
-                                <td>
-                                    <img src="cat.jpg" align="left" width="50px">
-                                </td>
-                                <td>
-                                    <p class="text-muted">莘松路莘东路</p>
-                                    <small class="text-muted">工商银行对面</small>
-                                </td>
-                                <td align="right">
-                                    <p class="text-muted">07:10<span>发车</span></p>
-                                    <small class="text-muted">计划<span>07:08</span><span>发车</span></small>
-                                </td>
-                            </tr>
-                            <tr>
-                                <td>
-                                    <img src="cat.jpg" align="left" width="50px">
-                                </td>
-                                <td>
-                                    <p><strong class="text-success">莘建东路<span class="text-primary"> 离我最近</span></strong></p>
-                                    <small class="text-muted">绿地科技岛广场对面</small>
-                                </td>
-                                <td align="right">
-                                    <p><strong class="text-success">约<span>7</span><span>分钟</span></strong></p>
-                                    <small class="text-muted">计划<span>07:20</span><span>发车</span></small>
-                                </td>
-                            </tr>
-                            <tr>
-                                <td>
-                                    <img src="cat.jpg" align="left" width="50px">
-                                </td>
-                                <td>
-                                    <p><strong>沪闵路报春路</strong></p>
-                                    <small class="text-muted"></small>
-                                </td>
-                                <td align="right">
-                                    <p class="text-muted">约<span>15</span><span>分钟</span></p>
-                                    <small class="text-muted">计划<span>07:25</span><span>发车</span></small>
-                                </td>
-                            </tr>
-                            <tr>
-                                <td>
-                                    <img src="cat.jpg" align="left" width="50px">
-                                </td>
-                                <td>
-                                    <p><strong>霍尼韦尔</strong></p>
-                                    <small class="text-muted"></small>
-                                </td>
-                                <td align="right">
-                                    <p class="text-muted">约<span>55</span><span>分钟</span></p>
-                                    <small class="text-muted">计划<span>07:30</span><span>到达</span></small>
-                                </td>
-                            </tr>
-                        </tbody>
-                    </table>
-                </uib-tab>
-                <uib-tab index="1" heading="下行" select="tohometabselect()">
-                    <img src="cat.jpg" align="center" width="100%">
-                    <table class="table">
-                        <tbody>
-                            <tr ng-repeat="station2 in tohomestations track by $index">
-                                <td>
-                                    <img src="cat.jpg" align="left" width="50px">
-                                </td>
-                                <td>
-                                    <p class="text-muted">{a station2.name a}</p>
-                                    <small class="text-muted">{a station2.description a}</small>
-                                </td>
-                                <td align="right">
-                                    <p class="text-muted">07:05<span>发车</span></p>
-                                    <small class="text-muted">计划<span>{a station2.time a}</span><span>到达</span></small>
-                                </td>
-                            </tr>
-                        </tbody>
-                    </table>
-                </uib-tab>
-            </uib-tabset>
         </div>
         <div class="col-md-8 column">
             <button type="button" class="btn btn-primary btn-block" ng-click="reload()">点击刷新地图</button>
