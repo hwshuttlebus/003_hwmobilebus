@@ -2,7 +2,7 @@ from . import db
 from . import login_manager
 from datetime import datetime
 from .exceptions import ValidationError
-from flask_login import UserMixin
+from flask_login import UserMixin, AnonymousUserMixin
 from werkzeug.security import generate_password_hash, check_password_hash
 from itsdangerous import TimedJSONWebSignatureSerializer as Serializer
 from flask import current_app, url_for
@@ -471,6 +471,7 @@ class mUser(UserMixin, db.Model):
     password_hash = db.Column(db.String(128))
     role_id = db.Column(db.Integer, db.ForeignKey('mroles.id'))
     confirmed = db.Column(db.Boolean, default=False)
+    campus = db.Column(db.String(64), default="")
     posts = db.relationship('mPost', backref='author', lazy='dynamic')
     stations = db.relationship('mStation',
                                secondary=registrations,
@@ -500,6 +501,22 @@ class mUser(UserMixin, db.Model):
         s = Serializer(current_app.config['SECRET_KEY'], expires_in=expiration)
         return s.dumps({'confirm': self.id})
 
+    def generate_reset_token(self, expiration=7200):
+        s = Serializer(current_app.config['SECRET_KEY'], expiration)
+        return s.dumps({'reset': self.id})
+
+    def reset_password(self, token, new_password):
+        s = Serializer(current_app.config['SECRET_KEY'])
+        try:
+            data = s.loads(token)
+        except:
+            return False
+        if data.get('reset') != self.id:
+            return False
+        self.password = new_password
+        db.session.add(self)
+        return True
+
     def confirm(self, token):
         s = Serializer(current_app.config['SECRET_KEY'])
         try:
@@ -519,13 +536,14 @@ class mUser(UserMixin, db.Model):
         json_post = {
             'id' : self.id,
             'mailaddr' : self.mailaddr,
+            'campus': self.campus
         }
         return json_post
 
     @staticmethod
     def from_json(json_post):
         mailaddr = json_post.get('mailaddr')
-        return mUser(mailaddr=mailaddr)
+        return mUser(mailaddr=mailaddr, campus=campus)
 
 class mPost(db.Model):
     __tablename__ = 'mposts'
@@ -534,6 +552,22 @@ class mPost(db.Model):
     timestamp = db.Column(db.DateTime, index=True, default=datetime.utcnow)
     author_id = db.Column(db.Integer, db.ForeignKey('musers.id'))
     body_html = db.Column(db.Text)
+
+class AnoymousUser(AnonymousUserMixin):
+    def can(self, permissions):
+        return False
+
+    def is_administrator(self):
+        return False
+
+login_manager.anonymous_user = AnoymousUser
+
+
+@login_manager.user_loader
+def load_user(userid):
+    print('hzjhzjhzj!!!!!!!!!!!')
+    print(mUser.query.get(int(userid)))
+    return mUser.query.get(int(userid))
 
 class DiagramData(db.Model):
     __tablename__ = 'diagrams'
@@ -571,9 +605,8 @@ class DiagramData(db.Model):
                            current_num=current_num)
 
 
-@login_manager.user_loader
-def load_user(user_id):
-    return mUser.query.get(int(user_id))
+
+
 
 
 

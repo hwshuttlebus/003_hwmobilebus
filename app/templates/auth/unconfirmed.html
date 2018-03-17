@@ -1,0 +1,17 @@
+{% extends "base.html" %}
+
+{% block title %}Mobilebus - 请确认您的帐号{% endblock %}
+
+{% block page_content %}
+<div class="page-header">
+    <h3>您还未确认帐号！</h3>
+    <p>
+        在登录并使用Mobilebus服务前必须确认您的帐号
+        请在您的公司邮箱内找到确认邮件并点击确认链接！
+    </p>
+    <p>
+        是否需要重发一封确认邮件？
+        <a href="{{ url_for('auth.resend_confirmation') }}">点我重发</a>
+    </p>
+</div>
+{% endblock %}

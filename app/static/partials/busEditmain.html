@@ -228,7 +228,7 @@
 				<label class="text"></label>
 			</div>
 			<div class="col-md-6">
-				<button type="button" class="btn btn-danger btn-block" ng-disabled="!editctrl.cancel" ng-click="cancelmodify()">取消</button>
+				<button type="button" class="btn btn-block btn-danger " ng-disabled="!editctrl.cancel" ng-click="cancelmodify()">取消</button>
 			</div>
 			<div class="col-md-6">
 				<button type="button" class="btn btn-primary btn-block" ng-disabled="!editctrl.submit || editctrl.mapeditenable || !busList.$valid" ng-click="submit()"
@@ -253,11 +253,15 @@
 			</baidu-map>
 		</div>
 		<div class="col-md-4 column">
-			<button type="button" class="btn btn-danger btn-block" ng-disabled="!editctrl.mapeditenable" ng-click="editmapcancel()" >取消</button>
+			<button type="button" class="btn btn-block btn-danger " ng-disabled="!editctrl.mapeditenable" ng-click="editmapcancel()" >取消</button>
 		</div>
 		<div class="col-md-4 column">
 			<button type="button" class="btn btn-primary btn-block" ng-disabled="!editctrl.mapeditenable" ng-click="editmapsubmit()"
 			uib-tooltip="拖动地图上的新增红点到新位置而后点击确认以修改" tooltip-is-open="tooltipctrl.mapeditenablett" tooltip-placement="bottom">确定</button>
+		</div>
+		<div class="col-md-8 column">
+			<p>线路总长：{a driveinfo.distance a}</p>
+			<p>预计时间：{a driveinfo.time a}</p>
 		</div>
 	</div>
 </div>

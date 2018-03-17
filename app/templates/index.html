@@ -1,9 +1,42 @@
 {% extends "base.html" %}
 
 {% block page_content %}
-<body ng-app="hwmobilebusApp">
-    <div  ng-view>
-    </div>
-</body>
+    <body ng-app="hwmobilebusApp">
+        <div  ng-view>
+        </div>
+    </body>
 {% endblock %}
+
+
+{% block scripts %}
+    {{ super() }}
+    <script src="/static/lib/bower_components/angular/angular.js"></script>
+    <script src="/static/lib/bower_components/angular-animate/angular-animate.js"></script>
+    <script src="/static/lib/bower_components/angular-cookies/angular-cookies.js"></script>
+    <script src="/static/lib/bower_components/angular-resource/angular-resource.js"></script>
+    <script src="/static/lib/bower_components/angular-route/angular-route.js"></script>
+    <script src="/static/lib/bower_components/angular-sanitize/angular-sanitize.js"></script>
+    <script src="/static/lib/bower_components/angular-touch/angular-touch.js"></script>
+    <script src="/static/lib/bower_components/angular-baidu-map/dist/angular-baidu-map.min.js"></script>
+    <script src="/static/lib/bower_components/angular-ui-bootstrap/ui-bootstrap-tpls-0.14.3.min.js"></script>    <!-- endbower -->
+
+    <script src="/static/scripts/app.js"></script>
+    <script src="/static/scripts/controllers/currentlocation.js"></script>
+    <script src="/static/scripts/services/businfo-service.js"></script>
+    <script src="/static/scripts/services/map-service.js"></script>
+    <script src="/static/scripts/services/interf-service.js"></script>
+    <script src="/static/scripts/controllers/baidumap.js"></script>
+    <script src="/static/scripts/directives/mbus-baidumap.js"></script>
+    <script src="/static/scripts/directives/mbus-loading.js"></script>
+    <script src="/static/scripts/controllers/modalopen.js"></script>
+    <script src="/static/scripts/controllers/mapedit.js"></script>
+    <script src="/static/scripts/controllers/busedit.js"></script>
+    <script src="/static/scripts/controllers/buslist.js"></script>
+{% endblock %}
+
+
+    
+
+    
+
 

@@ -26,9 +26,6 @@ angular.module('hwmobilebusApp')
           method: 'GET',
           isArray: true,
           url: BASE+'mbusdata/BusStation/businfo/',
-          params: {
-            id: '@id'
-          }
         },
         getstationinfo: {
           method: 'GET',

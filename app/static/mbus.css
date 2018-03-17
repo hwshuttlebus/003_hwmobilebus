@@ -129,6 +129,10 @@ baidu-map {
 	background-color:  #1792E5;
 }
 
+.btn-block{
+	color: white;
+}
+
 .label.round-custom {
 	display:inline-block;
 	height: 50px;
@@ -197,6 +201,7 @@ baidu-map {
     background-color: rgba(255,255,255,.15);
 }
 
+
 .search-input {
     border-left: 0;
 }
@@ -209,4 +214,15 @@ baidu-map {
 #smallfont {
 	font-family: SimHei;
 	font-size: 15px;
+}
+
+.logo {
+	height: 55px;
+	line-height: 100%;
+	width: 200px;
+	background: url(/static/images/hwlogo.svg);
+	background-size: 200px;
+	background-position: center;
+	margin-left: 80px;
+	border-style:  100px;
 }

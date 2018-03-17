@@ -55,8 +55,6 @@ angular.module('hwmobilebusApp')
           }
           stations[i].selectid = i;
         }
-
-        return stations;
       };
 
     /* common function to generate default station for company campus */

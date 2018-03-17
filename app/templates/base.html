@@ -6,39 +6,44 @@
 {% block head %}
 {{ super() }}
 <link rel="stylesheet" type="text/css" href="{{ url_for('static', filename='mbus.css') }}"
-
 {% endblock %}
 
+{% block navbar %}
+<div class="navbar navbar-inverse" role="navigation">
+    <div class="container">
+        <div class="navbar-header">
+            <button type="button" class="navbar-toggle" data-toggle="collapse" data-target=".navbar-collapse">
+                <span class="sr-only">Toggle navigation</span>
+                <span class="icon-bar"></span>
+                <span class="icon-bar"></span>
+                <span class="icon-bar"></span>
+            </button>
+            <a class="navbar-brand" href="{{ url_for('main.index') }}">Mobilebus</a>
+        </div>
+        <div class="navbar-collapse collapse">
+            <ul class="nav navbar-nav navbar-right">
+                {% if current_user.is_authenticated %}
+                <li><a href="{{ url_for('auth.logout') }}">登出</a></li>
+                {% else %}
+                <li><a href="{{ url_for('auth.login') }}">登入</a></li>
+                {% endif %}
+            </ul>
+        </div>
+    </div>
+    
+</div>
+{% endblock %}
 
 {% block content %}
 <div class='container'>
+    {% for message in get_flashed_messages() %}
+    <div class="alert alert-warning">
+        <button type="button" class="close" data-dismiss="alert">&times;</button>
+        {{ message }}
+    </div>
+    {% endfor %}
+
     {% block page_content %}{% endblock %}
 </div>
 {% endblock %}
 
-
-{% block scripts %}
-{{ super() }}
-<script src="/static/lib/bower_components/angular/angular.js"></script>
-<script src="/static/lib/bower_components/angular-animate/angular-animate.js"></script>
-<script src="/static/lib/bower_components/angular-cookies/angular-cookies.js"></script>
-<script src="/static/lib/bower_components/angular-resource/angular-resource.js"></script>
-<script src="/static/lib/bower_components/angular-route/angular-route.js"></script>
-<script src="/static/lib/bower_components/angular-sanitize/angular-sanitize.js"></script>
-<script src="/static/lib/bower_components/angular-touch/angular-touch.js"></script>
-<script src="/static/lib/bower_components/angular-baidu-map/dist/angular-baidu-map.min.js"></script>
-<script src="/static/lib/bower_components/angular-ui-bootstrap/ui-bootstrap-tpls-0.14.3.min.js"></script>    <!-- endbower -->
-
-<script src="/static/scripts/app.js"></script>
-<script src="/static/scripts/controllers/currentlocation.js"></script>
-<script src="/static/scripts/services/businfo-service.js"></script>
-<script src="/static/scripts/services/map-service.js"></script>
-<script src="/static/scripts/services/interf-service.js"></script>
-<script src="/static/scripts/controllers/baidumap.js"></script>
-<script src="/static/scripts/directives/mbus-baidumap.js"></script>
-<script src="/static/scripts/directives/mbus-loading.js"></script>
-<script src="/static/scripts/controllers/modalopen.js"></script>
-<script src="/static/scripts/controllers/mapedit.js"></script>
-<script src="/static/scripts/controllers/busedit.js"></script>
-<script src="/static/scripts/controllers/buslist.js"></script>
-{% endblock %}

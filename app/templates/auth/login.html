@@ -1,0 +1,44 @@
+{% extends "base.html" %}
+{% import "bootstrap/wtf.html" as wtf %}
+
+{% block title %} 登录Mobilebus {% endblock %}
+
+{% block page_content %}
+    <div class="logo">&nbsp</div>
+    <label class="col-xs-12 control-label">&nbsp</label>
+    <label class="col-xs-12 control-label">&nbsp</label>
+    <label class="col-xs-12 control-label">&nbsp</label>
+    <label class="col-xs-12 control-label">&nbsp</label>
+    <div class="col-md-5">
+        <form action method="post" class="form" role="form" id="smallfont">
+            {{ form.hidden_tag() }}
+            <div class="form-group">
+                <div class="col-xs-6">
+                    {{ wtf.form_field(form.mailaddr) }}
+                </div>
+                <label class="col-xs-6 control-label">&nbsp</label>
+                <label class="col-xs-6 control-label" style="position:relative; padding-left:0; font-family: Helvetica Neue Helvetica,Arial,sans-serif;">@honeywell.com</label>
+            </div>
+            <div class="col-xs-12">
+                {{ wtf.form_field(form.password) }}
+            </div>
+            <div class="col-xs-12">
+                <div class="col-xs-8 column">
+                    {{ wtf.form_field(form.remember_me)}}
+                </div>
+                <label class="col-xs-4 column" style="text-decoration: underline; padding-top:10px">
+                    <a href="{{ url_for('auth.register') }}">新用户注册</a>
+                </label>
+            </div>
+            <label class="col-xs-12 control-label">&nbsp</label>
+            <label class="col-xs-12 control-label">&nbsp</label>
+            <label class="col-xs-12 control-label">&nbsp</label>
+            <div class="col-xs-12">
+                {{ wtf.form_field(form.submit, button_map={'submit': 'block btn-primary'})}}
+            </div>
+            <div class="col-xs-12" style="position:fixed; bottom:0px; text-decoration: underline;">
+                <p><a href="{{ url_for('auth.password_reset_request') }}">忘记密码?</a></p>
+            </div>
+        </form>
+    </div>
+{% endblock %}

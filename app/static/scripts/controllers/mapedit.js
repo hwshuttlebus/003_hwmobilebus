@@ -13,13 +13,21 @@ angular.module('hwmobilebusApp')
     /* default direction to company */
     $scope.isDirToCompany = true;
     $scope.map = null;
+    $scope.driveinfo = {
+      distance: 0,
+      time: 0
+    }
 
     /* define campus */
     $scope.campus = [{Name: "李冰路", ename:"libingroad", ID: 1, longitude: 121.620443, latitude: 31.201002},
                      {Name: "环科路", ename:"huankeroad", ID: 2, longitude: 121.611466, latitude: 31.182958}];
 
     
-    var loadmapcomplete = function () {
+    var loadmapcomplete = function (result) {
+      /* calculate duration and distance based on search result */
+      $scope.driveinfo.distance = MapService.getDistancefromResult(result);
+      $scope.driveinfo.time = MapService.getdurationfromResult(result);
+      /* update map element in html */
       $scope.loadctrl.mapinfo = false;
       $scope.$apply();
     };
@@ -86,6 +94,9 @@ angular.module('hwmobilebusApp')
             $scope.tohomestations.push(templocal);
           }
         }
+
+        InterfService.sortStation($scope.tohomestations);
+        InterfService.sortStation($scope.tocompanystations);
 
         /* backup */
         $scope.oldtocompstation = angular.copy($scope.tocompanystations);

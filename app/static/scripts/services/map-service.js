@@ -182,6 +182,16 @@ angular.module('hwmobilebusApp')
         
         return newmarker;
     }
+    /* get duration from search result */
+    this.getdurationfromResult = function (results) {
+        var plan = results.getPlan(0);
+		return plan.getDuration(true);
+    };
+    /* get distance from search result */
+    this.getDistancefromResult = function(results) {
+        var plan = results.getPlan(0);
+        return plan.getDistance(true);
+    };
 
     /*
     this.getnearstation = function (ismapedit, stations, point) {

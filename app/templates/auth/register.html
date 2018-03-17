@@ -1,0 +1,45 @@
+{% extends "base.html" %}
+{% import "bootstrap/wtf.html" as wtf %}
+
+{% block title %}Mobilebus - 注册{% endblock %}
+
+{% block page_content %}
+    <div class="col-md-5">
+        <form action method="post" class="form" role="form" id="smallfont">
+            {{ form.hidden_tag() }}
+            <div class="form-group">
+                <div class="col-xs-6">
+                    {{ wtf.form_field(form.mailaddr) }}
+                </div>
+                <label class="col-xs-6 control-label">&nbsp</label>
+                <label class="col-xs-6 control-label" style="position:relative; padding-left:0; font-family: Helvetica Neue Helvetica,Arial,sans-serif;">@honeywell.com</label>
+            </div>
+            <div class="col-xs-12">
+                {{ wtf.form_field(form.password) }}
+            </div>
+            <div class="col-xs-12">
+                {{ wtf.form_field(form.password2) }}
+            </div>
+            <div class="col-xs-12">
+                <table class="table">
+                    <tbody>
+                        <tr>
+                            <td>办公地点：</td>
+                        {% for subfield in form.campus %}
+                
+                                <td>{{ subfield }}</td>
+                                <td>{{ subfield.label }}</td>
+                            
+                        {% endfor %}
+                    </tr>
+                    </tbody>
+                </table>
+            </div>
+            <div class="col-xs-12">
+                {{ wtf.form_field(form.submit, button_map={'submit': 'block btn-primary'})}}
+            </div>
+            
+        </form>
+    </div>
+    
+{% endblock %}
