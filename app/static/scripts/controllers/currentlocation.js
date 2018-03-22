@@ -8,7 +8,7 @@
  * Controller of the hwmobilebusApp
  */
 angular.module('hwmobilebusApp')
-  .controller('CurrentlocationCtrl', function ($scope, $http, $window, $location, $interval, BusinfoService, InterfService, MapService) {
+  .controller('CurrentlocationCtrl', function ($scope, $window, $location, $interval, BusinfoService, InterfService, MapService) {
     /* location for libing Road campus */
     var longitude = 121.620443;
     var latitude = 31.201002;

@@ -1,0 +1,60 @@
+{% extends "base.html" %}
+
+{% block title %}Mobilebus - {{ user.mailaddr }}{% endblock %}
+
+{% block page_content %}
+<div class="row clearfix" id="smallfont">
+    <div class="col-md-5 column">
+        <form class="form-horizontal" role="form">
+            <div class="form-group" style="font-family:Arial">
+                <h4 class="col-xs-4 control-label" style="text-align: right;">Email:</h4>
+                <h4 class="col-xs-8 control-label" style="text-align: left;"><a href="mailto:{{ user.mailaddr }}">{{ user.mailaddr }}</a></h4>
+            </div>
+            {% if user.name %}
+            <div class="form-group">
+                <p class="col-xs-4 control-label" style="text-align: right">姓名：</p>
+                <p class="col-xs-8 control-label" style="text-align: left;">{{ user.name }}</p>
+            </div>
+            {% endif %}
+            <div class="form-group">
+                <p class="col-xs-4 control-label" style="text-align: right;">办公地点：</p>
+                <p class="col-xs-8 control-label" style="text-align: left;">{% if user.campus == "libingroad" %}李冰路{% else %}环科路{% endif %}</p>
+            </div>
+            <div class="form-group">
+                <p class="col-xs-4 control-label" style="text-align: right;">注册时间：</p>
+                <p class="col-xs-8 control-label" style="text-align: left;">{{ moment(user.member_since).format('LLL') }}.</p>
+            </div>
+            <div class="form-group">
+                <p class="col-xs-4 control-label" style="text-align: right;">最近登录：</p>
+                <p class="col-xs-8 control-label" style="text-align: left;">{{ moment(user.last_seen).format('LLL') }}.</p>
+            </div>
+        </form>
+        <div class="col-xs-4 column">
+            {% if  current_user.is_administrator() %}
+                <a class="btn btn-block btn-primary" href="{{ url_for('.edit_profile_admin', id=user.id) }}">编辑</a> 
+            {% else %}
+                {% if user == current_user %}
+                    <a class="btn btn-block btn-primary" href="{{ url_for('.edit_profile') }} ">编辑</a>
+                {% endif %}    
+            {% endif %}
+        </div>
+        <div class="col-xs-4 column">
+            {% if  current_user.is_administrator() %}
+                <a class="btn btn-block btn-primary" href="{{ url_for('auth.change_password_admin', id=user.id) }}">修改密码</a>
+            {% else %}
+                {% if user == current_user  %}
+                    <a class="btn btn-block btn-primary" href=" {{ url_for('auth.change_password') }}">修改密码</a>
+                {% endif %}
+            {% endif %}
+        </div>
+        {% if current_user.is_administrator() %}
+            <div class="col-xs-12 column">
+                <label class="text"></label>
+            </div>
+            <div class="col-xs-4 column">
+                <a class="btn btn-block btn-danger" href="{{ url_for('.del_user', id=user.id) }}">删除用户</a>
+            </div>
+        {% endif %}
+    </div>
+</div>
+{% endblock %}

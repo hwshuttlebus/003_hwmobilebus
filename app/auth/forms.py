@@ -17,6 +17,7 @@ class RegistrationForm(FlaskForm):
         ('libingroad', u'李冰路'),
         ('huankeroad', u'环科路')],
         default = 'libingroad', validators=[Required()])
+
     submit = SubmitField('注册')
 
     def validate_mailaddr(self, field):
@@ -57,7 +58,7 @@ class LoginForm(FlaskForm):
 class PasswordResetRequestForm(FlaskForm):
     mailaddr = StringField('', validators=[Required(), Length(1, 64)],\
                                 render_kw={"placeholder": "email"})
-    submit = SubmitField('重置密码')
+    submit = SubmitField('发送重置密码邮件')
 
     def validate_mailaddr(self, field):
         value = field.data + '@honeywell.com'
@@ -70,15 +71,32 @@ class PasswordResetRequestForm(FlaskForm):
         if not user_regex.match(user_part):
             raise ValidationError('邮箱地址无效！')
 
+class ChangePasswordForm(FlaskForm):
+    old_password = PasswordField('', validators=[Required(), EqualTo('password2', message='两次输入密码需一致！')],\
+                                render_kw={"placeholder":"请输入旧密码"})
+    password = PasswordField('', validators=[Required(), EqualTo('password2', message='两次输入密码需一致！')],\
+                                render_kw={"placeholder":"请输入新密码"})
+    password2 = PasswordField('', validators=[Required()],\
+                                render_kw={"placeholder": "请再次确认新密码"})
+    submit = SubmitField('更新密码')
 
-def PasswordResetForm(FlaskForm):
+
+class ChangePasswordFormAdmin(FlaskForm):
+    password = PasswordField('', validators=[Required(), EqualTo('password2', message='两次输入密码需一致！')],\
+                                render_kw={"placeholder":"请输入新密码"})
+    password2 = PasswordField('', validators=[Required()],\
+                                render_kw={"placeholder": "请再次确认新密码"})
+    submit = SubmitField('更新密码')
+
+
+class PasswordResetForm(FlaskForm):
     mailaddr = StringField('', validators=[Required(), Length(1, 64)],\
                                 render_kw={"placeholder": "email"})
     password = PasswordField('', validators=[Required(), EqualTo('password2', message='两次输入密码需一致！')],\
                                 render_kw={"placeholder":"请输入密码"})
     password2 = PasswordField('', validators=[Required()],\
                                 render_kw={"placeholder": "请再次确认密码"})
-    submit = SubmitField('注册')
+    submit = SubmitField('确定')
 
     def validate_mailaddr(self, field):
         value = field.data + '@honeywell.com'

@@ -20,6 +20,12 @@ angular.module('hwmobilebusApp')
                 case "busCancel":
                     busCancehandle(items);
                     break;
+                case "suggest":
+                    suggesthandle(items);
+                    break;
+                case "postDel":
+                    postdelhandle(items);
+                    break;
                 default:
                     break;
             }
@@ -53,6 +59,21 @@ angular.module('hwmobilebusApp')
 
         var busCancehandle = function (items) {
             $location.url('/busListEdit');
+        };
+
+        var suggesthandle = function (items) {
+            $window.location.reload();
+        };
+
+        var postdelhandle = function (items) {
+            $scope.loadctrl.submit = true;
+            BusinfoService.delpost({id: items.delid}, function(res) {
+                $scope.loadctrl.submit = false;
+                $window.location.reload();
+            }, function (error) {
+                $scope.loadctrl.submit = false;
+                $window.location.reload();
+            });
         };
 
         var stationDelhandle = function (items) {

@@ -1,11 +1,13 @@
 'use strict';
 
 angular.module('hwmobilebusApp')
-    .service('InterfService', function () {
+    .service('InterfService', function ($uibModal) {
     /* this service will store all the information transfer between controllers */
     var busid = "newaddbus";
     var stationsTocomp = [];
     var stationsTohome = [];
+    var modalInstance = '';
+    
 
     this.setbusid = function (newid) {
         localStorage['hwmobilebusApp.busid'] = newid;
@@ -57,6 +59,18 @@ angular.module('hwmobilebusApp')
         }
       };
 
+    this.genmodal = function (template, ctrl, size, resolve, scope) {
+        modalInstance = $uibModal.open({
+            animation: true,
+            templateUrl: template,
+            controller: ctrl,
+            scope: scope,
+            size: size,
+            backdrop: 'static',
+            resolve: resolve
+        });
+    };
+
     /* common function to generate default station for company campus */
     this.gencompstation = function(isDirToComp, lat, lon) {
         var time = "";
@@ -77,7 +91,21 @@ angular.module('hwmobilebusApp')
         station.dirtocompany = isDirToComp;
   
         return station;
-      }
+      };
+
+    /* common function to generate modal */
+    this.geninfomodal = function (proc, title, content, template, ctrl, size, scope) {
+        var resolve = {
+            items: function () {
+            return {
+                proc: proc,
+                title: title,
+                content: content
+            };
+            }
+        };
+        this.genmodal(template, ctrl, size, resolve, scope);
+    };
 
     /*
     this.isshuttlebustime = function () {

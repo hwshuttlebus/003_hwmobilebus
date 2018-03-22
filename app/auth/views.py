@@ -3,13 +3,16 @@ from flask_login import login_user, logout_user, current_user, login_required, l
 from . import auth
 from .. import db
 from ..models import mUser
+from ..decorators import admin_required
 from ..email import send_email, send_email_cloud
-from .forms import LoginForm, RegistrationForm, PasswordResetRequestForm, PasswordResetForm
+from .forms import LoginForm, RegistrationForm, PasswordResetRequestForm, \
+        PasswordResetForm, ChangePasswordForm, ChangePasswordFormAdmin
 
 
 @auth.before_app_request
 def before_request():
     if current_user.is_authenticated:
+        current_user.ping()
         if not current_user.confirmed \
             and request.endpoint \
             and request.endpoint[:5] != 'auth.' \
@@ -34,7 +37,6 @@ def login():
             login_user(user, form.remember_me.data)
             return redirect(request.args.get('next') or url_for('main.index'))
         flash('无效的用户名或者密码')
-    print(form.errors)
     return render_template('auth/login.html', form=form)
 
 @auth.route('/logout')
@@ -43,6 +45,7 @@ def logout():
     logout_user()
     flash('您已登出！')
     return redirect(url_for('main.index'))
+
 
 @auth.route('/register', methods=['GET', 'POST'])
 def register():
@@ -70,7 +73,7 @@ def confirm(token):
     if current_user.confirm(token):
         flash('您已经确认了您的账号，欢迎继续在电脑端or手机端使用Mobilebus!')
     else:
-        flash('确认连接无效或者超时！')
+        flash('确认链接无效或者超时！')
     return redirect(url_for('main.index'))
 
 @auth.route('/confirm')
@@ -81,6 +84,32 @@ def resend_confirmation():
                      token=token)
     flash('帐号确认邮件已经发送至:' + current_user.mailaddr)
     return redirect(url_for('main.index'))
+
+@auth.route('/change-password', methods=['GET', 'POST'])
+@login_required
+def change_password():
+    form = ChangePasswordForm()
+    if form.validate_on_submit():
+        if current_user.verify_password(form.old_password.data):
+            current_user.password = form.password.data
+            db.session.add(current_user)
+            flash('密码已更新！')
+        else:
+            flash('旧密码无效！')
+    return render_template("auth/change_password.html", form=form)
+
+
+@auth.route('/change-password/<int:id>', methods=['GET', 'POST'])
+@login_required
+@admin_required
+def change_password_admin(id):
+    user = mUser.query.get_or_404(id)
+    form = ChangePasswordFormAdmin()
+    if form.validate_on_submit():
+        user.password = form.password.data
+        db.session.add(user)
+        flash('帐号密码已更新！')
+    return render_template("auth/change_password.html", form=form)
 
 
 @auth.route('/reset', methods=['GET', 'POST'])
@@ -99,7 +128,7 @@ def password_reset_request():
                             next=request.args.get('next'))
         flash('重置密码邮件已经发送到'+newmailaddr+'，请于两小时内进行确认！')
         return redirect(url_for('auth.login'))
-    return render_template('auth/change_password.html', form=form)
+    return render_template('auth/reset_password_request.html', form=form)
 
 
 @auth.route('/reset/<token>', methods=['GET', 'POST'])
@@ -116,5 +145,6 @@ def password_reset(token):
             flash('您的密码已被重置！')
             return redirect(url_for('auth.login'))
         else:
+            flash('该重置密码链接无效或者超时！')
             return redirect(url_for('main.index'))
     return render_template('auth/reset_password.html', form=form)

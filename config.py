@@ -12,6 +12,8 @@ class Config:
     MBUS_MAIL_SUBJECT_PREFIX = '[DoNotreply]'
     MBUS_MAIL_SENDER = 'HoneywellMobileBus'
     MBUS_ADMIN = os.environ.get('MBUS_ADMIN')
+    
+    MBUS_POSTS_PER_PAGE = 20
 
     @staticmethod
     def init_app(app):

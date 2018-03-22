@@ -26,6 +26,11 @@ def haversine(lon1, lat1, lon2, lat2):
     r = 6371 # Radius of earth in kilometers. Use 3956 for miles
     return c * r * 1000 # meters for unit
 
+class Permission:
+    COMMENT = 0x01
+    ADMINISTER = 0X80
+
+
 class Bus(db.Model):
     __tablename__ = 'buses'
     id = db.Column(db.Integer, primary_key=True)
@@ -462,6 +467,21 @@ class mRole(db.Model):
     permissions = db.Column(db.Integer)
     users = db.relationship('mUser', backref='mrole', lazy='dynamic')
 
+    @staticmethod
+    def insert_roles():
+        roles = {
+            'User': (Permission.COMMENT, True),
+            'Administrator': (Permission.ADMINISTER | Permission.COMMENT, False)
+        }
+        for r in roles:
+            role = mRole.query.filter_by(name=r).first()
+            if role is None:
+                role = mRole(name=r)
+            role.permissions = roles[r][0]
+            role.default = roles[r][1]
+            db.session.add(role)
+        db.session.commit()
+
 
 class mUser(UserMixin, db.Model):
     __tablename__ = 'musers'
@@ -486,6 +506,39 @@ class mUser(UserMixin, db.Model):
     last_seen = db.Column(db.DateTime(), default=datetime.utcnow)
     avatar_hash = db.Column(db.String(32))
 
+    @staticmethod
+    def generate_fake(count=100):
+        from sqlalchemy.exc import IntegrityError
+        from random import seed
+        import forgery_py
+
+        seed()
+        for i in range(count):
+            u = mUser(mailaddr=forgery_py.internet.email_address(),
+                      name=forgery_py.internet.user_name(True),
+                      password=forgery_py.lorem_ipsum.word(),
+                      confirmed=True,
+                      campus="libingroad",
+                      member_since=forgery_py.date.date(True))
+            db.session.add(u)
+            try:
+                db.session.commit()
+            except IntegrityError:
+                db.session.rollback()
+
+    @staticmethod
+    def from_json(json_post):
+        mailaddr = json_post.get('mailaddr')
+        return mUser(mailaddr=mailaddr, campus=campus)
+
+    def __init__(self, **kwargs):
+        super(mUser, self).__init__(**kwargs)
+        if self.mrole is None:
+            if self.mailaddr == current_app.config['MBUS_ADMIN']:
+                self.mrole = mRole.query.filter_by(permissions=0x81).first()
+            if self.mrole is None:
+                self.mrole = mRole.query.filter_by(default=True).first()
+
     @property
     def password(self):
         raise AttributeError('password is not a readable attribute.')
@@ -498,7 +551,7 @@ class mUser(UserMixin, db.Model):
         return check_password_hash(self.password_hash, password)
 
     def generate_confirmation_token(self, expiration=7200):
-        s = Serializer(current_app.config['SECRET_KEY'], expires_in=expiration)
+        s = Serializer(current_app.config['SECRET_KEY'], expiration)
         return s.dumps({'confirm': self.id})
 
     def generate_reset_token(self, expiration=7200):
@@ -529,6 +582,17 @@ class mUser(UserMixin, db.Model):
         db.session.add(self)
         return True   
 
+    def can(self, permissions):
+        return self.mrole is not None and \
+            (self.mrole.permissions & permissions) == permissions
+    
+    def is_administrator(self):
+        return self.can(Permission.ADMINISTER)
+
+    def ping(self):
+        self.last_seen = datetime.utcnow()
+        db.session.add(self)
+
     def is_reg_station(self, station):
         return self.stations.filter_by(id=station.id).first() is not None
 
@@ -536,14 +600,13 @@ class mUser(UserMixin, db.Model):
         json_post = {
             'id' : self.id,
             'mailaddr' : self.mailaddr,
-            'campus': self.campus
+            'campus': self.campus,
+            'role_id': self.role_id,
+            'role_name': self.mrole.name
         }
         return json_post
 
-    @staticmethod
-    def from_json(json_post):
-        mailaddr = json_post.get('mailaddr')
-        return mUser(mailaddr=mailaddr, campus=campus)
+    
 
 class mPost(db.Model):
     __tablename__ = 'mposts'
@@ -552,6 +615,41 @@ class mPost(db.Model):
     timestamp = db.Column(db.DateTime, index=True, default=datetime.utcnow)
     author_id = db.Column(db.Integer, db.ForeignKey('musers.id'))
     body_html = db.Column(db.Text)
+
+    def to_json(self):
+        json_post = {
+            'id': self.id,
+            'url': url_for('api.get_post', id=self.id, _external=True),
+            'body': self.body,
+            'body_html':self.body_html,
+            'timestamp': self.timestamp.strftime('%Y-%m-%dT%H:%M:%S')+'+0000',
+            'author_mailaddr': self.author.mailaddr,
+            'author': url_for('main.user', mailaddr=self.author.mailaddr, _external=True)
+        }
+        return json_post
+
+    @staticmethod
+    def from_json(json_post):
+        body = json_post.get('body')
+        if body is None or body == '':
+             raise ValidationError('post does not have a body')
+        return mPost(body=body)
+
+    @staticmethod
+    def generate_fake(count=100):
+        from random import seed, randint
+        import forgery_py
+
+        seed()
+        user_count = mUser.query.count()
+        for i in range(count):
+            u = mUser.query.offset(randint(0, user_count-1)).first()
+            p = mPost(body=forgery_py.lorem_ipsum.sentences(randint(1, 5)),
+                      timestamp=forgery_py.date.date(True),
+                      author=u)
+            db.session.add(p)
+            db.session.commit()
+
 
 class AnoymousUser(AnonymousUserMixin):
     def can(self, permissions):
@@ -565,8 +663,6 @@ login_manager.anonymous_user = AnoymousUser
 
 @login_manager.user_loader
 def load_user(userid):
-    print('hzjhzjhzj!!!!!!!!!!!')
-    print(mUser.query.get(int(userid)))
     return mUser.query.get(int(userid))
 
 class DiagramData(db.Model):

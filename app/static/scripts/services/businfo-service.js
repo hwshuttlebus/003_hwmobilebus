@@ -59,6 +59,32 @@ angular.module('hwmobilebusApp')
           params: {
             id: '@id'
           }
+        },
+        getuserid: {
+          method: 'GET',
+          url: BASE+'mbusdata/curruser/',
+        },
+        postsuggest: {
+          method: 'POST',
+          url: BASE+'mbusdata/posts\\/'
+        },
+        getpostbyuser: {
+          method: 'GET',
+          url: BASE+'mbusdata/users/:id/posts/',
+          params: {
+            id: '@id'
+          }
+        },
+        getallpost: {
+          method: 'GET',
+          url: BASE+'mbusdata/getallposts\\/'
+        },
+        delpost: {
+          method: 'POST',
+          url: BASE+'mbusdata/delposts/:id',
+          params: {
+            id: '@id'
+          }
         }
       });
   });
