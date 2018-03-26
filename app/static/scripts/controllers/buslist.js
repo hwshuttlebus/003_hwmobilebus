@@ -27,9 +27,9 @@ angular.module('hwmobilebusApp')
     var updateebus = function() {
         $scope.allbus = [];
         for (var i=0; i<allbuslocal.length; i++) {
-        if ($scope.campusradio == allbuslocal[i].campus) {
-            $scope.allbus.push(allbuslocal[i]);
-        }
+            if ($scope.campusradio == allbuslocal[i].campus) {
+                $scope.allbus.push(allbuslocal[i]);
+            }
         }
     };
     

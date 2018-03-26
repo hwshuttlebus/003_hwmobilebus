@@ -3,30 +3,58 @@ from flask_login import current_user
 from . import api
 from .. models import mBus, mStation, mUser, mPost, db
 
-'''
-@api.route('/mbusdata/userreg/', methods=['POST'])
-def post_userreginfo():
-    user = mUser.from_json(request.json)
-    userrec = mUser.query.filter_by(name=user.name).first()
 
-    station_tocompany = request.json.get('station_tocompany')
-    if station_tocompany is not None:
-        station = mStation.from_json(request.json, True)
-        stationrec1 = mStation.query.filter_by(name=station.name, dirtocompany=station.dirtocompany).first()
+@api.route('/mbusdata/getregbus/')
+def getregbus():
+    tocompstation = None
+    tohomestation = None
+    tocompbus = None
+    tohomebus = None
+    stations = current_user.stations.all()
+    if stations is not None:
+        for station in stations:
+            #get stations
+            if station.dirtocompany == True:
+                tocompstation = station
+                #get bus
+                userrec = mUser.query.filter_by(id=station.bus_id).first()
+                if userrec is not None:
+                    tocompbus = userrec
+            else:
+                tohomestation = station
+                #get bus
+                userrec = mUser.query.filter_by(id=station.bus_id).first()
+                if userrec is not None:
+                    tohomebus = userrec
+            
+    if tocompstation is not None and tohomestation is not None \
+        and tocompbus is not None and tohomebus is not None:
+        return jsonify({'tocompbus': tocompbus.to_json(),
+                        'tocompstation': tocompstation.to_json(),
+                        'tohomebus': tohomebus.to_json(),
+                        'tohomestation': tohomestation.to_json()})
+    else:
+        return jsonify({'tocompbus': '',
+                        'tocompstation': '',
+                        'tohomebus': '',
+                        'tohomestation': ''})
+
+
+@api.route('/mbusdata/postregbus/', methods=['POST'])
+def post_regbus():
+    userrec = current_user
+
+    tocompid = request.json.get('tocompid')
+    if tocompid is not None:
+        stationrec1 = mStation.query.filter_by(id=tocompid).first()
         if stationrec1 is None:
             return jsonify({'user register fail:':'Invalid to company station information!'})
 
-    station_tohome = request.json.get('station_tohome')
-    if station_tohome is not None:
-        station = mStation.from_json(request.json, False)
-        stationrec2 = mStation.query.filter_by(name=station.name, dirtocompany=station.dirtocompany).first()
+    tohomeid = request.json.get('tohomeid')
+    if tohomeid is not None:
+        stationrec2 = mStation.query.filter_by(id=tohomeid).first()
         if stationrec2 is None:
             return jsonify({'user register fail:':'Invalid to home station information!'})
-
-    if userrec is not None:
-        userrec.mailaddr = user.mailaddr
-    else:
-        userrec = user
 
     if (userrec.is_reg_station(stationrec1) == False) or (userrec.is_reg_station(stationrec2) == False):
         #clear all the station record stored previously
@@ -40,7 +68,7 @@ def post_userreginfo():
     db.session.add(userrec)
     db.session.commit()
     return jsonify(userrec.to_json())
-'''
+
 
 @api.route('/mbusdata/curruser/')
 def getcurruser():

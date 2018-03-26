@@ -9,8 +9,8 @@
  */
 angular.module('hwmobilebusApp')
   .service('BusinfoService', function ($resource) {
-    var BASE = 'http://localhost:5000/api/v1.0/';
-    //var BASE = 'http://c4bbe084.ngrok.io/api/v1.0/'
+    //var BASE = 'http://localhost:5000/api/v1.0/';
+    var BASE = 'http://www.hwmobilebus.tk:9000/api/v1.0/'
     /* REST API for query busstation information */
     return $resource(BASE,
       {},
@@ -85,6 +85,18 @@ angular.module('hwmobilebusApp')
           params: {
             id: '@id'
           }
+        },
+        getregbus: {
+          method: 'GET',
+          url: BASE+'mbusdata/getregbus\\/'
+        },
+        postregbus: {
+          method: 'POST',
+          url: BASE+'mbusdata/post_regbus\\/'
+        },
+        getrecroute: {
+          method: 'POST',
+          url: BASE+'mbusdata/calrecroute\\/'
         }
       });
   });

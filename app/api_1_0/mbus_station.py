@@ -2,7 +2,7 @@ from . import api
 from flask import jsonify, request
 from datetime import datetime
 from .authentication import auth
-from .. models import db, mStation, mBus
+from .. models import db, mStation, mBus, haversine
 
 #update as per bus id
 @api.route('/mbusdata/BusStation/<int:id>', methods=['POST'])
@@ -209,6 +209,32 @@ def delete_station(id):
     db.session.commit()
     return jsonify({'deleted station:' : stationrec.to_json()})
 
+
+@api.route('/mbusdata/calrecroute/', methods=['POST'])
+def cal_recommand_route():
+    #parse lat/lng
+    lng = request.json.get('lng')
+    lat = request.json.get('lat')
+
+    #iterate all stations and find the near station
+    stations = mStation.query.all()
+    idx, dist = mBus.getnearsation_excomp(stations, lng, lat, True)
+    #get related bus and all stations
+    tocompstation = None
+    tohomestation = None
+    bus = mBus.query.filter_by(id=stations[idx].bus_id).first()
+    if bus is not None:
+        tocompstation = stations[idx]
+        stations2 = bus.stations.all()
+        idx2, dist2 = mBus.getnearsation_excomp(stations2, lng, lat, False)
+        tohomestation = stations2[idx2]
+        print(tohomestation.to_json())
+        return jsonify({'tocompbus': bus.to_json(),
+                        'tocompstation': tocompstation.to_json(),
+                        'tohomebus': bus.to_json(),
+                        'tohomestation': tohomestation.to_json()})
+
+    return jsonify({'ERROR!': 'can not find specific bus in calrecroute procedure! '})
 
 @api.route('/mbusdata/bus/<int:id>/stations')
 def get_bus_related_stations(id):

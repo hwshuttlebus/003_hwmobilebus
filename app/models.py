@@ -283,16 +283,39 @@ class mBus(db.Model):
     
     @staticmethod
     def getnearstation(stations, lon, lat):
+        distold = 0
+        distnew = 0
+        retindex = 0
         #iterate stations
         for idx, item in enumerate(stations):
-            distnew = haversine(item.lon, item.lat, lon, lat)
-            if idx == 0:
-                distold = distnew
-                retindex = 0
-            elif distnew < distold:
-                retindex = idx
-                distold = distnew
+            if item.name is not None and item.lat is not None and item.lon is not None:
+                distnew = haversine(item.lon, item.lat, lon, lat)
+                if distold == 0:
+                    distold = distnew
+                    retindex = 0
+                elif distnew < distold:
+                    retindex = idx
+                    distold = distnew
         return retindex
+
+    @staticmethod
+    def getnearsation_excomp(stations, lon, lat, direction):
+        distold = 0
+        distnew = 0
+        #iterate stations, except for company
+        for idx, item in enumerate(stations):
+            if (item.name is not None) and (item.dirtocompany is not None) and \
+                (not ("霍尼韦尔" in item.name)) and (item.dirtocompany == direction) and \
+                item.lat is not None and item.lon is not None:
+                distnew = haversine(item.lon, item.lat, lon, lat)
+                if distold == 0:
+                    distold = distnew
+                    retindex = 0
+                elif distnew < distold:
+                    retindex = idx
+                    distold = distnew
+
+        return retindex, distold
 
     @staticmethod
     def calbuslocation(busrec, lon, lat):

@@ -5,13 +5,19 @@ angular.module('hwmobilebusApp')
     var map = {
         map: null,
         markerarray: [],
-        driving: null
+        driving: null,
+        srchlocal: null
     };
     var mapedit = {
         map: null,
         markerarray: [],
-        driving: null
+        driving: null, 
+        srchlocal: null
     };
+
+    var G = function (id) {
+		return document.getElementById(id);
+	}
 
     this.loadmap = function (map, stations, completefunc) {
         map.map = map;
@@ -192,6 +198,91 @@ angular.module('hwmobilebusApp')
         var plan = results.getPlan(0);
         return plan.getDistance(true);
     };
+
+
+    /* search location complete callback used for map side */
+    this.srchloccomplete = function(ismapedit) {
+        if (false == ismapedit) {
+            var maplocal = map.map;
+        } else {
+            var maplocal = mapedit.map;
+        }
+
+        var pp = maplocal.srchlocal.getResults().getPoi(0).point;
+        maplocal.centerAndZoom(pp, 15);
+        /* create new marker on map based on search result point */
+        var newmarker = new BMap.Marker(pp);
+        maplocal.addOverlay(newmarker);
+
+        /* return newmarker */
+        return newmarker;
+    };
+
+    /* search location on map */
+    var setsrchplace = function (ismapedit, marker, myValue, srchcompletefunc) {
+        if (false == ismapedit) {
+            var maplocal = map.map;
+        } else {
+            var maplocal = mapedit.map;
+        }
+        /* remove previous search result marker if exists */
+        maplocal.removeOverlay(marker);
+
+        /* enter search procedure */
+        var local = new BMap.LocalSearch(maplocal, {
+            onSearchComplete: srchcompletefunc
+        });
+        local.search(myValue);
+
+        /* record local */
+        maplocal.srchlocal = local;
+    };
+
+    /* create search location object */
+    this.srchloc = function (ismapedit, input, searchResultPanel, marker, srchcompletefunc) {
+        var retobj = null;
+        if (false == ismapedit) {
+            var maplocal = map.map;
+        } else {
+            var maplocal = mapedit.map;
+        }
+
+        /* set up a autocomplete object */
+        var ac = new BMap.Autocomplete(
+            {"input" : input
+            ,"location" : map
+        });
+        /* mouse under pulldown menu event handle */
+        ac.addEventListener("onhighlight", function(e) { 
+        var str = "";
+            var _value = e.fromitem.value;
+            var value = "";
+            if (e.fromitem.index > -1) {
+                value = _value.province +  _value.city +  _value.district +  _value.street +  _value.business;
+            }    
+            str = "FromItem<br />index = " + e.fromitem.index + "<br />value = " + value;
+            
+            value = "";
+            if (e.toitem.index > -1) {
+                _value = e.toitem.value;
+                value = _value.province +  _value.city +  _value.district +  _value.street +  _value.business;
+            }    
+            str += "<br />ToItem<br />index = " + e.toitem.index + "<br />value = " + value;
+            G(searchResultPanel).innerHTML = str;
+        });
+        /* mouse click on pull down menu event handle */
+        var myValue;
+        ac.addEventListener("onconfirm", function(e) {
+        var _value = e.item.value;
+            myValue = _value.province +  _value.city +  _value.district +  _value.street +  _value.business;
+            G(searchResultPanel).innerHTML ="onconfirm<br />index = " + e.item.index + "<br />myValue = " + myValue;
+            /* return search location object */
+            setsrchplace(ismapedit, marker, myValue, srchcompletefunc);
+        });
+    };
+
+    
+
 
     /*
     this.getnearstation = function (ismapedit, stations, point) {

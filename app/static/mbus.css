@@ -133,6 +133,16 @@ baidu-map {
 	color: white;
 }
 
+.panel-info>.panel-heading{
+	color: white;
+	background-color: #1792E5;
+	border-color: #1792E5;
+}
+
+.panel-info {
+	border-color: #1792E5;
+}
+
 .label.round-custom {
 	display:inline-block;
 	height: 50px;

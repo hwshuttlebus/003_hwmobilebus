@@ -54,6 +54,10 @@ angular
       templateUrl: 'static/partials/suggestion.html',
       controller: 'SuggestionCtrl'
     })
+    .when('/mybus', {
+      templateUrl: 'static/partials/mybus.html',
+      controller: 'MybusCtrl'
+    })
     .otherwise({
       redirectTo: '/home'
     });
