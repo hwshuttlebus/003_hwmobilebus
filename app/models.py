@@ -488,7 +488,7 @@ class mRole(db.Model):
     name = db.Column(db.String(64), unique=True)
     default = db.Column(db.Boolean, default=True, index=True)
     permissions = db.Column(db.Integer)
-    users = db.relationship('mUser', backref='mrole', lazy='dynamic')
+    users = db.relationship('mUser', backref='mrole', lazy='dynamic', cascade='all, delete-orphan')
 
     @staticmethod
     def insert_roles():
@@ -515,7 +515,7 @@ class mUser(UserMixin, db.Model):
     role_id = db.Column(db.Integer, db.ForeignKey('mroles.id'))
     confirmed = db.Column(db.Boolean, default=False)
     campus = db.Column(db.String(64), default="")
-    posts = db.relationship('mPost', backref='author', lazy='dynamic')
+    posts = db.relationship('mPost', backref='author', lazy='dynamic',cascade='all, delete-orphan')
     stations = db.relationship('mStation',
                                secondary=registrations,
                                backref=db.backref('muser', lazy='dynamic'),

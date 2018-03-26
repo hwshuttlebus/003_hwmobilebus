@@ -2,7 +2,7 @@
 
 欢迎注册Honeywell Mobilebus
 
-请点击以下链接完成注册确认：
+请点击以下链接再次登录Mobilebus完成注册确认：
 
 <b>{{ url_for('auth.confirm', token=token, _external=True) }}</b>
 

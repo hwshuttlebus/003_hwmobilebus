@@ -31,7 +31,7 @@ class RegistrationForm(FlaskForm):
         if not user_regex.match(user_part):
             raise ValidationError('邮箱地址无效！')
 
-        if mUser.query.filter_by(mailaddr=field.data).first():
+        if mUser.query.filter_by(mailaddr=value).first():
             raise ValidationError('该邮箱已经注册！')
 
 
