@@ -8,8 +8,6 @@ from ..email import send_email, send_email_cloud
 from .forms import LoginForm, RegistrationForm, PasswordResetRequestForm, \
         PasswordResetForm, ChangePasswordForm, ChangePasswordFormAdmin
 
-import os
-
 @auth.before_app_request
 def before_request():
     if current_user.is_authenticated:

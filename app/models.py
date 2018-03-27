@@ -331,16 +331,16 @@ class mBus(db.Model):
         from_zone = tz.gettz('UTC')
         to_zone = tz.gettz('Aisa/Shanghai')
 
-        #utcnowtime= datetime.utcnow()
-        #utcnowtime = utcnowtime.replace(tzinfo=from_zone)
-        #nowtime = utcnowtime.astimezone(to_zone)
+        utcnowtime= datetime.utcnow()
+        utcnowtime = utcnowtime.replace(tzinfo=from_zone)
+        nowtime = utcnowtime.astimezone(to_zone)
 
-        utcnowtime = datetime.strptime('2018-03-08T07:35:21', '%Y-%m-%dT%H:%M:%S')
-        nowtime = utcnowtime
+        #utcnowtime = datetime.strptime('2018-03-08T07:35:21', '%Y-%m-%dT%H:%M:%S')
+        #nowtime = utcnowtime
 
         #define string const for time
         towkstart = "06:30:00"
-        towkend = "10:00:00"
+        towkend = "16:00:00"
         tohmstart = "16:55:00"
         tohmend = "20:00:00"
 

@@ -27,9 +27,10 @@ def send_email(to, subject, template, **kwargs):
                   sender=app.config['MBUS_MAIL_SENDER'], recipients=[to])
     msg.body = render_template(template + '.txt', **kwargs)
     msg.html = render_template(template + '.html', **kwargs)
-    thr = Thread(target=send_async_email, args=[app, msg])
-    thr.start()
-    return thr
+    #thr = Thread(target=send_async_email, args=[app, msg])
+    #thr.start()
+    #return thr
+    return mail.send(msg)
 
 
 def send_async_email_cloud(app, params, url):

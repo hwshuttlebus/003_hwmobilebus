@@ -278,6 +278,7 @@ angular.module('hwmobilebusApp')
             G(searchResultPanel).innerHTML ="onconfirm<br />index = " + e.item.index + "<br />myValue = " + myValue;
             /* return search location object */
             setsrchplace(ismapedit, marker, myValue, srchcompletefunc);
+            
         });
     };
 

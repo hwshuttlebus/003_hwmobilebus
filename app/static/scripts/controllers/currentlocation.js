@@ -133,7 +133,7 @@ angular.module('hwmobilebusApp')
           $scope.stations[i].attr3 = "greyout";
           $scope.stations[i].attr2 = "greyout";
           $scope.stations[i].attr1 = "greyout";
-          $scope.stations[i].locinfo = "不在班车运行时间内"
+          $scope.stations[i].locinfo = "无班车位置数据"
         } else {
           if (i <= $scope.businfo.currindx) {
             $scope.stations[i].attr3 = "greyout";
