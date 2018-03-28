@@ -10,6 +10,9 @@ from math import radians, cos, sin, asin, sqrt
 from dateutil import tz
 import time
 
+
+from .gpsutil import wgs84togcj02, gcj02tobd09
+
 def haversine(lon1, lat1, lon2, lat2):
     """
     Calculate the great circle distance between two points 
@@ -25,6 +28,9 @@ def haversine(lon1, lat1, lon2, lat2):
     c = 2 * asin(sqrt(a)) 
     r = 6371 # Radius of earth in kilometers. Use 3956 for miles
     return c * r * 1000 # meters for unit
+
+
+
 
 class Permission:
     COMMENT = 0x01
@@ -318,18 +324,17 @@ class mBus(db.Model):
         return retindex, distold
 
     @staticmethod
-    def calbuslocation(busrec, lon, lat):
+    def calbuslocation(busrec, lon, lat, datetimeobj):
         #init variable
         currentidx = 0xFF       
         lefttime = 0
         abntime = 0
         
-        
 
         stations = busrec.stations.order_by(mStation.time).all()
         #get current Beijing time
         from_zone = tz.gettz('UTC')
-        to_zone = tz.gettz('Aisa/Shanghai')
+        to_zone = tz.gettz('Asia/Shanghai')
 
         utcnowtime= datetime.utcnow()
         utcnowtime = utcnowtime.replace(tzinfo=from_zone)
@@ -352,14 +357,9 @@ class mBus(db.Model):
         tohmstartobj = datetime.strptime(strprefix+tohmstart, '%Y-%m-%dT%H:%M:%S')
         tohmendobj = datetime.strptime(strprefix+tohmend, '%Y-%m-%dT%H:%M:%S')
 
+        print('!!!!!! current time:')
         print(nowtime)
         nowtime = nowtime.replace(tzinfo=None)
-        
-        print(towkstartobj)
-        print(towkendobj)
-        print(tohmstartobj)
-        print(tohmendobj)
-        print(nowtime)
 
         #judge whether in work time and filter related station
         stationup = []
@@ -381,7 +381,7 @@ class mBus(db.Model):
                 print('!!!enter to home procedure')
                 station = stationdown
 
-            if (busrec.curridx == 0xFF) and ((busrec.recordtime < towkstartobj) or (busrec.recordtime < tohmstartobj)):
+            if (busrec.curridx == 0xFF) and ((datetimeobj < towkstartobj) or (datetimeobj < tohmstartobj)):
                 #first time recv valid gps data after enter shuttle bus time
                 if nowtime.time() <= station[0].time:
                     #GPS data recv before arrive at first stop
@@ -410,8 +410,13 @@ class mBus(db.Model):
     def update_gps(json_post):
         #parse json data
         equip_id = json_post.get('bus_equip_id')
-        lat = json_post.get('bus_lat')
-        lon = json_post.get('bus_lon')
+        latwsg = json_post.get('bus_lat')
+        lngwsg = json_post.get('bus_lon')
+
+        #only for test use, transmit gps data from WSG84 to BD-09 
+        lnggc02, latgc02 = wgs84togcj02(lngwsg, latwsg)
+        lon, lat = gcj02tobd09(lnggc02, latgc02)
+
         recordtime = json_post.get('bus_recordtime')
         if recordtime is not None:
             datetimeobj = datetime.strptime(recordtime.strip(), '%Y-%m-%dT%H:%M:%S')
@@ -422,7 +427,7 @@ class mBus(db.Model):
         busrec = mBus.query.filter_by(equip_id=equip_id).first()
         if busrec is not None:
             #first update location
-            busrec.curridx, busrec.lefttime, busrec.abntime = mBus.calbuslocation(busrec, lon, lat)
+            busrec.curridx, busrec.lefttime, busrec.abntime = mBus.calbuslocation(busrec, lon, lat, datetimeobj)
             #next update json data
             busrec.equip_id = equip_id
             busrec.lat = lat

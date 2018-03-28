@@ -13,8 +13,17 @@ angular.module('hwmobilebusApp')
         localStorage['hwmobilebusApp.busid'] = newid;
     };
 
+    /* store campus to local storage */
+    this.setcampus = function (campus) {
+        localStorage['hwmobilebusApp.campus'] = campus;
+    };
+
     this.getbusid = function () {
         return localStorage['hwmobilebusApp.busid'];
+    };
+
+    this.getcampus = function () {
+        return localStorage['hwmobilebusApp.campus'];
     };
 
     this.storenewstations = function (stations, dir) {
@@ -72,7 +81,7 @@ angular.module('hwmobilebusApp')
     };
 
     /* common function to generate default station for company campus */
-    this.gencompstation = function(isDirToComp, lat, lon) {
+    this.gencompstation = function(isDirToComp, lat, lon, campus) {
         var time = "";
         var station = {};
         if (true == isDirToComp) {
@@ -87,7 +96,7 @@ angular.module('hwmobilebusApp')
         station.name = "霍尼韦尔";
         station.lat = lat;
         station.lon = lon;
-        station.campus = "libingroad";
+        station.campus = campus;
         station.dirtocompany = isDirToComp;
   
         return station;

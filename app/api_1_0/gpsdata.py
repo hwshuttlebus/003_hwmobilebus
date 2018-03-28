@@ -19,6 +19,3 @@ def post_gpsdata():
         return jsonify(busrec.to_json())
     else:
         return jsonify({'ERROR!': 'no such equipment id'})
-
-    
-

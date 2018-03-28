@@ -33,6 +33,7 @@ angular.module('hwmobilebusApp')
     };
 
     var initnewbusstat = function () {
+      
       /* init variable */
       $scope.businfo = {};
       /* set number field to integer 0 */
@@ -43,8 +44,16 @@ angular.module('hwmobilebusApp')
       $scope.loadctrl.mapinfo = true;
       $scope.loadctrl.submit = false;
       $scope.selectedcampus = $scope.campus[0];
-      $scope.tocompanystations.push(InterfService.gencompstation(true, $scope.selectedcampus.latitude, $scope.selectedcampus.longitude));
-      $scope.tohomestations.push(InterfService.gencompstation(false, $scope.selectedcampus.latitude, $scope.selectedcampus.longitude));
+      var campus = InterfService.getcampus();
+      console.log(campus);
+      console.log(InterfService.getcampus());
+      for (var i=0; i<$scope.campus.length; i++) {
+        if ($scope.campus[i].ename == campus) {
+          $scope.selectedcampus = $scope.campus[i];
+        }
+      }
+      $scope.tocompanystations.push(InterfService.gencompstation(true, $scope.selectedcampus.latitude, $scope.selectedcampus.longitude, $scope.selectedcampus.ename));
+      $scope.tohomestations.push(InterfService.gencompstation(false, $scope.selectedcampus.latitude, $scope.selectedcampus.longitude, $scope.selectedcampus.ename));
     };
 
     var initbusstation = function () {
