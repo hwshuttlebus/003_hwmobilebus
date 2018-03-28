@@ -183,6 +183,8 @@ angular.module('hwmobilebusApp')
         }
         var point = new BMap.Point(lon, lat);
         //var iconpath = "/static/images/mappoint.png";
+
+        
         //var IconEntity = new BMap.Icon(iconpath, new BMap.Size(50, 36));
         //var newmarker = new BMap.Marker(point, {icon: IconEntity});
         var newmarker = new BMap.Marker(point);
