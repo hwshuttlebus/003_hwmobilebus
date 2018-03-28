@@ -6,13 +6,15 @@ angular.module('hwmobilebusApp')
         map: null,
         markerarray: [],
         driving: null,
-        srchlocal: null
+        srchlocal: null,
+        srchmarker: null
     };
     var mapedit = {
         map: null,
         markerarray: [],
         driving: null, 
-        srchlocal: null
+        srchlocal: null,
+        srchmarker: null
     };
 
     var G = function (id) {
@@ -53,7 +55,9 @@ angular.module('hwmobilebusApp')
   
     /* remove route */
     var removedrivingroute = function (map) {
-        map.driving.clearResults();
+        if (null != map.driving) {
+            map.driving.clearResults();
+        }
     };
 
     /* create route */
@@ -152,10 +156,12 @@ angular.module('hwmobilebusApp')
     };
 
     this.removemarker = function (ismapedit, marker) {
-        if (true == ismapedit) {
-            mapedit.map.removeOverlay(marker);
-        } else {
-            map.map.removeOverlay(marker);
+        if (null != marker) {
+            if (true == ismapedit) {
+                mapedit.map.removeOverlay(marker);
+            } else {
+                map.map.removeOverlay(marker);
+            }
         }
     };
 
@@ -214,19 +220,22 @@ angular.module('hwmobilebusApp')
         var newmarker = new BMap.Marker(pp);
         maplocal.addOverlay(newmarker);
 
+        /* record to local */
+        maplocal.srchmarker = newmarker;
+
         /* return newmarker */
         return newmarker;
     };
 
     /* search location on map */
-    var setsrchplace = function (ismapedit, marker, myValue, srchcompletefunc) {
+    var setsrchplace = function (ismapedit, myValue, srchcompletefunc) {
         if (false == ismapedit) {
             var maplocal = map.map;
         } else {
             var maplocal = mapedit.map;
         }
         /* remove previous search result marker if exists */
-        maplocal.removeOverlay(marker);
+        maplocal.removeOverlay(maplocal.srchmarker);
 
         /* enter search procedure */
         var local = new BMap.LocalSearch(maplocal, {
@@ -239,7 +248,7 @@ angular.module('hwmobilebusApp')
     };
 
     /* create search location object */
-    this.srchloc = function (ismapedit, input, searchResultPanel, marker, srchcompletefunc) {
+    this.srchloc = function (ismapedit, input, searchResultPanel, srchcompletefunc) {
         var retobj = null;
         if (false == ismapedit) {
             var maplocal = map.map;
@@ -277,7 +286,7 @@ angular.module('hwmobilebusApp')
             myValue = _value.province +  _value.city +  _value.district +  _value.street +  _value.business;
             G(searchResultPanel).innerHTML ="onconfirm<br />index = " + e.item.index + "<br />myValue = " + myValue;
             /* return search location object */
-            setsrchplace(ismapedit, marker, myValue, srchcompletefunc);
+            setsrchplace(ismapedit, myValue, srchcompletefunc);
             
         });
     };

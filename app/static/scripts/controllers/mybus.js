@@ -74,7 +74,7 @@ angular.module('hwmobilebusApp')
             for (var k=0; k<tohomestations.length; k++) {
                 $scope.options.tohomestations.push(tohomestations[k]);
                 if (regbus != null) {
-                    if (regbus.tohomestation.id == tohomestations[k]) {
+                    if (regbus.tohomestation.id == tohomestations[k].id) {
                         $scope.regstation.tohome = tohomestations[k];
                     }
                 }
@@ -111,8 +111,8 @@ angular.module('hwmobilebusApp')
 
                 /* load route if need */
                 if (true == loadrouteneed) {
-                    $scope.loadctrl.mapinfo = true
-                    MapService.loadmapedit(maptemp, tocompanystations, loadmapcomplete);
+                    $scope.loadctrl.mapinfo = true;
+                    MapService.refreshmap(true, tocompanystations, loadmapcomplete);
                 }
             });   
         }
@@ -229,7 +229,7 @@ angular.module('hwmobilebusApp')
         MapService.loadmapedit(map, [], {});
 
         /* create search object when load map complete */
-        MapService.srchloc(true, "suggestId", "searchResultPanel", marker, srchloccomp);
+        MapService.srchloc(true, "suggestId", "searchResultPanel", srchloccomp);
 
         /* mark end loadmap procedure */
         maptemp = map;

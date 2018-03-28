@@ -167,7 +167,7 @@ class mBus(db.Model):
     cz_phone = db.Column(db.String(30), default="")
     sj_name = db.Column(db.String(64), default="")
     sj_phone = db.Column(db.String(64), default="")
-    seat_num = db.Column(db.String(64), default="")
+    seat_num = db.Column(db.Integer, default=0)
     color = db.Column(db.String(64), default="")
     buslicense = db.Column(db.String(64), default="")
     campus = db.Column(db.String(64), default="")
@@ -181,7 +181,7 @@ class mBus(db.Model):
 
     #client location data
     curridx = db.Column(db.Integer, default=0xFF)
-    lefttime = db.Column(db.Integer, default=0)
+    lefttime = db.Column(db.Float(precision='11,7'), default=0)
     abntime = db.Column(db.Integer,default=0)
 
     #interface for restapi use
@@ -228,7 +228,7 @@ class mBus(db.Model):
         campus = json_post.get('bus_campus')
  
         return mBus(name=name, cz_name=cz_name, cz_phone=cz_phone,sj_name=sj_name, 
-                    sj_phone=sj_phone, seat_num=seat_num, equip_id=equip_id,
+                    sj_phone=sj_phone, equip_id=equip_id,seat_num=seat_num,
                     color=color, buslicense=buslicense, campus=campus, number=number)
 
     @staticmethod
@@ -248,9 +248,10 @@ class mBus(db.Model):
             leftdist = haversine(lon, lat, station[currentidx+1].lon, station[currentidx+1].lat)
             lefttime = (leftdist*1.5/averagespeed)/60 # unit-->minute
             print('!!!leftdist and lefttime:'+str(leftdist)+',  '+str(lefttime))
-            #if current leftdistance greater than 3000 meters and current lefttime greater than last lefttime
+            print('!!!last leftime:'+str(busrec.lefttime))
+            #if current lefttime greater than last lefttime
             #regard it for mistake calculated for currentindex
-            if (leftdist > 3000) and (busrec.lefttime < lefttime):
+            if busrec.lefttime < lefttime:
                 #abnormal case
                 #handle based on abnormal time.
                 if abntime == 0:
@@ -277,7 +278,7 @@ class mBus(db.Model):
                 if ((nowtimetk-abntime)<=10) and (abntime!=0):
                     print('!!! re-enter normal state')
                     abntime = 0
-                if leftdist <= 30.0:
+                if leftdist <= 100.0:
                     #arrived and index to next station
                     currentidx = currentidx+1      
                     print('!!!#arrived and index to next station index:　'+str(currentidx))
@@ -316,7 +317,7 @@ class mBus(db.Model):
                 distnew = haversine(item.lon, item.lat, lon, lat)
                 if distold == 0:
                     distold = distnew
-                    retindex = 0
+                    retindex = idx
                 elif distnew < distold:
                     retindex = idx
                     distold = distnew
@@ -345,8 +346,8 @@ class mBus(db.Model):
 
         #define string const for time
         towkstart = "06:30:00"
-        towkend = "16:00:00"
-        tohmstart = "16:55:00"
+        towkend = "13:20:00"
+        tohmstart = "13:30:00"
         tohmend = "20:00:00"
 
         #transfer to datetime object

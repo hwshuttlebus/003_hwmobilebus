@@ -134,12 +134,16 @@ angular.module('hwmobilebusApp')
           $scope.stations[i].attr2 = "greyout";
           $scope.stations[i].attr1 = "greyout";
           $scope.stations[i].locinfo = "无班车位置数据"
+          MapService.removemarker(true, busmarker);
+          busmarker = null;
         } else {
           if (i <= $scope.businfo.currindx) {
             $scope.stations[i].attr3 = "greyout";
             $scope.stations[i].attr2 = "greyout";
             $scope.stations[i].attr1 = "greyout";
             $scope.stations[i].locinfo = "已到站"
+            MapService.removemarker(true, busmarker);
+            busmarker = null;
           } else if ((i>$scope.businfo.currindx) && (i<($scope.stations.length-1))){
             $scope.stations[i].attr3 = "";
             $scope.stations[i].attr2 = "";
@@ -164,9 +168,9 @@ angular.module('hwmobilebusApp')
               $scope.stations[i].locinfo = "约"+lefttime+"分钟";
             }
           } 
+          /* update map bus marker */
+          busmarker =  MapService.updatemarker(false, busmarker, $scope.businfo.lon, $scope.businfo.lat);
         }
-        /* update map bus marker */
-        busmarker =  MapService.updatemarker(false, busmarker, $scope.businfo.lon, $scope.businfo.lat);
       }
     };
 
@@ -238,10 +242,25 @@ angular.module('hwmobilebusApp')
 
     $scope.$watchCollection("isDirToCompany", function() {
       updatestation();
+      /* only refresh when route is loaded */
+      if (true == RouteLoadFSM.routeloaded) {
+        $scope.loadctrl.mapinfo = true;
+        MapService.refreshmap(false, $scope.stations, loadmapcomplete);
+        if ($scope.stations.length < 2) {
+          $scope.loadctrl.mapinfo = false;
+        }
+      }
     });
 
     /* stop periodical get after route change */
     $scope.$on("$destroy", function() {
       $interval.cancel(myInterval);
     });
+
+    /* click on station handler */
+    $scope.clickupdate = function () {
+      /* update bus location from server */
+      $scope.loadctrl.businfo = true;
+      updateloc();
+    };
 });

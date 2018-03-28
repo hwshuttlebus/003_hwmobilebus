@@ -64,7 +64,9 @@
 
             <table class="table">
                 <tbody>
-                    <tr ng-repeat="station in stations track by $index">
+                    <tr ng-repeat="station in stations track by $index" ng-click="clickupdate()"
+                        ng-init="hover=false" ng-mouseenter="hover=true"  
+                        ng-mouseleave="hover=false"   ng-class="{active: hover}">
                         <th style="width:5%">
                             <div ng-attr-id="{a station.attr3 a}" class="label label-as-badge pin-custom">
                                 <span>{a station.char a}</span>
