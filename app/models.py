@@ -1,6 +1,6 @@
 from . import db
 from . import login_manager
-from datetime import datetime
+from datetime import datetime, timedelta
 from .exceptions import ValidationError
 from flask_login import UserMixin, AnonymousUserMixin
 from werkzeug.security import generate_password_hash, check_password_hash
@@ -9,9 +9,9 @@ from flask import current_app, url_for
 from math import radians, cos, sin, asin, sqrt
 from dateutil import tz
 import time
-
-
 from .gpsutil import wgs84togcj02, gcj02tobd09
+from . import celery
+from config import Config
 
 def haversine(lon1, lat1, lon2, lat2):
     """
@@ -29,7 +29,15 @@ def haversine(lon1, lat1, lon2, lat2):
     r = 6371 # Radius of earth in kilometers. Use 3956 for miles
     return c * r * 1000 # meters for unit
 
+def get_currbj_time():
+    #get current Beijing time
+    from_zone = tz.gettz('UTC')
+    to_zone = tz.gettz('Asia/Shanghai')
+    utcnowtime= datetime.utcnow()
+    utcnowtime = utcnowtime.replace(tzinfo=from_zone)
+    nowtime = utcnowtime.astimezone(to_zone)
 
+    return nowtime
 
 
 class Permission:
@@ -345,10 +353,10 @@ class mBus(db.Model):
         #nowtime = utcnowtime
 
         #define string const for time
-        towkstart = "06:30:00"
-        towkend = "13:20:00"
-        tohmstart = "13:30:00"
-        tohmend = "20:00:00"
+        towkstart = Config.MBUS_TOWKSTART_TIME
+        towkend = Config.MBUS_TOWKEND_TIME
+        tohmstart = Config.MBUS_TOHMSTART_TIME
+        tohmend = Config.MBUS_TOHMEND_TIME
 
         #transfer to datetime object
         strprefix = nowtime.strftime('%Y-%m-%dT')

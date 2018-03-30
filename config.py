@@ -1,4 +1,7 @@
 import os
+import datetime
+from celery.schedules import crontab
+
 basedir = os.path.abspath(os.path.dirname(__file__))
 
 class Config:
@@ -14,6 +17,23 @@ class Config:
     MBUS_ADMIN = os.environ.get('MBUS_ADMIN')
     
     MBUS_POSTS_PER_PAGE = 20
+
+    CELERY_BROKER_URL = 'amqp://guest:guest@localhost:5672//'
+    CELERY_RESULT_BACKEND = 'amqp://guest:guest@localhost:5672//'
+    CELERYBEAT_SCHEDULE = {  
+        'every-15-minutes': {
+            'task': 'celery_worker.cleangps',
+            #'schedule': datetime.timedelta(seconds=3),
+            'schedule': crontab('*/15'),
+            'args':("Message",)
+        }
+    }
+
+    MBUS_TOWKSTART_TIME = "06:30:00"
+    MBUS_TOWKEND_TIME   = "13:20:00"
+    MBUS_TOHMSTART_TIME = "13:30:00"
+    MBUS_TOHMEND_TIME   = "20:00:00"
+
 
     @staticmethod
     def init_app(app):
