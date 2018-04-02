@@ -133,6 +133,13 @@ class Station(db.Model):
 
 
 #following models is setup for access remote pre-existing cardevent related database
+class Event(db.Model):
+    __bind_key__ = 'buscard'
+    __tablename__ = 'events'
+    CarID = db.Column(db.String(20))
+    DateTimes = db.Column(db.DateTime)
+    CardNo = db.Column(db.String(20), primary_key=True)
+
 class User(UserMixin, db.Model):
     __bind_key__ = 'tests'
     __tablename__ = 'users'
@@ -191,6 +198,7 @@ class mBus(db.Model):
     curridx = db.Column(db.Integer, default=0xFF)
     lefttime = db.Column(db.Float(precision='11,7'), default=0)
     abntime = db.Column(db.Integer,default=0)
+    abnleftDist = db.Column(db.Float(precision='11,7'), default=0)
 
     #interface for restapi use
     def to_json(self):
@@ -247,10 +255,19 @@ class mBus(db.Model):
         if currentidx <= (len(station)-2):
             print('!!!station[currentidx+1].lon, station[currentidx+1].lat:'+str(station[currentidx+1].lon)+', '+str(station[currentidx+1].lat))
         averagespeed = 15#about 60km/h bus average speed
+
         if busrec.abntime is None:
             abntime = 0
         else:
             abntime = busrec.abntime
+        if busrec.abnleftDist is None:
+            abnleftDist = 0
+        else:
+            abnleftDist = busrec.abnleftDist
+        if busrec.lefttime is None:
+            busreclefttime = 0
+        else:
+            busreclefttime = busrec.lefttime
 
         if currentidx <= (len(station)-2):
             leftdist = haversine(lon, lat, station[currentidx+1].lon, station[currentidx+1].lat)
@@ -259,17 +276,22 @@ class mBus(db.Model):
             print('!!!last leftime:'+str(busrec.lefttime))
             #if current lefttime greater than last lefttime
             #regard it for mistake calculated for currentindex
-            if busrec.lefttime < lefttime:
+            if busreclefttime < lefttime:
                 #abnormal case
                 #handle based on abnormal time.
                 if abntime == 0:
-                    #the first time abnormal only record time tick
+                    #the first time abnormal only record time tick and leftDistance
                     abntime = nowtimetk
+                    abnleftDist = leftdist
+                    print('!!!first time enter abnormal')
+                    print('!!!abntime and abnleftDist:'+str(abntime)+', '+str(abnleftDist))
                 else:
-                    if (nowtimetk - abntime) >= 30:
-                        #during 30 seconds, the bus is always far from dest station
+                    if ((nowtimetk - abntime) >= 30) and ((leftdist - abnleftDist) >= 100):
+                        #during(more than) 30 seconds, the bus is always far from dest station
+                        #with different distance more than 100 meters
                         ##recalculate the current station once
                         abntime = nowtimetk
+                        abnleftDist = leftdist
                         currentidx = mBus.getnearstation(station, lon, lat)
                         print('!!!recalculate the current station once index:'+str(currentidx))
                         if currentidx <= (len(station)-2):
@@ -286,6 +308,7 @@ class mBus(db.Model):
                 if ((nowtimetk-abntime)<=10) and (abntime!=0):
                     print('!!! re-enter normal state')
                     abntime = 0
+                    abnleftDist = 0
                 if leftdist <= 100.0:
                     #arrived and index to next station
                     currentidx = currentidx+1      
@@ -294,7 +317,7 @@ class mBus(db.Model):
                         leftdist = haversine(lon, lat, station[currentidx+1].lon, station[currentidx+1].lat)
                         lefttime = (leftdist*1.5/averagespeed)/60 # unit-->minute
 
-        return currentidx, lefttime, abntime
+        return currentidx, lefttime, abntime, abnleftDist
     
     @staticmethod
     def getnearstation(stations, lon, lat):
@@ -338,6 +361,7 @@ class mBus(db.Model):
         currentidx = 0xFF       
         lefttime = 0
         abntime = 0
+        abnleftDist = 0
         
 
         stations = busrec.stations.order_by(mStation.time).all()
@@ -396,7 +420,7 @@ class mBus(db.Model):
                     #GPS data recv before arrive at first stop
                     currentidx = -1
                     print('!!!GPS data recv before arrive at first stop')
-                    currentidx, lefttime, abntime = mBus.locCoreAlgorithm(currentidx, lefttime, busrec, station, lon, lat)
+                    currentidx, lefttime, abntime, abnleftDist = mBus.locCoreAlgorithm(currentidx, lefttime, busrec, station, lon, lat)
                 else:
                     #GPS data recv after the first stop
                     #should find the nearest station index for current bus location
@@ -407,13 +431,13 @@ class mBus(db.Model):
                 #re-calculate the left distance and left time
                 currentidx = busrec.curridx
                 print('!!!re-calculate the left distance and left time current idex:'+str(currentidx))
-                currentidx, lefttime, abntime = mBus.locCoreAlgorithm(currentidx, lefttime, busrec, station, lon, lat)
+                currentidx, lefttime, abntime, abnleftDist = mBus.locCoreAlgorithm(currentidx, lefttime, busrec, station, lon, lat)
 
         else:
             #not in shuttle bus time, return invalid data
             print('!!!not in shuttle bus time, return invalid data')
           
-        return currentidx, lefttime, abntime
+        return currentidx, lefttime, abntime, abnleftDist
 
     @staticmethod
     def update_gps(json_post):
@@ -436,7 +460,7 @@ class mBus(db.Model):
         busrec = mBus.query.filter_by(equip_id=equip_id).first()
         if busrec is not None:
             #first update location
-            busrec.curridx, busrec.lefttime, busrec.abntime = mBus.calbuslocation(busrec, lon, lat, datetimeobj)
+            busrec.curridx, busrec.lefttime, busrec.abntime, busrec.abnleftDist = mBus.calbuslocation(busrec, lon, lat, datetimeobj)
             #next update json data
             busrec.equip_id = equip_id
             busrec.lat = lat

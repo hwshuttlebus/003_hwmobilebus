@@ -134,7 +134,7 @@ angular.module('hwmobilebusApp')
           $scope.stations[i].attr2 = "greyout";
           $scope.stations[i].attr1 = "greyout";
           $scope.stations[i].locinfo = "无班车位置数据"
-          MapService.removemarker(true, busmarker);
+          MapService.removemarker(false, busmarker);
           busmarker = null;
         } else {
           if (i <= $scope.businfo.currindx) {
@@ -142,7 +142,7 @@ angular.module('hwmobilebusApp')
             $scope.stations[i].attr2 = "greyout";
             $scope.stations[i].attr1 = "greyout";
             $scope.stations[i].locinfo = "已到站"
-            MapService.removemarker(true, busmarker);
+            MapService.removemarker(false, busmarker);
             busmarker = null;
           } else if ((i>$scope.businfo.currindx) && (i<($scope.stations.length-1))){
             $scope.stations[i].attr3 = "";

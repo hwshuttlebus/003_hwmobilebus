@@ -3,7 +3,7 @@ from flask_login import current_user, login_required
 from . import main
 from .forms import EditProfileForm, EditProfileAdminForm, PostForm
 from ..decorators import admin_required, permission_required
-from ..models import mUser, mRole, mPost
+from ..models import mUser, mRole, mPost, Event
 from .. import db
 
 #from flask import 
@@ -11,6 +11,10 @@ from .. import db
 
 @main.route('/', methods=['GET', 'POST'])
 def index():
+    eventrec = Event.query.filter_by(CarID=30).all()
+    for item in eventrec:
+        print(item.CarID)
+
     if False == current_user.is_authenticated:
         return redirect(url_for('auth.login'))
     return render_template('index.html')

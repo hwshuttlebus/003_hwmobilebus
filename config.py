@@ -46,7 +46,8 @@ class DevelopmentConfig(Config):
         'mysql+pymysql://root:honeywell+123@localhost/shuttlebus'
         #'sqlite:///' + os.path.join(basedir, 'data-dev.sqlite')
     SQLALCHEMY_BINDS = {
-        'tests':    'sqlite:///c:\hzj/04_work/14_shuttle_bus/01_research/01_web_server_flask/02_test2\shuttlebusTest/flasky/data-dev.sqlite'
+        'tests':    'sqlite:///c:\hzj/04_work/14_shuttle_bus/01_research/01_web_server_flask/02_test2\shuttlebusTest/flasky/data-dev.sqlite',
+        'buscard':  'mysql+pymysql://user1:HON123well@120.136.169.155/bussystem'
     }
 
 class TestingConfig(Config):
