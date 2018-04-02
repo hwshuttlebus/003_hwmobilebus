@@ -142,7 +142,6 @@ angular.module('hwmobilebusApp')
             $scope.stations[i].attr2 = "greyout";
             $scope.stations[i].attr1 = "greyout";
             $scope.stations[i].locinfo = "已到站"
-            MapService.removemarker(false, busmarker);
             busmarker = null;
           } else if ((i>$scope.businfo.currindx) && (i<($scope.stations.length-1))){
             $scope.stations[i].attr3 = "";
@@ -160,16 +159,19 @@ angular.module('hwmobilebusApp')
             $scope.stations[i].attr1 = "";
             if ($scope.businfo.currindx == $scope.stations.length) {
               $scope.stations[i].locinfo = "已到站"
+              MapService.removemarker(false, busmarker);
             } else if ($scope.businfo.currindx == ($scope.stations.length-1)){
               $scope.stations[i].locinfo = "约"+lefttime+"分钟";
+              /* update map bus marker */
+              busmarker =  MapService.updatemarker(false, busmarker, $scope.businfo.lon, $scope.businfo.lat);
             } else {
               distance = MapService.getDist(false, $scope.stations[$scope.businfo.currindx+1], $scope.stations[i]);
               lefttime = Math.ceil(lefttime+distance*1.5/15/60);
               $scope.stations[i].locinfo = "约"+lefttime+"分钟";
+              /* update map bus marker */
+              busmarker =  MapService.updatemarker(false, busmarker, $scope.businfo.lon, $scope.businfo.lat);
             }
           } 
-          /* update map bus marker */
-          busmarker =  MapService.updatemarker(false, busmarker, $scope.businfo.lon, $scope.businfo.lat);
         }
       }
     };

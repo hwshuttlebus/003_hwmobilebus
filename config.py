@@ -26,6 +26,11 @@ class Config:
             #'schedule': datetime.timedelta(seconds=3),
             'schedule': crontab('*/15'),
             'args':("Message",)
+        },
+        'daily-at-midnight': {
+            'task': 'celery_worker.calcbusdata',
+            'schedule': crontab(minute=0, hour=0),
+            'args':("Message",)
         }
     }
 

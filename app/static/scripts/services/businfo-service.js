@@ -9,8 +9,8 @@
  */
 angular.module('hwmobilebusApp')
   .service('BusinfoService', function ($resource) {
-    //var BASE = 'http://localhost:5000/api/v1.0/';
-    var BASE = 'http://www.hwmobilebus.tk:9001/api/v1.0/'
+    var BASE = 'http://localhost:5000/api/v1.0/';
+    //var BASE = 'http://www.hwmobilebus.tk:9001/api/v1.0/'
     /* REST API for query busstation information */
     return $resource(BASE,
       {},

@@ -257,15 +257,15 @@ class mBus(db.Model):
         averagespeed = 15#about 60km/h bus average speed
 
         if busrec.abntime is None:
-            abntime = 0
+            abntime = 0.0
         else:
             abntime = busrec.abntime
         if busrec.abnleftDist is None:
-            abnleftDist = 0
+            abnleftDist = 0.0
         else:
             abnleftDist = busrec.abnleftDist
         if busrec.lefttime is None:
-            busreclefttime = 0
+            busreclefttime = 0.0
         else:
             busreclefttime = busrec.lefttime
 
@@ -279,16 +279,16 @@ class mBus(db.Model):
             if busreclefttime < lefttime:
                 #abnormal case
                 #handle based on abnormal time.
-                if abntime == 0:
+                if abntime == 0.0:
                     #the first time abnormal only record time tick and leftDistance
                     abntime = nowtimetk
                     abnleftDist = leftdist
                     print('!!!first time enter abnormal')
                     print('!!!abntime and abnleftDist:'+str(abntime)+', '+str(abnleftDist))
                 else:
-                    if ((nowtimetk - abntime) >= 30) and ((leftdist - abnleftDist) >= 100):
+                    if ((nowtimetk - abntime) >= 30) and ((leftdist - abnleftDist) >= 200):
                         #during(more than) 30 seconds, the bus is always far from dest station
-                        #with different distance more than 100 meters
+                        #with different distance more than 200 meters
                         ##recalculate the current station once
                         abntime = nowtimetk
                         abnleftDist = leftdist
@@ -307,8 +307,8 @@ class mBus(db.Model):
                 print(abntime)
                 if ((nowtimetk-abntime)<=10) and (abntime!=0):
                     print('!!! re-enter normal state')
-                    abntime = 0
-                    abnleftDist = 0
+                    abntime = 0.0
+                    abnleftDist = 0.0
                 if leftdist <= 100.0:
                     #arrived and index to next station
                     currentidx = currentidx+1      
@@ -357,6 +357,7 @@ class mBus(db.Model):
 
     @staticmethod
     def calbuslocation(busrec, lon, lat, datetimeobj):
+        
         #init variable
         currentidx = 0xFF       
         lefttime = 0
@@ -451,6 +452,8 @@ class mBus(db.Model):
         lon, lat = gcj02tobd09(lnggc02, latgc02)
 
         recordtime = json_post.get('bus_recordtime')
+        print('!!!current gps data: '+str(latwsg)+', '+str(lngwsg)+', '+ str(recordtime))
+
         if recordtime is not None:
             datetimeobj = datetime.strptime(recordtime.strip(), '%Y-%m-%dT%H:%M:%S')
         else:
