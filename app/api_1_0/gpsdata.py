@@ -8,7 +8,14 @@ from .authentication import auth
 #@auth.login_required
 def post_gpsdata():
     busrec = None
-    jsonres = request.get_json()
+    try:
+        jsonres = request.get_json()
+    except Exception as e:
+        print('!!!!!!!raw data!!!!!!!!!')
+        print(request.get_data())
+        print('%s' %e )
+        return jsonify({'ERROR!':'%s' %e })
+
     if jsonres is not None:
         #try:
         busrec = mBus.update_gps(jsonres)

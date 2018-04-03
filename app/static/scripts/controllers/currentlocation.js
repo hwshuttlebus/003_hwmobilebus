@@ -60,54 +60,59 @@ angular.module('hwmobilebusApp')
       $scope.loadctrl.stationinfo = true;
       $scope.loadctrl.mapinfo = true;
       /* store all bus info */
-      getbus(true);
+      BusinfoService.getbusinfo({id:$scope.busid}, function(businfo) {
+        $scope.businfo = businfo;
+        $scope.loadctrl.businfo = false;
 
-      /* get all station info */
-      BusinfoService.getstationinfo({id: $scope.busid}, function (inputstationinfo) {
-        var templocal;
-        var countup = 0;
-        var countdown = 0;
-        var stationinfo = [];
+        /* get all station info */
+        BusinfoService.getstationinfo({id: $scope.busid}, function (inputstationinfo) {
+          var templocal;
+          var countup = 0;
+          var countdown = 0;
+          var stationinfo = [];
 
-        stationinfo = inputstationinfo;
+          stationinfo = inputstationinfo;
 
-        for (var i=0; i<stationinfo.length; i++) {
-          if (true == stationinfo[i].dirtocompany) {
-            /* transfer date string to object */
-            templocal = stationinfo[i];
-            templocal.datetime = new Date("2018-01-01T"+stationinfo[i].time+":00");
-            templocal.icon = "/static/images/"+String.fromCharCode(65+countup)+".png";
-            templocal.char = String.fromCharCode(65+countup);
-            countup++;
-            $scope.tocompanystations.push(templocal);
-          } else {
-            /* transfer date string to object */
-            templocal = stationinfo[i];
-            templocal.datetime = new Date("2018-01-01T"+stationinfo[i].time+":00");
-            templocal.icon = "/static/images/"+String.fromCharCode(65+countdown)+".png";
-            templocal.char = String.fromCharCode(65+countdown);
-            countdown++;
-            $scope.tohomestations.push(templocal);
+          for (var i=0; i<stationinfo.length; i++) {
+            if (true == stationinfo[i].dirtocompany) {
+              /* transfer date string to object */
+              templocal = stationinfo[i];
+              templocal.datetime = new Date("2018-01-01T"+stationinfo[i].time+":00");
+              templocal.icon = "/static/images/"+String.fromCharCode(65+countup)+".png";
+              templocal.char = String.fromCharCode(65+countup);
+              countup++;
+              $scope.tocompanystations.push(templocal);
+            } else {
+              /* transfer date string to object */
+              templocal = stationinfo[i];
+              templocal.datetime = new Date("2018-01-01T"+stationinfo[i].time+":00");
+              templocal.icon = "/static/images/"+String.fromCharCode(65+countdown)+".png";
+              templocal.char = String.fromCharCode(65+countdown);
+              countdown++;
+              $scope.tohomestations.push(templocal);
+            }
           }
-        }
 
-        /* render route if map ready */
-        if (true == RouteLoadFSM.maploaded) {
-          var inputstations;
-          if (true == $scope.isDirToCompany) {
-              inputstations = $scope.tocompanystations;
-          } else {
-              inputstations = $scope.tohomestations;
+          /* render route if map ready */
+          if (true == RouteLoadFSM.maploaded) {
+            var inputstations;
+            if (true == $scope.isDirToCompany) {
+                inputstations = $scope.tocompanystations;
+            } else {
+                inputstations = $scope.tohomestations;
+            }
+            MapService.loadmap(maptemp, inputstations, loadmapcomplete);
+            allinfoget();
+          } else if (true == RouteLoadFSM.initstate) {
+            RouteLoadFSM.initstate = false;
+            RouteLoadFSM.stationget = true;
           }
-          MapService.loadmap(maptemp, inputstations, loadmapcomplete);
-          allinfoget();
-        } else if (true == RouteLoadFSM.initstate) {
-          RouteLoadFSM.initstate = false;
-          RouteLoadFSM.stationget = true;
-        }
-        $scope.loadctrl.stationinfo = false;
+          $scope.loadctrl.stationinfo = false;
+        }, function (error) {
+          console.log('error:'+error.status);
+        });
       }, function (error) {
-
+        console.log('error:'+error.status);
       });
     };
 
@@ -134,7 +139,6 @@ angular.module('hwmobilebusApp')
           $scope.stations[i].attr2 = "greyout";
           $scope.stations[i].attr1 = "greyout";
           $scope.stations[i].locinfo = "无班车位置数据"
-          MapService.removemarker(false, busmarker);
           busmarker = null;
         } else {
           if (i <= $scope.businfo.currindx) {
@@ -162,17 +166,21 @@ angular.module('hwmobilebusApp')
               MapService.removemarker(false, busmarker);
             } else if ($scope.businfo.currindx == ($scope.stations.length-1)){
               $scope.stations[i].locinfo = "约"+lefttime+"分钟";
-              /* update map bus marker */
-              busmarker =  MapService.updatemarker(false, busmarker, $scope.businfo.lon, $scope.businfo.lat);
+              
             } else {
               distance = MapService.getDist(false, $scope.stations[$scope.businfo.currindx+1], $scope.stations[i]);
               lefttime = Math.ceil(lefttime+distance*1.5/15/60);
               $scope.stations[i].locinfo = "约"+lefttime+"分钟";
-              /* update map bus marker */
-              busmarker =  MapService.updatemarker(false, busmarker, $scope.businfo.lon, $scope.businfo.lat);
             }
           } 
         }
+      }
+
+      /* update marker */
+      if (($scope.stations.length == $scope.businfo.currentidx) || (0xFF == $scope.businfo.currentidx)) {
+        MapService.removemarker(false, busmarker);
+      } else {
+        busmarker =  MapService.updatemarker(false, busmarker, $scope.businfo.lon, $scope.businfo.lat);
       }
     };
 
@@ -180,8 +188,8 @@ angular.module('hwmobilebusApp')
       getbus(false);
     };
 
-    /* update location for every 3 seconds */
-    var myInterval = $interval(updateloc, 3000);
+    /* update location for every 1 min */
+    var myInterval = $interval(updateloc, 60000);
 
     $scope.usedseat= "";
     $scope.tocompanystations = [];
@@ -251,6 +259,8 @@ angular.module('hwmobilebusApp')
         if ($scope.stations.length < 2) {
           $scope.loadctrl.mapinfo = false;
         }
+        /* update current html attribute */
+        updateattr();
       }
     });
 

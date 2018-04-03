@@ -248,13 +248,18 @@ class mBus(db.Model):
                     color=color, buslicense=buslicense, campus=campus, number=number)
     
     
-    #@staticmethod
-    #def updatediagram(station, busrec):
+    @staticmethod
+    def updatediagram(station, busrec):
+        currbeijingtime = get_currbj_time()
         #update date
-
+        mdateobj = currbeijingtime.date()
         #update time
-
-        #update 
+        mtimeobj = currbeijingtime.time()
+        #current time will update in celery task
+        diagramrec = DiagramData(mdate=mdateobj, arrive_time=mtimeobj,current_num=0, station_id=station.id)
+        print(diagramrec.to_json())
+        db.session.add(diagramrec)
+        db.session.commit()
 
 
     @staticmethod
@@ -323,7 +328,7 @@ class mBus(db.Model):
                     #arrived and index to next station
                     currentidx = currentidx+1      
                     print('!!!#arrived and index to next station index:　'+str(currentidx))
-                    updatediagram(station[currentidx], busrec)
+                    mBus.updatediagram(station[currentidx], busrec)
                     if currentidx <= (len(station)-2):
                         leftdist = haversine(lon, lat, station[currentidx+1].lon, station[currentidx+1].lat)
                         lefttime = (leftdist*1.5/averagespeed)/60 # unit-->minute
@@ -416,6 +421,8 @@ class mBus(db.Model):
         print('!!!!!! current time:')
         print(nowtime)
         nowtime = nowtime.replace(tzinfo=None)
+
+        mBus.updatediagram(stations[0], busrec)
 
         #ENTER CORE ASSESSMENT ALGUORITHM 
         if (((nowtime >= towkstartoffsetobj) and (nowtime <= towkendoffsetobj)) or
@@ -745,7 +752,7 @@ def load_user(userid):
 class DiagramData(db.Model):
     __tablename__ = 'diagrams'
     id = db.Column(db.Integer, primary_key=True)
-    mdate = db.Column(db.Time())
+    mdate = db.Column(db.Date())
     arrive_time = db.Column(db.Time())
     current_num = db.Column(db.Integer, default=0)
     station_id = db.Column(db.Integer, db.ForeignKey('mstations.id'))
@@ -753,8 +760,8 @@ class DiagramData(db.Model):
     def to_json(self):
         json_post = {
             'id': self.id,
-            'mdate': self.time.strftime('%Y-%m-%d'),
-            'arrive_time': self.time.strftime('%H:%M'),
+            'mdate': self.mdate.strftime('%Y-%m-%d'),
+            'arrive_time': self.arrive_time.strftime('%H:%M'),
             'current_num': self.current_num,
             'station_id': self.station_id
         }
@@ -766,7 +773,6 @@ class DiagramData(db.Model):
             mdateobj = datetime.strptime(time.strip(), '%Y-%m-%d').time()
         else:
             mdateobj = datetime.strptime('2000-01-01', '%Y-%m-%d').time()
-
         if arrive_time is not None:
             arrive_timeobj = datetime.strptime(time.strip(), '%H:%M').time()
         else:
@@ -774,8 +780,8 @@ class DiagramData(db.Model):
 
         current_num = json_post.get('current_num')
         station_id = json_post.get('station_id')
-        return DiagramData(mdate=mdate, mdateobj=mdateobj, arrive_timeobj=arrive_timeobj,
-                           current_num=current_num)
+        return DiagramData(mdate=mdateobj,arrive_time=arrive_timeobj,
+                           current_num=current_num, station_id=station_id)
 
 
 

@@ -32,7 +32,7 @@ def cleangps(inputdata):
 
                 if tocmpendStation is None:
                     tocmpendStation = item2
-                elif item2.time > tocmpstartStation.time:
+                elif item2.time > tocmpendStation.time:
                     tocmpendStation = item2
             else:
                 if tohmstartStation is None:
