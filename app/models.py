@@ -246,6 +246,16 @@ class mBus(db.Model):
         return mBus(name=name, cz_name=cz_name, cz_phone=cz_phone,sj_name=sj_name, 
                     sj_phone=sj_phone, equip_id=equip_id,seat_num=seat_num,
                     color=color, buslicense=buslicense, campus=campus, number=number)
+    
+    
+    #@staticmethod
+    #def updatediagram(station, busrec):
+        #update date
+
+        #update time
+
+        #update 
+
 
     @staticmethod
     def locCoreAlgorithm(currentidx, lefttime, busrec, station, lon, lat):
@@ -313,6 +323,7 @@ class mBus(db.Model):
                     #arrived and index to next station
                     currentidx = currentidx+1      
                     print('!!!#arrived and index to next station index:　'+str(currentidx))
+                    updatediagram(station[currentidx], busrec)
                     if currentidx <= (len(station)-2):
                         leftdist = haversine(lon, lat, station[currentidx+1].lon, station[currentidx+1].lat)
                         lefttime = (leftdist*1.5/averagespeed)/60 # unit-->minute
@@ -357,15 +368,22 @@ class mBus(db.Model):
 
     @staticmethod
     def calbuslocation(busrec, lon, lat, datetimeobj):
-        
         #init variable
         currentidx = 0xFF       
         lefttime = 0
         abntime = 0
         abnleftDist = 0
+        stationup = []
+        stationdown = []
         
-
+        #get the to company and to home stations
         stations = busrec.stations.order_by(mStation.time).all()
+        for item in stations:
+            if (True == item.dirtocompany):
+                stationup.append(item)
+            else:
+                stationdown.append(item)
+
         #get current Beijing time
         from_zone = tz.gettz('UTC')
         to_zone = tz.gettz('Asia/Shanghai')
@@ -378,44 +396,39 @@ class mBus(db.Model):
         #nowtime = utcnowtime
 
         #define string const for time
-        towkstart = Config.MBUS_TOWKSTART_TIME
-        towkend = Config.MBUS_TOWKEND_TIME
-        tohmstart = Config.MBUS_TOHMSTART_TIME
-        tohmend = Config.MBUS_TOHMEND_TIME
+        towkstart = stationup[0].time.strftime('%H:%M:%S')
+        towkend = stationup[-1].time.strftime('%H:%M:%S')
+        tohmstart = stationdown[0].time.strftime('%H:%M:%S')
+        tohmend = stationdown[-1].time.strftime('%H:%M:%S')
 
         #transfer to datetime object
         strprefix = nowtime.strftime('%Y-%m-%dT')
-
         towkstartobj = datetime.strptime(strprefix+towkstart, '%Y-%m-%dT%H:%M:%S')
         towkendobj = datetime.strptime(strprefix+towkend, '%Y-%m-%dT%H:%M:%S')
         tohmstartobj = datetime.strptime(strprefix+tohmstart, '%Y-%m-%dT%H:%M:%S')
         tohmendobj = datetime.strptime(strprefix+tohmend, '%Y-%m-%dT%H:%M:%S')
+        #add tolerance offset for time
+        towkendoffsetobj = towkendobj + timedelta(minutes=60)
+        tohmendoffsetobj = tohmendobj + timedelta(minutes=60)
+        towkstartoffsetobj = towkstartobj - timedelta(minutes=10)
+        tohmstartoffsetobj = tohmstartobj - timedelta(minutes=10)
 
         print('!!!!!! current time:')
         print(nowtime)
         nowtime = nowtime.replace(tzinfo=None)
 
-        #judge whether in work time and filter related station
-        stationup = []
-        stationdown = []
-        for item in stations:
-            if (True == item.dirtocompany):
-                stationup.append(item)
-            else:
-                stationdown.append(item)
         #ENTER CORE ASSESSMENT ALGUORITHM 
-        if (((nowtime >= towkstartobj) and (nowtime <= towkendobj)) or
-             ((nowtime >= tohmstartobj) and (nowtime <= tohmendobj))):
+        if (((nowtime >= towkstartoffsetobj) and (nowtime <= towkendoffsetobj)) or
+             ((nowtime >= tohmstartoffsetobj) and (nowtime <= tohmendoffsetobj))):
 
-             
-            if ((nowtime >= towkstartobj) and (nowtime <= towkendobj)):
+            if ((nowtime >= towkstartoffsetobj) and (nowtime <= towkendoffsetobj)):
                 print('!!!enter to company procedure')
                 station = stationup
             else:
                 print('!!!enter to home procedure')
                 station = stationdown
 
-            if (busrec.curridx == 0xFF) and ((datetimeobj < towkstartobj) or (datetimeobj < tohmstartobj)):
+            if (busrec.curridx == 0xFF) and ((datetimeobj <= towkstartobj) or (datetimeobj <= tohmstartobj)):
                 #first time recv valid gps data after enter shuttle bus time
                 if nowtime.time() <= station[0].time:
                     #GPS data recv before arrive at first stop

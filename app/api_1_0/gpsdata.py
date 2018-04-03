@@ -7,10 +7,13 @@ from .authentication import auth
 @api.route('/mbusdata/gpsdata/', methods=['POST'])
 #@auth.login_required
 def post_gpsdata():
-    #try:
-    busrec = mBus.update_gps(request.json)
-    #except Exception as e:
-        #return jsonify({'ERROR!':'%s' %e })
+    busrec = None
+    jsonres = request.get_json()
+    if jsonres is not None:
+        #try:
+        busrec = mBus.update_gps(jsonres)
+        #except Exception as e:
+        #    return jsonify({'ERROR!':'%s' %e })
 
     if busrec is not None:
         #update or create item to database
