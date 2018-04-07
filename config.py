@@ -29,7 +29,8 @@ class Config:
         },
         'daily-at-midnight': {
             'task': 'celery_worker.calcbusdata',
-            'schedule': crontab(minute=0, hour=0),
+            'schedule': datetime.timedelta(hours=3),
+            #'schedule': crontab(minute=0, hour=0),
             'args':("Message",)
         }
     }

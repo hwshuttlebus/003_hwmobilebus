@@ -8,12 +8,18 @@
                 <div class="panel panel-info">
                     <div class="panel-heading">住址</div>
                     <div class="panel-body table-responsive">
-                        <div class="col-xs-8">
+                        <div class="col-xs-6">
                             <input class="form-control input-xs" id="suggestId" type="text" />
                             <div id="searchResultPanel" style="border:1px solid #C0C0C0;width:150px;height:auto; display:none;"></div>
                         </div>
-                        <button type="button" class="btn btn-primary col-xs-4" ng-click="recroute()" >推荐线路</button>
-                   
+                        <div class="col-xs-3">
+                            <button type="button" class="btn btn-primary" 
+                                ng-click="recroute()" ng-disabled="loadctrl.disablesrch" >推荐线路</button>
+                        </div>
+                        <div class="col-xs-3">
+                            <button type="button" class="btn btn-danger" 
+                            ng-click="applystation()" ng-disabled="loadctrl.disablesrch">申请站点</button>
+                        </div>
                     </div>
                 </div>
                 <div class="panel panel-info">
@@ -36,14 +42,21 @@
                         <select ng-model="regstation.tohome" ng-options="opthmstation as opthmstation.name for opthmstation in options.tohomestations"></select>
                     </div>
                 </div>
+                <div class="col-xs-12">
+                    <button type="button" class="btn btn-primary btn-block" ng-click="regsubmit()">提交我的班车</button>
+                </div>
             </div>
         </div>
     
+        <div class="col-md-6">
+            <label class="text"></label>
+        </div>
         <div class="col-md-8 column">
             <baidu-map map-options="mapOptions" loaded="loadmapedit(map)" 
                 offline="offlineOpts" click="clicklatlon(e)">
             </baidu-map>
         </div>
     </div>
+    
     
 </div>

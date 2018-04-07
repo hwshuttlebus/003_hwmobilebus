@@ -68,6 +68,19 @@ angular.module('hwmobilebusApp')
         }
       };
 
+    this.geninfomodal = function (proc, title, content, template, ctrl, size, scope) {
+        var resolve = {
+            items: function () {
+                return {
+                    proc: proc,
+                    title: title,
+                    content: content
+                };
+            }
+        };
+        this.genmodal(template, ctrl, size, resolve, scope);
+    };
+
     this.genmodal = function (template, ctrl, size, resolve, scope) {
         modalInstance = $uibModal.open({
             animation: true,

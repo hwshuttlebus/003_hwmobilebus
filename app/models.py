@@ -30,12 +30,17 @@ def haversine(lon1, lat1, lon2, lat2):
     return c * r * 1000 # meters for unit
 
 def get_currbj_time():
+    
+
     #get current Beijing time
     from_zone = tz.gettz('UTC')
     to_zone = tz.gettz('Asia/Shanghai')
     utcnowtime= datetime.utcnow()
     utcnowtime = utcnowtime.replace(tzinfo=from_zone)
     nowtime = utcnowtime.astimezone(to_zone)
+
+    #utcnowtime = datetime.strptime('2018-04-03T07:35:21', '%Y-%m-%dT%H:%M:%S')
+    #nowtime = utcnowtime
 
     return nowtime
 
@@ -255,12 +260,45 @@ class mBus(db.Model):
         mdateobj = currbeijingtime.date()
         #update time
         mtimeobj = currbeijingtime.time()
-        #current time will update in celery task
+        #current number will update in celery task
         diagramrec = DiagramData(mdate=mdateobj, arrive_time=mtimeobj,current_num=0, station_id=station.id)
         print(diagramrec.to_json())
         db.session.add(diagramrec)
         db.session.commit()
 
+    @staticmethod
+    def fakediagram():
+        currbeijingtime = get_currbj_time()
+        #update date
+        mdateobj = currbeijingtime.date()
+
+        #in bus time
+        timestr1 = [('07:28:10', 48),('07:45:01',49),('07:46:12',50), ('07:57:02', 51), ('08:04:00', 52), ('08:46:25', 53)]  
+        timestr2 = [('17:42:10', 55),('17:51:01',56),('18:03:12',57)]  
+        timestr1obj = []
+        timestr2obj = []
+        for item in timestr1:
+            timestr1obj.append((datetime.strptime(item[0], '%H:%M:%S').time(), item[1]))
+        for item2 in timestr2:
+            timestr2obj.append((datetime.strptime(item2[0], '%H:%M:%S').time(), item2[1]))
+        #duplicate
+        timestr3 = [('07:40:01', 48),('07:45:03',50)]  
+        timestr4 = [('18:08:12',57)]  
+        timestr3obj = []
+        timestr4obj = []
+        for item in timestr3:
+            timestr1obj.append((datetime.strptime(item[0], '%H:%M:%S').time(), item[1]))
+        for item2 in timestr4:
+            timestr2obj.append((datetime.strptime(item2[0], '%H:%M:%S').time(), item2[1]))
+
+        for item3 in timestr1obj:
+            diagramrec = DiagramData(mdate=mdateobj, arrive_time=item3[0],current_num=0, station_id=item3[1])
+            db.session.add(diagramrec)
+            db.session.commit()
+        for item4 in timestr2obj:
+            diagramrec = DiagramData(mdate=mdateobj, arrive_time=item4[0],current_num=0, station_id=item4[1])
+            db.session.add(diagramrec)
+            db.session.commit()
 
     @staticmethod
     def locCoreAlgorithm(currentidx, lefttime, busrec, station, lon, lat):
@@ -374,7 +412,7 @@ class mBus(db.Model):
     @staticmethod
     def calbuslocation(busrec, lon, lat, datetimeobj):
         #init variable
-        currentidx = 0xFF       
+        currentidx = 0xFF
         lefttime = 0
         abntime = 0
         abnleftDist = 0
@@ -422,22 +460,30 @@ class mBus(db.Model):
         print(nowtime)
         nowtime = nowtime.replace(tzinfo=None)
 
-        mBus.updatediagram(stations[0], busrec)
-
         #ENTER CORE ASSESSMENT ALGUORITHM 
         if (((nowtime >= towkstartoffsetobj) and (nowtime <= towkendoffsetobj)) or
              ((nowtime >= tohmstartoffsetobj) and (nowtime <= tohmendoffsetobj))):
-
+            print('!!! recv GPS data in shuttlebus time!')
             if ((nowtime >= towkstartoffsetobj) and (nowtime <= towkendoffsetobj)):
-                print('!!!enter to company procedure')
-                station = stationup
+                if (datetimeobj >= towkstartoffsetobj) and (datetimeobj <= towkendoffsetobj):
+                    print('!!!enter to company procedure')
+                    station = stationup
+                else:
+                    print('!!!GPS time invalid! no valid data for to company time!')
+                    #ignore this data, return data as before
+                    return busrec.curridx, busrec.lefttime, busrec.abntime, busrec.abnleftDist
             else:
-                print('!!!enter to home procedure')
-                station = stationdown
+                if (datetimeobj >= tohmstartoffsetobj) and (datetimeobj <= tohmendoffsetobj):
+                    print('!!!enter to home procedure')
+                    station = stationdown
+                else:
+                    print('!!!GPS time invalid! no valid data for to home time!')
+                    #ignore this data, return data as before
+                    return busrec.curridx, busrec.lefttime, busrec.abntime, busrec.abnleftDist
 
-            if (busrec.curridx == 0xFF) and ((datetimeobj <= towkstartobj) or (datetimeobj <= tohmstartobj)):
+            if busrec.curridx == 0xFF:
                 #first time recv valid gps data after enter shuttle bus time
-                if nowtime.time() <= station[0].time:
+                if datetimeobj.time() <= station[0].time:
                     #GPS data recv before arrive at first stop
                     currentidx = -1
                     print('!!!GPS data recv before arrive at first stop')
@@ -457,7 +503,7 @@ class mBus(db.Model):
         else:
             #not in shuttle bus time, return invalid data
             print('!!!not in shuttle bus time, return invalid data')
-          
+        
         return currentidx, lefttime, abntime, abnleftDist
 
     @staticmethod
@@ -581,13 +627,19 @@ class mUser(UserMixin, db.Model):
                                secondary=registrations,
                                backref=db.backref('muser', lazy='dynamic'),
                                lazy='dynamic')
+    member_since = db.Column(db.DateTime(), default=datetime.utcnow)
+    last_seen = db.Column(db.DateTime(), default=datetime.utcnow)
+    
+    #user applied station information
+    applyflag = db.Column(db.Boolean, default=False)
+    applydesc = db.Column(db.String(64), default="")
+    lat = db.Column(db.Float(precision='11,8'), default=0)
+    lon = db.Column(db.Float(precision='11,8'), default=0)
 
     #reserved for future use
     name = db.Column(db.String(64))
     location = db.Column(db.String(64))
     about_me = db.Column(db.Text())
-    member_since = db.Column(db.DateTime(), default=datetime.utcnow)
-    last_seen = db.Column(db.DateTime(), default=datetime.utcnow)
     avatar_hash = db.Column(db.String(32))
 
     @staticmethod
@@ -749,6 +801,46 @@ login_manager.anonymous_user = AnoymousUser
 def load_user(userid):
     return mUser.query.get(int(userid))
 
+
+
+class BusDiagramData(db.Model):
+    __tablename__ = 'busdiagrams'
+    id = db.Column(db.Integer, primary_key=True)
+    mdate = db.Column(db.Date())
+    arrive_time = db.Column(db.Time())
+    tocomp_num = db.Column(db.Integer, default=0)
+    tohome_num = db.Column(db.Integer, default=0)
+    bus_id = db.Column(db.Integer, default=0)
+
+    def to_json(self):
+        json_post = None
+        stationup = []
+
+        busrec = mBus.query.filter_by(id=self.bus_id).first()
+        if busrec is not None:
+            stations = busrec.stations.order_by(mStation.time).all()
+            for item in stations:
+                if True == item.dirtocompany:
+                    stationup.append(item)
+            bustime = stationup[-1].time
+            if busrec.seat_num is None:
+                totalnumber = 0
+            else:
+                totalnumber = busrec.seat_num 
+            if bustime is not None:
+                json_post = {
+                    'bid': self.bus_id,
+                    'daytime': self.mdate.strftime('%Y-%m-%d'),
+                    'tocomp_num': self.tocomp_num,
+                    'tohome_num': self.tohome_num,
+                    'arriveTime': self.arrive_time.strftime('%H:%M:%S'),
+                    'totalNum': totalnumber,
+                    'busTime': bustime.strftime('%H:%M:%S')
+            }
+
+        return json_post
+
+
 class DiagramData(db.Model):
     __tablename__ = 'diagrams'
     id = db.Column(db.Integer, primary_key=True)
@@ -757,14 +849,26 @@ class DiagramData(db.Model):
     current_num = db.Column(db.Integer, default=0)
     station_id = db.Column(db.Integer, db.ForeignKey('mstations.id'))
 
+
     def to_json(self):
-        json_post = {
-            'id': self.id,
-            'mdate': self.mdate.strftime('%Y-%m-%d'),
-            'arrive_time': self.arrive_time.strftime('%H:%M'),
-            'current_num': self.current_num,
-            'station_id': self.station_id
-        }
+        json_post = None
+        stationrec  = mStation.query.filter_by(id=self.station_id).first()
+        if stationrec is not None:
+            bustime = stationrec.time
+            if stationrec.mbus.seat_num is None:
+                totalnumber = 0
+            else:
+                totalnumber = stationrec.mbus.seat_num 
+            if bustime is not None:
+                json_post = {
+                    'sid': self.station_id,
+                    'daytime': self.mdate.strftime('%Y-%m-%d'),
+                    'currentNum': self.current_num,
+                    'arriveTime': self.arrive_time.strftime('%H:%M:%S'),
+                    'totalNum': totalnumber,
+                    'busTime': bustime.strftime('%H:%M:%S')
+                }
+
         return json_post
 
     @staticmethod

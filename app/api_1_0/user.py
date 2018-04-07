@@ -39,10 +39,30 @@ def getregbus():
                         'tohomebus': '',
                         'tohomestation': ''})
 
+@api.route('/mbusdata/applystation/', methods=['POST'])
+def applystation():
+    try:
+        jsonres = request.get_json()
+    except Exception as e:
+        return jsonify({'ERROR!':'%s' %e })
+
+    if jsonres is not None:
+        desc = jsonres.get('station_desc')
+        lng = jsonres.get('station_lng')
+        lat = jsonres.get('station_lat')
+        userrec = mUser.query.filter_by(id=current_user.id).first()
+        if userrec is not None:
+            userrec.applyflag = True
+            userrec.applydesc = desc
+            userrec.lon = lng
+            userrec.lat = lat
+            db.session.add(userrec)
+            db.session.commit()
+            return jsonify(userrec.to_json())
 
 @api.route('/mbusdata/postregbus/', methods=['POST'])
 def post_regbus():
-    userrec = current_user
+    userrec = mUser.query.filter_by(id=current_user.id).first()
 
     tocompid = request.json.get('tocompid')
     if tocompid is not None:

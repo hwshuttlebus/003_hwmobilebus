@@ -163,23 +163,22 @@ angular.module('hwmobilebusApp')
             $scope.stations[i].attr1 = "";
             if ($scope.businfo.currindx == $scope.stations.length) {
               $scope.stations[i].locinfo = "已到站"
-              MapService.removemarker(false, busmarker);
             } else if ($scope.businfo.currindx == ($scope.stations.length-1)){
               $scope.stations[i].locinfo = "约"+lefttime+"分钟";
-              
+              $scope.stations[i].attr1 = "normal";
             } else {
               distance = MapService.getDist(false, $scope.stations[$scope.businfo.currindx+1], $scope.stations[i]);
               lefttime = Math.ceil(lefttime+distance*1.5/15/60);
               $scope.stations[i].locinfo = "约"+lefttime+"分钟";
+              $scope.stations[i].attr1 = "normal";
             }
           } 
         }
       }
 
       /* update marker */
-      if (($scope.stations.length == $scope.businfo.currentidx) || (0xFF == $scope.businfo.currentidx)) {
-        MapService.removemarker(false, busmarker);
-      } else {
+      MapService.removemarker(false, busmarker);
+      if (($scope.stations.length != $scope.businfo.currindx) && (0xFF != $scope.businfo.currindx)) {
         busmarker =  MapService.updatemarker(false, busmarker, $scope.businfo.lon, $scope.businfo.lat);
       }
     };

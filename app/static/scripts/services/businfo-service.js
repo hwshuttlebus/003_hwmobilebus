@@ -92,11 +92,15 @@ angular.module('hwmobilebusApp')
         },
         postregbus: {
           method: 'POST',
-          url: BASE+'mbusdata/post_regbus\\/'
+          url: BASE+'mbusdata/postregbus\\/'
         },
         getrecroute: {
           method: 'POST',
           url: BASE+'mbusdata/calrecroute\\/'
+        },
+        applystation: {
+          method: 'POST',
+          url: BASE+'mbusdata/applystation\\/',
         }
       });
   });

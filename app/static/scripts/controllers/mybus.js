@@ -162,14 +162,14 @@ angular.module('hwmobilebusApp')
     /* search location complete callback */
     var srchloccomp = function (res) {
         marker = MapService.srchloccomplete(true);
-        $scope.loadctrl.srchloc = false;
+        $scope.loadctrl.disablesrch = false;
 
-        /* handle recommend route if needed */
-        if (true == recroutestate.inrecroute) {
-            $scope.recroute();
-        }
-        
         $scope.$apply();
+
+        /* record srch result */
+        $scope.srchresult.desc = res.getPoi(0).title;
+        $scope.srchresult.lng = res.getPoi(0).point.lng;
+        $scope.srchresult.lat = res.getPoi(0).point.lat;
     };
 
     /* load map complete callback function */
@@ -184,7 +184,7 @@ angular.module('hwmobilebusApp')
         stationinfo: false,
         mapinfo: false,
         submit: false,
-        srchloc: true
+        disablesrch: true
     };
 
     $scope.options = {
@@ -193,6 +193,7 @@ angular.module('hwmobilebusApp')
         tohomestations: []
     };
 
+    /* registerd bus info in html */
     $scope.regbus = {
         tocomp: null,
         tohome: null
@@ -202,6 +203,13 @@ angular.module('hwmobilebusApp')
         tocomp: null,
         tohome: null
     };
+
+    /* search result information */
+    $scope.srchresult = {
+        desc: null,
+        lng: 0,
+        lat: 0
+    }
 
 
     $scope.offlineOpts = {
@@ -247,14 +255,7 @@ angular.module('hwmobilebusApp')
 
     /* recommend route handler */
     $scope.recroute = function () {
-        if (true == $scope.loadctrl.srchloc) {
-            /* there is pending srclocation procedure, handle after procedure complete */
-            recroutestate.norecroute = false;
-            recroutestate.inrecroute = true;
-        } else if (null != marker) {
-            $scope.loadctrl.srchloc = true;
-            recroutestate.norecroute = true;
-            recroutestate.inrecroute = false;
+        if (null != marker) {
             /* create json data */
             var address = new BusinfoService();
             address.lng = marker.getPosition().lng;
@@ -267,6 +268,7 @@ angular.module('hwmobilebusApp')
                 var result = JSON.stringify(res);
                 if (result.indexOf('ERROR') != -1) {
                     /* do nothing currently */
+                    $scope.loadctrl.disablesrch = true;
                 } else {
                     /* get the best route from server */
                     /* update register bus element in html */
@@ -284,15 +286,49 @@ angular.module('hwmobilebusApp')
                     }
                     /* get related to company station and update them in html */
                     updatestation(busidcomp, busidhome, res, true);
-
-                    
+                    $scope.loadctrl.disablesrch = true;
                 }
             },function (error) {
                 /* do nothing currently */
-                recroutestate.norecroute = true;
-                recroutestate.inrecroute = false;
+                $scope.loadctrl.disablesrch = true;
             });
         }
+    };
+
+    /* handle when apply for station */
+    $scope.applystation = function() {
+        var titlelocal = "请确认申请站点信息！";
+        var contentlocal = $scope.srchresult.desc;
+        var resolve = {
+            items: function () {
+                return {
+                    proc: 'applystation',
+                    desc: $scope.srchresult.desc,
+                    lng: $scope.srchresult.lng,
+                    lat: $scope.srchresult.lat,
+                    title: titlelocal,
+                    content: contentlocal
+                };                
+            }
+        };
+        InterfService.genmodal('infoModal.html', 'modalOpenCtrl', 'sm', resolve, $scope);
+    };
+
+    /* submit mybus */
+    $scope.regsubmit = function() {
+        var updatereg = new BusinfoService();
+        updatereg.tocompid = $scope.regstation.tocomp.id;
+        updatereg.tohomeid = $scope.regstation.tohome.id;
+        updatereg.$postregbus(function (res) {
+            var result = JSON.stringify(res);
+            if (result.indexOf('ERROR') != -1) {
+                InterfService.geninfomodal('regstation', '提交失败！', result, 'infoModal.html', 'modalOpenCtrl', 'sm', $scope);
+            } else {
+                InterfService.geninfomodal('regstation', '提交成功','','infoModal.html', 'modalOpenCtrl', 'sm', $scope)
+            }
+        }, function (error) {
+            InterfService.geninfomodal('regstation', '提交失败！', error.status, 'infoModal.html', 'modalOpenCtrl', 'sm', $scope);
+        })
     };
 
     initfunc();

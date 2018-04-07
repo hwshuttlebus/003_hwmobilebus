@@ -11,13 +11,6 @@ from .. import db
 
 @main.route('/', methods=['GET', 'POST'])
 def index():
-    try:
-        eventrec = Event.query.filter_by(CarID=30).all()
-        for item in eventrec:
-            print(item.CarID)
-    except Exception as e:
-        print('%s' %e)
-
     if False == current_user.is_authenticated:
         return redirect(url_for('auth.login'))
     return render_template('index.html')
