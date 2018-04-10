@@ -153,6 +153,13 @@ baidu-map {
 	border-radius: 50px;
 }
 
+.label.round-custom span {
+	display:block;
+	font-size: 125%;
+	margin: 0px 0px 0px 0px;
+	font-family:Lucida Console;
+}
+
 /* draw pin */
 .label.pin-custom {
 	display:inline-block;
@@ -233,6 +240,67 @@ baidu-map {
 	background: url(/static/images/hwlogo.svg);
 	background-size: 200px;
 	background-position: center;
-	margin-left: 80px;
+	margin-left: 55px;
 	border-style:  100px;
 }
+
+
+@keyframes slideOutRight {
+	to    { transform: translateX(100%); }
+  }
+  @-moz-keyframes slideOutRight {  
+	to    { -moz-transform: translateX(100%); }
+  }
+  @-webkit-keyframes slideOutRight {
+	to    { -webkit-transform: translateX(100%); }
+  }
+
+  @keyframes slideOutLeft {
+	to    { transform: translateX(-100%); }
+  }
+  @-moz-keyframes slideOutLeft {  
+	to    { -moz-transform: translateX(-100%); }
+  }
+  @-webkit-keyframes slideOutLeft {
+	to    { -webkit-transform: translateX(-100%); }
+  }
+
+  @keyframes slideInRight {
+	from  { transform:translateX(100%); }
+	to    { transform: translateX(0); }
+  }
+  @-moz-keyframes slideInRight {
+	from  { -moz-transform:translateX(100%); }
+	to    { -moz-transform: translateX(0); }
+  }
+  @-webkit-keyframes slideInRight {
+	from  { -webkit-transform:translateX(100%); }
+	to    { -webkit-transform: translateX(0); }
+  }
+
+  @keyframes slideInLeft {
+	from  { transform:translateX(-100%); }
+	to    { transform: translateX(0); }
+  }
+  @-moz-keyframes slideInLeft {
+	from  { -moz-transform:translateX(-100%); }
+	to    { -moz-transform: translateX(0); }
+  }
+  @-webkit-keyframes slideInLeft {
+	from  { -webkit-transform:translateX(-100%); }
+	to    { -webkit-transform: translateX(0); }
+  }
+
+  .new-left-view.ng-enter {
+	z-index: 1;
+	-webkit-animation:slideInLeft 0.25s both linear;
+	-moz-animation:slideInLeft 0.25s both linear;
+	animation:slideInLeft 0.25s both linear; 
+  }
+
+  .new-right-view.ng-enter {
+	z-index: 1;
+	-webkit-animation:slideInRight 0.25s both linear;
+	-moz-animation:slideInRight 0.25s both linear;
+	animation:slideInRight 0.25s both linear; 
+  }

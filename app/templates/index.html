@@ -1,10 +1,75 @@
-{% extends "base.html" %}
+{% extends "bootstrap/base.html" %}
 
-{% block page_content %}
-    <body ng-app="hwmobilebusApp">
-        <div  ng-view>
-        </div>
-    </body>
+{% block title %}MobileBus{% endblock %}
+
+{% block head %}
+{{ super() }}
+<link rel="stylesheet" type="text/css" href="{{ url_for('static', filename='mbus.css') }}"
+{% endblock %}
+
+{% block content %}
+    {% raw %}
+        <body ng-app="hwmobilebusApp" ng-controller="MainCtrl">
+            <div class="navbar navbar-inverse" role="navigation">
+                <div class="container">
+                    <div class="navbar-header pull-left">
+                        <ul class="navbar-brand " ng-click="back()">
+                            <span class="glyphicon glyphicon-menu-left"></span>
+                        </ul>
+                        
+                    </div>
+                    <div class="navbar-header">
+                        <ul class="nav pull-left">
+                            <li class="navbar-text pull-left">&nbsp</li>
+                        </ul>
+                        <ul class="nav pull-left" ng-init="mainctl.title='Mobilebus'" id="{a mainctl.attr1 a}">
+                            <li class="navbar-text pull-left" style="font-size: large;">{a mainctl.title a}</li>
+                        </ul>
+                        <button type="button" class="navbar-toggle" data-toggle="collapse" data-target=".navbar-collapse">
+                            <span class="sr-only">Toggle navigation</span>
+                            <span class="icon-bar"></span>
+                            <span class="icon-bar"></span>
+                            <span class="icon-bar"></span>
+                        </button>
+                    </div>
+        
+                    <div class="navbar-collapse collapse navbar-right">
+                        <ul class="nav navbar-nav">
+                            <li class="dropdown">
+                                <a class="dropdown-toggle" data-toggle="dropdown">
+                                        帐号 <b class="caret"></b>
+                                </a>
+                                <ul class="dropdown-menu">
+    {% endraw %}
+                                    <li><a href="{{ url_for('main.user', mailaddr=current_user.mailaddr) }}">个人资料</a></li>
+    {% raw %}
+                                    <li><a href="/auth/logout">切换帐号</a></li>
+                                </ul>
+                            </li>
+                        </ul>
+                    </div>
+                </div>
+            </div>
+            
+    {% endraw %}
+
+            {% for message in get_flashed_messages() %}
+            <div class="alert alert-warning">
+                <button type="button" class="close" data-dismiss="alert">&times;</button>
+                {{ message }}
+            </div>
+            {% endfor %}
+
+    {% raw %}
+            <div class="container-fluid" id="main">
+                <div  ng-view="true"
+                    ng-class="pageClass"
+                    style="position: absolute">
+                </div>
+
+            </div>
+        </body>
+    {% endraw %}
 {% endblock %}
 
 
@@ -34,6 +99,7 @@
     <script src="/static/scripts/controllers/buslist.js"></script>
     <script src="/static/scripts/controllers/suggestion.js"></script>
     <script src="/static/scripts/controllers/mybus.js"></script>
+    <script src="/static/scripts/controllers/main.js"></script>
 {% endblock %}
 
 

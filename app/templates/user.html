@@ -28,6 +28,18 @@
                 <p class="col-xs-4 control-label" style="text-align: right;">最近登录：</p>
                 <p class="col-xs-8 control-label" style="text-align: left;">{{ moment(user.last_seen).format('LLL') }}.</p>
             </div>
+            {% if bus1 %}
+                <div class="form-group">
+                    <p class="col-xs-4 control-label" style="text-align: right;">上行班车：</p>
+                    <p class="col-xs-8 control-label" style="text-align: left;">#{{ bus1.number }} {{ bus1.name }} {{ user.stations[0].name }}.</p>
+                </div>
+            {% endif %}
+            {% if bus2 %}
+                <div class="form-group">
+                    <p class="col-xs-4 control-label" style="text-align: right;">下行班车：</p>
+                    <p class="col-xs-8 control-label" style="text-align: left;">#{{ bus2.number }} {{ bus2.name }} {{ user.stations[1].name }}.</p>
+                </div>
+            {% endif %}
         </form>
         <div class="col-xs-4 column">
             {% if  current_user.is_administrator() %}

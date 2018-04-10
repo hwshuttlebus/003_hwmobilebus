@@ -3,7 +3,7 @@ from flask_login import current_user, login_required
 from . import main
 from .forms import EditProfileForm, EditProfileAdminForm, PostForm
 from ..decorators import admin_required, permission_required
-from ..models import mUser, mRole, mPost, Event
+from ..models import mUser, mRole, mPost, Event, mBus
 from .. import db
 
 #from flask import 
@@ -14,13 +14,21 @@ def index():
     if False == current_user.is_authenticated:
         return redirect(url_for('auth.login'))
     return render_template('index.html')
-    #return make_response(open('app/templates/home.html').read())
+    #return make_response(open('app/templates/index.html').read())
 
 
 @main.route('/user/<mailaddr>')
 def user(mailaddr):
     user = mUser.query.filter_by(mailaddr=mailaddr).first_or_404()
-    return render_template('user.html', user=user)
+    #query for register bus name
+    busrec1 = None
+    busrec2 = None
+    stations = user.stations.all()
+    if stations[0] is not None:
+        busrec1 = mBus.query.filter_by(id=stations[0].bus_id).first()
+    if stations[1] is not None:
+        busrec2 = mBus.query.filter_by(id=stations[1].bus_id).first()
+    return render_template('user.html', user=user, bus1=busrec1, bus2=busrec2)
 
 @main.route('/userdel/<int:id>')
 @login_required

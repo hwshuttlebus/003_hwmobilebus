@@ -62,7 +62,7 @@ angular.module('hwmobilebusApp')
     $scope.addnewbus = function () {
       InterfService.setbusid("newaddbus");
       InterfService.setcampus($scope.campusradio);
-      $location.url('/busEditmain');
+      $location.url('/busListEdit/busEditmain');
     };
 
     $scope.gotoBus = function (id) {
@@ -77,7 +77,7 @@ angular.module('hwmobilebusApp')
     $scope.modifybus = function (id) {
       InterfService.setbusid(id);
       InterfService.setcampus($scope.campusradio);
-      $location.url('/busEditmain');
+      $location.url('/busListEdit/busEditmain');
     };
 
     initfunc();

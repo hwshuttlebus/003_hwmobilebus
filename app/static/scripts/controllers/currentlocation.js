@@ -134,45 +134,49 @@ angular.module('hwmobilebusApp')
       }
       /* update html attribute */
       for (var i=0; i<$scope.stations.length; i++) {
-        if (0xFF == $scope.businfo.currindx) {
+        if ($scope.isDirToCompany == $scope.businfo.currdir) {
+          if (0xFF == $scope.businfo.currindx) {
+            $scope.stations[i].attr3 = "greyout";
+            $scope.stations[i].attr2 = "greyout";
+            $scope.stations[i].attr1 = "greyout";
+            $scope.stations[i].locinfo = "无班车位置数据"
+          } else {
+            if (i <= $scope.businfo.currindx) {
+              $scope.stations[i].attr3 = "greyout";
+              $scope.stations[i].attr2 = "greyout";
+              $scope.stations[i].attr1 = "greyout";
+              $scope.stations[i].locinfo = "已到站"
+            } else if ((i>$scope.businfo.currindx) && (i<($scope.stations.length-1))){
+              $scope.stations[i].attr3 = "";
+              $scope.stations[i].attr2 = "";
+              $scope.stations[i].attr1 = "normal";
+              if (i != ($scope.businfo.currindx+1)) {
+                $scope.stations[i].attr1 = "";
+                distance = MapService.getDist(false, $scope.stations[$scope.businfo.currindx+1], $scope.stations[i+1]);
+                lefttime = Math.ceil(lefttime+distance*1.5/15/60);
+              }
+              $scope.stations[i].locinfo = "约"+lefttime+"分钟";
+            } else/* i == $scope.stations.length-1 */ {
+              $scope.stations[i].attr3 = "redhighlight";
+              $scope.stations[i].attr2 = "";
+              $scope.stations[i].attr1 = "";
+              if ($scope.businfo.currindx == $scope.stations.length) {
+                $scope.stations[i].locinfo = "已到站"
+              } else if ($scope.businfo.currindx == ($scope.stations.length-1)){
+                $scope.stations[i].locinfo = "约"+lefttime+"分钟";
+                $scope.stations[i].attr1 = "normal";
+              } else {
+                distance = MapService.getDist(false, $scope.stations[$scope.businfo.currindx+1], $scope.stations[i]);
+                lefttime = Math.ceil(lefttime+distance*1.5/15/60);
+                $scope.stations[i].locinfo = "约"+lefttime+"分钟";
+              }
+            } 
+          }
+        } else {
           $scope.stations[i].attr3 = "greyout";
           $scope.stations[i].attr2 = "greyout";
           $scope.stations[i].attr1 = "greyout";
           $scope.stations[i].locinfo = "无班车位置数据"
-          busmarker = null;
-        } else {
-          if (i <= $scope.businfo.currindx) {
-            $scope.stations[i].attr3 = "greyout";
-            $scope.stations[i].attr2 = "greyout";
-            $scope.stations[i].attr1 = "greyout";
-            $scope.stations[i].locinfo = "已到站"
-            busmarker = null;
-          } else if ((i>$scope.businfo.currindx) && (i<($scope.stations.length-1))){
-            $scope.stations[i].attr3 = "";
-            $scope.stations[i].attr2 = "";
-            $scope.stations[i].attr1 = "normal";
-            if (i != ($scope.businfo.currindx+1)) {
-              $scope.stations[i].attr1 = "";
-              distance = MapService.getDist(false, $scope.stations[$scope.businfo.currindx+1], $scope.stations[i+1]);
-              lefttime = Math.ceil(lefttime+distance*1.5/15/60);
-            }
-            $scope.stations[i].locinfo = "约"+lefttime+"分钟";
-          } else/* i == $scope.stations.length-1 */ {
-            $scope.stations[i].attr3 = "redhighlight";
-            $scope.stations[i].attr2 = "";
-            $scope.stations[i].attr1 = "";
-            if ($scope.businfo.currindx == $scope.stations.length) {
-              $scope.stations[i].locinfo = "已到站"
-            } else if ($scope.businfo.currindx == ($scope.stations.length-1)){
-              $scope.stations[i].locinfo = "约"+lefttime+"分钟";
-              $scope.stations[i].attr1 = "normal";
-            } else {
-              distance = MapService.getDist(false, $scope.stations[$scope.businfo.currindx+1], $scope.stations[i]);
-              lefttime = Math.ceil(lefttime+distance*1.5/15/60);
-              $scope.stations[i].locinfo = "约"+lefttime+"分钟";
-              $scope.stations[i].attr1 = "normal";
-            }
-          } 
         }
       }
 
@@ -206,10 +210,7 @@ angular.module('hwmobilebusApp')
     $scope.busid = InterfService.getbusid();
     initbusstation();
 
-    $scope.reload = function () {
-      $window.location.reload();
-    };
-
+    
     $scope.offlineOpts = {
       /* no network condition */
       retryInterval: 10000,

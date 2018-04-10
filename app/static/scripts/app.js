@@ -33,8 +33,9 @@ angular
     $routeProvider
     .when('/home', {
       templateUrl: 'static/partials/home.html',
+      controller: 'MainCtrl'
     })
-    .when('/currentlocation', {
+    .when('/busList/currentlocation', {
       templateUrl: 'static/partials/currentlocation.html',
       controller: 'CurrentlocationCtrl'
     })
@@ -42,7 +43,7 @@ angular
       templateUrl: 'static/partials/busList.html',
       controller: 'BuslistCtrl'
     })
-    .when('/busEditmain', {
+    .when('/busListEdit/busEditmain', {
       templateUrl: 'static/partials/busEditmain.html',
       controller: 'MapeditCtrl'
     })

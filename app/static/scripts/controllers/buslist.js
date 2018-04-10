@@ -14,14 +14,13 @@ angular.module('hwmobilebusApp')
     var initfunc = function () {
         /* get all bus info */
         BusinfoService.getallbus({}, function(allbus) {
-        allbuslocal = allbus;
-        /* for to updateebus in the first time get all bus info */
-        updateebus();
-        /* collect all search result */
-        updatesrch();
-        $scope.loadctrl.submit = false;
+            allbuslocal = allbus;
+            /* for to updateebus in the first time get all bus info */
+            updateebus();
+            /* collect all search result */
+            updatesrch();
+            $scope.loadctrl.submit = false;
         });
-        
     };
 
     var updateebus = function() {
@@ -35,13 +34,13 @@ angular.module('hwmobilebusApp')
     
     var updatesrch = function () {
         for (var i=0; i<allbuslocal.length; i++) {
-        var busrec = {
-            srchstring:null,
-            index:null
-        }
-        busrec.srchstring = allbuslocal[i].number+' '+allbuslocal[i].name;
-        busrec.index = i;
-        $scope.searchbus.push(busrec);
+            var busrec = {
+                srchstring:null,
+                index:null
+            }
+            busrec.srchstring = allbuslocal[i].number+' '+allbuslocal[i].name;
+            busrec.index = i;
+            $scope.searchbus.push(busrec);
         }
     }
 
@@ -55,10 +54,10 @@ angular.module('hwmobilebusApp')
 
     $scope.onselect = function (id) {
         InterfService.setbusid(id);
-        $location.url('/currentlocation');
+        $scope.pageClass = 'new-left-view';
+        $location.url('/busList/currentlocation');
     };
 
     initfunc();
-    
-    
+
 });

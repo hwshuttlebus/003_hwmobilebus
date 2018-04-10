@@ -49,7 +49,6 @@ angular.module('hwmobilebusApp')
                 updatestation(busidcomp, busidhome, regbus);
             });
         });
-
     };
 
     var stationgetcallback = function (dir, regbus) {

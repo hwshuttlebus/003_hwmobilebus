@@ -7,7 +7,20 @@ angular.module('hwmobilebusApp')
     var stationsTocomp = [];
     var stationsTohome = [];
     var modalInstance = '';
+    var currurl = '';
+    var prevurl = '';
+    var mainctl = {
+        mode:  'NORMAL'
+    };
     
+    /* change mode on home page */
+    this.setmode = function (newmode) {
+        mainctl.mode = newmode;
+    };
+
+    this.getmode = function () {
+        return mainctl.mode;
+    };
 
     this.setbusid = function (newid) {
         localStorage['hwmobilebusApp.busid'] = newid;
@@ -24,6 +37,16 @@ angular.module('hwmobilebusApp')
 
     this.getcampus = function () {
         return localStorage['hwmobilebusApp.campus'];
+    };
+
+    /* set & get previous page url */
+    this.seturl = function (newpath, oldpath) {
+        prevurl = oldpath;
+        currurl = newpath;
+    };
+    
+    this.getprevurl = function () {
+        return prevurl;
     };
 
     this.storenewstations = function (stations, dir) {
@@ -87,8 +110,8 @@ angular.module('hwmobilebusApp')
             templateUrl: template,
             controller: ctrl,
             scope: scope,
-            size: size,
             backdrop: 'static',
+            size: size,
             resolve: resolve
         });
     };
@@ -128,6 +151,8 @@ angular.module('hwmobilebusApp')
         };
         this.genmodal(template, ctrl, size, resolve, scope);
     };
+
+
 
     /*
     this.isshuttlebustime = function () {

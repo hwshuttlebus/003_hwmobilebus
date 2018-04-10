@@ -1,47 +1,103 @@
+
 <div id="smallfont" class="container">
+    <div class="spinner" ng-show="loadctrl.submit">
+        <div class="loader" ></div>
+    </div>
     <div class="row clearfix">
         <div class="col-md-5 column">
             <div class="logo">&nbsp</div>
             <label class="col-xs-12 control-label">&nbsp</label>
             <label class="col-xs-12 control-label">&nbsp</label>
             <label class="col-xs-12 control-label">&nbsp</label>
-            <label class="col-xs-12 control-label">&nbsp</label>
-                
-            <div class="row clearfix" >
-                <div class="col-xs-6 column" align="center">
-                    <div class="thumbnail">
-                        <a href="/#/busList"><img alt="200x200" src="static/images/btn_bus_82x82@2x.png" width="60%"/></a>
-                        <label class="text">班车实时信息</label>
+            
+            <div ng-if=" mainctl.userrole=='Administrator' && mainctl.mode=='ADMIN' ">
+                <div class="row clearfix" >
+                    <div class="col-xs-6 column" align="center">
+                        <div class="thumbnail">
+                            <a href="/#/busListEdit"><img alt="200x200" src="static/images/btn_bus_82x82@2x.png" width="60%"/></a>
+                            <label class="text">班车管理</label>
+                        </div>
+                    </div>
+                    <div class="col-xs-6 column" align="center">
+                        <div class="thumbnail">
+                            <a href=""><img alt="200x200" src="static/images/btn_my_account_82x82@2x.png" width="60%"/></a>
+                            <label class="text">用户管理</label>
+                        </div>
+                    </div>
+                    
+                    <div class="col-xs-6 column" align="center">
+                        <div class="thumbnail">
+                            <a href=""><img alt="200x200" src="static/images/btn_data_82x82@2x.png" width="60%"/></a>
+                            <label class="text">数据分析</label>
+                        </div>
+                    </div>
+                    <div class="col-xs-6 column" align="center">
+                        <div class="thumbnail">
+                            <a href="/#/suggestion"><img alt="200x200" src="static/images/btn_suggestions_82x82@2x.png" width="60%"/></a>
+                            <label class="text">意见反馈管理</label>
+                        </div>
+                    </div>
+                    <div class="col-xs-6 column" align="center">
+                        <div class="thumbnail">
+                            <a href=""><img alt="200x200" src="static/images/btn_my_bus_82x82@2x.png" width="60%"/></a>
+                            <label class="text">消息发布</label>
+                        </div>
+                    </div>
+                    <div class="col-xs-6 column" align="center">
+                        <div class="thumbnail">
+                            <a ng-click="changeMode('NORMAL')"><img alt="200x200" src="static/images/btn_users_management_82x82@2x.png" width="60%"/></a>
+                            <label class="text">普通模式</label>
+                        </div>
                     </div>
                 </div>
-                <div class="col-xs-6 column" align="center">
-                    <div class="thumbnail">
-                        <a href="/#/mybus"><img alt="200x200" src="static/images/btn_my_account_82x82@2x.png" width="60%"/></a>
-                        <label class="text">我的班车</label>
+            </div>
+            <div ng-if=" mainctl.userrole=='Administrator' && mainctl.mode=='NORMAL'">
+                <div class="row clearfix" >
+                    <div class="col-xs-6 column" align="center">
+                        <div class="thumbnail">
+                            <a href="/#/busList"><img alt="200x200" src="static/images/btn_bus_82x82@2x.png" width="60%"/></a>
+                            <label class="text">班车实时信息</label>
+                        </div>
+                    </div>
+                    <div class="col-xs-6 column" align="center">
+                        <div class="thumbnail">
+                            <a href="/#/mybus"><img alt="200x200" src="static/images/btn_my_account_82x82@2x.png" width="60%"/></a>
+                            <label class="text">我的班车</label>
+                        </div>
+                    </div>
+                    <div class="col-xs-6 column" align="center">
+                        <div class="thumbnail">
+                            <a href="/#/suggestion"><img alt="200x200" src="static/images/btn_suggestions_82x82@2x.png" width="60%"/></a>
+                            <label class="text">投诉建议</label>
+                        </div>
+                    </div>
+                    <div class="col-xs-6 column" align="center">
+                        <div class="thumbnail">
+                            <a ng-click="changeMode('ADMIN')"><img alt="200x200" src="static/images/btn_users_management_82x82@2x.png" width="60%"/></a>
+                            <label class="text">管理模式</label>
+                        </div>
                     </div>
                 </div>
-                <div class="col-xs-6 column" align="center">
-                    <div class="thumbnail">
-                        <a href=""><img alt="200x200" src="static/images/btn_users_management_82x82@2x.png" width="60%"/></a>
-                        <label class="text">用户管理</label>
+            </div>
+            <div ng-if=" mainctl.userrole !='Administrator'">
+                <div class="row clearfix" >
+                    <div class="col-xs-6 column" align="center">
+                        <div class="thumbnail">
+                            <a href="/#/busList"><img alt="200x200" src="static/images/btn_bus_82x82@2x.png" width="60%"/></a>
+                            <label class="text">班车实时信息</label>
+                        </div>
                     </div>
-                </div>
-                <div class="col-xs-6 column" align="center">
-                    <div class="thumbnail">
-                        <a href="18_19dataanalysisTime.html"><img alt="200x200" src="static/images/btn_data_82x82@2x.png" width="60%"/></a>
-                        <label class="text">数据分析</label>
+                    <div class="col-xs-6 column" align="center">
+                        <div class="thumbnail">
+                            <a href="/#/mybus"><img alt="200x200" src="static/images/btn_my_account_82x82@2x.png" width="60%"/></a>
+                            <label class="text">我的班车</label>
+                        </div>
                     </div>
-                </div>
-                <div class="col-xs-6 column" align="center">
-                    <div class="thumbnail">
-                        <a href="/#/suggestion"><img alt="200x200" src="static/images/btn_suggestions_82x82@2x.png" width="60%"/></a>
-                        <label class="text">投诉建议</label>
-                    </div>
-                </div>
-                <div class="col-xs-6 column" align="center">
-                    <div class="thumbnail">
-                        <a href="/#/busListEdit"><img alt="200x200" src="static/images/btn_my_bus_82x82@2x.png" width="60%"/></a>
-                        <label class="text">班车管理</label>
+                    <div class="col-xs-6 column" align="center">
+                        <div class="thumbnail">
+                            <a href="/#/suggestion"><img alt="200x200" src="static/images/btn_suggestions_82x82@2x.png" width="60%"/></a>
+                            <label class="text">投诉建议</label>
+                        </div>
                     </div>
                 </div>
             </div>

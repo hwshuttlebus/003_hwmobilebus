@@ -4,9 +4,13 @@ from ..models import mBus, mStation, mUser
 from flask import request, jsonify
 from .authentication import auth
 
+import time
+
 @api.route('/mbusdata/gpsdata/', methods=['POST'])
 #@auth.login_required
 def post_gpsdata():
+    nowtimetk1 = time.time()
+
     busrec = None
     try:
         jsonres = request.get_json()
@@ -26,6 +30,8 @@ def post_gpsdata():
         #update or create item to database
         db.session.add(busrec)
         db.session.commit()
+        nowtimetk2 = time.time()
+        print('!!!!!!!!!!!!!!!!!!!!!!! handle time:'+str(nowtimetk2-nowtimetk1))
         return jsonify(busrec.to_json())
     else:
         return jsonify({'ERROR!': 'no such equipment id'})

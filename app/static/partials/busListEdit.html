@@ -17,7 +17,9 @@
 							ng-repeat="bus in allbus track by $index"
 							ng-click="gotoBus(bus.id)" >
 							<th style="width:5%">
-								<div class="label label-as-badge round-custom">{a bus.number a}</div>
+								<div class="label label-as-badge round-custom">
+									<span>{a bus.number a}</span>
+								</div>
 							</th>
 							<th style="width:90%; vertical-align: middle">{a bus.name a}</td>
 							<th align="right" style="width:5%; vertical-align: middle">

@@ -201,6 +201,7 @@ class mBus(db.Model):
 
     #client location data
     curridx = db.Column(db.Integer, default=0xFF)
+    currdir = db.Column(db.Boolean(), default=False)
     lefttime = db.Column(db.Float(precision='11,7'), default=0)
     abntime = db.Column(db.Integer,default=0)
     abnleftDist = db.Column(db.Float(precision='11,7'), default=0)
@@ -228,6 +229,7 @@ class mBus(db.Model):
             'buslicense': self.buslicense,
             'campus': self.campus,
             'currindx': self.curridx,
+            'currdir': self.currdir,
             'lefttime': self.lefttime,
             'abntime': self.abntime,
             'stations': url_for('api.get_bus_related_stations', id=self.id, _external=True)
@@ -346,6 +348,7 @@ class mBus(db.Model):
                         abntime = nowtimetk
                         abnleftDist = leftdist
                         currentidx = mBus.getnearstation(station, lon, lat)
+                        mBus.updatediagram(station[currentidx], busrec)
                         print('!!!recalculate the current station once index:'+str(currentidx))
                         if currentidx <= (len(station)-2):
                             leftdist = haversine(lon, lat, station[currentidx+1].lon, station[currentidx+1].lat)
@@ -413,6 +416,7 @@ class mBus(db.Model):
     def calbuslocation(busrec, lon, lat, datetimeobj):
         #init variable
         currentidx = 0xFF
+        currdir = False
         lefttime = 0
         abntime = 0
         abnleftDist = 0
@@ -468,18 +472,20 @@ class mBus(db.Model):
                 if (datetimeobj >= towkstartoffsetobj) and (datetimeobj <= towkendoffsetobj):
                     print('!!!enter to company procedure')
                     station = stationup
+                    currdir = True
                 else:
                     print('!!!GPS time invalid! no valid data for to company time!')
                     #ignore this data, return data as before
-                    return busrec.curridx, busrec.lefttime, busrec.abntime, busrec.abnleftDist
+                    return busrec.curridx, busrec.lefttime, busrec.abntime, busrec.abnleftDist, busrec.currdir
             else:
                 if (datetimeobj >= tohmstartoffsetobj) and (datetimeobj <= tohmendoffsetobj):
                     print('!!!enter to home procedure')
                     station = stationdown
+                    currdir = False
                 else:
                     print('!!!GPS time invalid! no valid data for to home time!')
                     #ignore this data, return data as before
-                    return busrec.curridx, busrec.lefttime, busrec.abntime, busrec.abnleftDist
+                    return busrec.curridx, busrec.lefttime, busrec.abntime, busrec.abnleftDist, busrec.currdir
 
             if busrec.curridx == 0xFF:
                 #first time recv valid gps data after enter shuttle bus time
@@ -492,6 +498,7 @@ class mBus(db.Model):
                     #GPS data recv after the first stop
                     #should find the nearest station index for current bus location
                     currentidx = mBus.getnearstation(station, lon, lat)
+                    mBus.updatediagram(station[currentidx], busrec)
                     print('!!!GPS data recv after the first stop latest index is:' +str(currentidx))
             else:
                 #already recv valid gps data after enter shuttle bus time
@@ -504,7 +511,7 @@ class mBus(db.Model):
             #not in shuttle bus time, return invalid data
             print('!!!not in shuttle bus time, return invalid data')
         
-        return currentidx, lefttime, abntime, abnleftDist
+        return currentidx, lefttime, abntime, abnleftDist, currdir
 
     @staticmethod
     def update_gps(json_post):
@@ -529,7 +536,7 @@ class mBus(db.Model):
         busrec = mBus.query.filter_by(equip_id=equip_id).first()
         if busrec is not None:
             #first update location
-            busrec.curridx, busrec.lefttime, busrec.abntime, busrec.abnleftDist = mBus.calbuslocation(busrec, lon, lat, datetimeobj)
+            busrec.curridx, busrec.lefttime, busrec.abntime, busrec.abnleftDist, busrec.currdir = mBus.calbuslocation(busrec, lon, lat, datetimeobj)
             #next update json data
             busrec.equip_id = equip_id
             busrec.lat = lat
