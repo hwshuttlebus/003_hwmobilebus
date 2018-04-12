@@ -749,7 +749,29 @@ class mUser(UserMixin, db.Model):
         }
         return json_post
 
+
+class Message(db.Model):
+    __tablename__ = 'messages'
+    id = db.Column(db.Integer, primary_key=True)
+    body = db.Column(db.Text)
+    timestamp = db.Column(db.DateTime, index=True, default=datetime.utcnow)
     
+    def to_json(self):
+        json_post = {
+            'id': self.id,
+            'body': self.body,
+            'timestamp': self.timestamp.strftime('%Y-%m-%dT%H:%M:%S')+'+0000'
+        }
+        return json_post
+
+    @staticmethod
+    def from_json(json_post):
+        body = json_post.get('body')
+        if body is None or body == '':
+            raise ValidationError('post does not have a body')
+        return Message(body=body)
+        
+
 
 class mPost(db.Model):
     __tablename__ = 'mposts'

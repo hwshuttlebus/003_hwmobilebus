@@ -59,6 +59,10 @@ angular
       templateUrl: 'static/partials/mybus.html',
       controller: 'MybusCtrl'
     })
+    .when('/broadcastmsg', {
+      templateUrl: 'static/partials/broadcastmsg.html',
+      controller: 'BroadcastCtrl'
+    })
     .otherwise({
       redirectTo: '/home'
     });

@@ -1,0 +1,59 @@
+<div class="container" id="smallfont">
+    <form class="form-horizontal" role="form" name="myform" >
+        <div class="form-group">
+            <div class="row clearfix">
+                <div class="col-xs-9">
+                    实时消息发布内容：
+                    <textarea name="suggest" class="form-control" cols="40" rows="10" style="resize: none;"
+                                maxlength="200" required
+                                ng-model="bcastctl.broadcastmsg"></textarea>
+                    
+                </div>
+            </div>
+        </div>
+        <div class="form-group">
+            <div class="row clearfix">
+                <div class="col-xs-3">
+                    <button type="button" class="btn btn-block btn-primary"
+                            ng-click="submit()">发布</button>
+                </div>
+            </div>
+        </div>
+    
+        <div class="form-group">
+            历史消息:
+            <div class="row clearfix">
+                <div class="col-xs-9">
+                    <table class="table">
+                        <tbody>
+                            <tr ng-repeat="msg in bcastctl.allmsg track by $index" 
+                                ng-init="hover=false" ng-mouseenter="hover=true"  
+                                ng-mouseleave="hover=false"   ng-class="{active: hover}">
+                                <td>
+                                    <table>
+                                        <tbody>
+                                            <tr>
+                                                <tr style="width:90%; font-weight: bold;">{a msg.body a}</td>
+                                            </tr>
+                                        </tbody>
+                                    </table>
+                                    <table>
+                                        <tbody>
+                                            <tr>
+                                                <td style="font-size: 80%">{a msg.time | date:'MM/dd/yyyy  HH:mm:ss'  a}</td>
+                                            </tr>
+                                        </tbody>
+                                    </table>
+                                </td>
+                                <td>
+                                    <button type="button" class="close" ng-click="delconfirm(msg.id)" >&times</button>
+                                </td>
+                            </tr>
+                        </tbody>
+                    </table>
+                </div>
+            </div>
+        </div>
+    </form>
+    
+</div>

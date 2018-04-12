@@ -6,8 +6,6 @@ from ..decorators import admin_required, permission_required
 from ..models import mUser, mRole, mPost, Event, mBus
 from .. import db
 
-#from flask import 
-
 
 @main.route('/', methods=['GET', 'POST'])
 def index():

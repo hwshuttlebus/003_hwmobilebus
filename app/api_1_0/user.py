@@ -1,7 +1,7 @@
 from flask import jsonify, request, url_for, current_app
 from flask_login import current_user
 from . import api
-from .. models import mBus, mStation, mUser, mPost, db
+from .. models import mBus, mStation, mUser, mPost, db, Message
 
 
 @api.route('/mbusdata/getregbus/')
@@ -166,3 +166,22 @@ def del_post(id):
     db.session.delete(post)
     db.session.commit()
     return jsonify({'DELETED post': post.to_json()})
+
+@api.route('/mbusdata/messages/', methods=['POST'])
+def new_message():
+    msg = Message.from_json(request.json)
+    db.session.add(msg)
+    db.session.commit()
+    return jsonify(msg.to_json())
+
+@api.route('/mbusdata/getallmessages/')
+def get_message():
+    msgs = Message.query.all()
+    return jsonify({'Message': [msg.to_json() for msg in msgs]})
+
+@api.route('/mbusdata/delmessages/<int:id>', methods=['POST'])
+def del_msg(id):
+    msg = Message.query.get_or_404(id)
+    db.session.delete(msg)
+    db.session.commit()
+    return jsonify({'DELETED msg': msg.to_json()})

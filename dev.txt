@@ -21,9 +21,11 @@ Flask-Migrate==2.1.1
 Flask-Moment==0.5.2
 Flask-PageDown==0.2.2
 Flask-Script==2.0.6
+Flask-SocketIO==2.9.6
 Flask-SQLAlchemy==2.3.2
 Flask-WTF==0.14.2
 ForgeryPy==0.1
+gevent==1.2.2
 greenlet==0.4.13
 html5lib==1.0.1
 idna==2.6
@@ -40,6 +42,8 @@ pylint==1.8.1
 PyMySQL==0.8.0
 python-dateutil==2.6.1
 python-editor==1.0.3
+python-engineio==2.0.4
+python-socketio==1.9.0
 pytz==2018.3
 requests==2.18.4
 six==1.11.0

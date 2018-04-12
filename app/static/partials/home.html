@@ -4,7 +4,7 @@
         <div class="loader" ></div>
     </div>
     <div class="row clearfix">
-        <div class="col-md-5 column">
+        <div class="col-md-4 column">
             <div class="logo">&nbsp</div>
             <label class="col-xs-12 control-label">&nbsp</label>
             <label class="col-xs-12 control-label">&nbsp</label>
@@ -39,7 +39,7 @@
                     </div>
                     <div class="col-xs-6 column" align="center">
                         <div class="thumbnail">
-                            <a href=""><img alt="200x200" src="static/images/btn_my_bus_82x82@2x.png" width="60%"/></a>
+                            <a href="/#/broadcastmsg"><img alt="200x200" src="static/images/btn_my_bus_82x82@2x.png" width="60%"/></a>
                             <label class="text">消息发布</label>
                         </div>
                     </div>
@@ -104,4 +104,55 @@
         </div>
     </div>
     
+
+    <div class="form-group">
+        <div class="row clearfix">
+            <div class="col-xs-12">
+                <table class="table">
+                    <tbody>
+                        <tr ng-repeat="msg in mainctl.recvmsg track by $index" 
+                            ng-init="hover=false" ng-mouseenter="hover=true"  
+                            ng-mouseleave="hover=false"   ng-class="{active: hover}">
+                            <td>
+                                <table>
+                                    <tbody>
+                                        <tr>
+                                            <tr style="width:90%; font-weight: bold;">{a msg a}</td>
+                                        </tr>
+                                    </tbody>
+                                </table>
+                                <table>
+                                    <tbody>
+                                        <tr>
+                                            <td style="font-size: 80%">最新发布</td>
+                                        </tr>
+                                    </tbody>
+                                </table>
+                            </td>
+                        </tr>
+                        <tr ng-repeat="msg in mainctl.historymsg track by $index" 
+                            ng-init="hover=false" ng-mouseenter="hover=true"  
+                            ng-mouseleave="hover=false"   ng-class="{active: hover}">
+                            <td>
+                                <table>
+                                    <tbody>
+                                        <tr>
+                                            <tr style="width:90%; font-weight: bold;">{a msg.body a}</td>
+                                        </tr>
+                                    </tbody>
+                                </table>
+                                <table>
+                                    <tbody>
+                                        <tr>
+                                            <td style="font-size: 80%">{a msg.time | date:'MM/dd/yyyy  HH:mm:ss'  a}</td>
+                                        </tr>
+                                    </tbody>
+                                </table>
+                            </td>
+                        </tr>
+                    </tbody>
+                </table>
+            </div>
+        </div>
+    </div>
 </div>

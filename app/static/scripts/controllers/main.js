@@ -1,7 +1,7 @@
 'use strict';
 
 angular.module('hwmobilebusApp')
-    .controller('MainCtrl', function ($scope, $location, $window, InterfService, BusinfoService){
+    .controller('MainCtrl', function ($scope, $location, $window, BcastSocket, InterfService, BusinfoService){
     
     /* loading gif control in html */
     $scope.loadctrl = {
@@ -14,7 +14,9 @@ angular.module('hwmobilebusApp')
         attr1: "", 
         userrole: "",
         userid: 0,
-        mode: 'NORMAL'
+        mode: 'NORMAL',
+        recvmsg: [],
+        historymsg: []
     };
 
     /* this is called before specific view controller is initiate 
@@ -69,6 +71,10 @@ angular.module('hwmobilebusApp')
                     $scope.mainctl.title = "Mobilebus";
                     $scope.mainctl.attr1 = "";
                     break;
+                case "/broadcastmsg":
+                    $scope.mainctl.back = "返回";
+                    $scope.mainctl.title = "消息发布";
+                    $scope.mainctl.attr1 = "smallfont";
                 default:
                     break;
             }
@@ -88,6 +94,34 @@ angular.module('hwmobilebusApp')
         InterfService.setmode(newmode);
     };
 
+    /* listen on broadcast msg */
+    BcastSocket.on('my_response', function(msg) {
+        /* need to decode before display */
+        var str = decodeURIComponent(msg.data);
+        console.log('recv: '+str);
+        $scope.mainctl.recvmsg.push(str);
+    });
+
+    /* remove listener when leave the page */
+    $scope.$on('$destroy', function (event) {
+        BcastSocket.removeAllListeners();
+    });
+
+
+    /* get all messeage from server */
+    var updatemsg = function () {
+        BusinfoService.getallmsg({}, function(allmsg) {
+            /* update user post */
+            for (var i=0; i<allmsg.Message.length; i++) {
+                var msg = {};
+                msg.body = allmsg.Message[i].body;
+                msg.time = allmsg.Message[i].timestamp;
+                msg.id = allmsg.Message[i].id;
+                $scope.mainctl.historymsg.push(msg);
+            }
+        });
+    };
+
     /* init function */
     var initfunc = function () {
         $scope.loadctrl.submit = true;
@@ -101,13 +135,13 @@ angular.module('hwmobilebusApp')
 
         });
 
-
         /* get current mode */
         $scope.mainctl.mode =  InterfService.getmode();
+
+        /* update history message */
+        updatemsg();
     };
 
 
     initfunc();
-
-
 });

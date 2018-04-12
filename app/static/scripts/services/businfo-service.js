@@ -101,6 +101,21 @@ angular.module('hwmobilebusApp')
         applystation: {
           method: 'POST',
           url: BASE+'mbusdata/applystation\\/',
+        },
+        postmsg: {
+          method: 'POST',
+          url: BASE+'mbusdata/messages\\/'
+        },
+        getallmsg: {
+          method: 'GET',
+          url: BASE+'mbusdata/getallmessages\\/'
+        },
+        delmsg: {
+          method: 'POST',
+          url: BASE+'mbusdata/delmessages/:id',
+          params: {
+            id: '@id'
+          }
         }
       });
   });

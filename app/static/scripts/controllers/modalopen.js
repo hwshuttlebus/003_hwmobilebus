@@ -23,9 +23,14 @@ angular.module('hwmobilebusApp')
                 case "suggest":
                     suggesthandle(items);
                     break;
+                case "msg":
+                    msghandle(items);
+                    break;
                 case "postDel":
                     postdelhandle(items);
                     break;
+                case "msgDel":
+                    msgdelhandle(items);
                 case "applystation":
                     applystationhandle(items);
                 default:
@@ -67,6 +72,10 @@ angular.module('hwmobilebusApp')
             $window.location.reload();
         };
 
+        var msghandle = function (items) {
+            $window.location.reload();
+        }
+
         var applystationhandle = function (items) {
             $scope.loadctrl.submit = true;
 
@@ -87,6 +96,14 @@ angular.module('hwmobilebusApp')
                 $window.location.reload();
             }, function (error) {
                 $scope.loadctrl.submit = false;
+                $window.location.reload();
+            });
+        };
+
+        var msgdelhandle = function (items) {
+            BusinfoService.delmsg({id: items.delid}, function (res) {
+                $window.location.reload();
+            }, function(error) {
                 $window.location.reload();
             });
         };
