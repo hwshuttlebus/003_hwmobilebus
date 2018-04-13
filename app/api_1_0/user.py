@@ -1,5 +1,5 @@
 from flask import jsonify, request, url_for, current_app
-from flask_login import current_user
+from flask_login import current_user, login_required
 from . import api
 from .. models import mBus, mStation, mUser, mPost, db, Message
 
@@ -91,6 +91,7 @@ def post_regbus():
 
 
 @api.route('/mbusdata/curruser/')
+@login_required
 def getcurruser():
     return jsonify(current_user.to_json())
 

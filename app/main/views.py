@@ -6,7 +6,6 @@ from ..decorators import admin_required, permission_required
 from ..models import mUser, mRole, mPost, Event, mBus
 from .. import db
 
-
 @main.route('/', methods=['GET', 'POST'])
 def index():
     if False == current_user.is_authenticated:

@@ -1,7 +1,7 @@
 'use strict';
 
 angular.module('hwmobilebusApp')
-    .controller('BroadcastCtrl', function ($scope, BcastSocket, BusinfoService, InterfService){
+    .controller('BroadcastCtrl', function ($scope, BusinfoService, InterfService){
 
     /* get all messeage from server */
     var updatemsg = function () {
@@ -33,11 +33,6 @@ angular.module('hwmobilebusApp')
 
     /* submit broadcast msg */
     $scope.submit = function () {
-        console.log('send');
-        var str1 = $scope.bcastctl.broadcastmsg;
-        var str2 = encodeURIComponent(str1);
-        BcastSocket.emit('my_broadcast_event', {data: str2});
-
         /* post to server */
         var postinfo = new BusinfoService()
         postinfo.body = $scope.bcastctl.broadcastmsg;
@@ -53,11 +48,6 @@ angular.module('hwmobilebusApp')
             InterfService.geninfomodal('msg', '发布失败！', error.status, 'infoModal.html', 'modalOpenCtrl', 'sm', $scope);
         });
     };
-
-    /* remove listener when leave the page */
-    $scope.$on('$destroy', function (event) {
-        BcastSocket.removeAllListeners();
-    });
 
     /* delete message */
     $scope.delconfirm = function (msgid) {

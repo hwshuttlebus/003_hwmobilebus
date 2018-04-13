@@ -1,7 +1,7 @@
 'use strict';
 
 angular.module('hwmobilebusApp')
-    .controller('MainCtrl', function ($scope, $location, $window, BcastSocket, InterfService, BusinfoService){
+    .controller('MainCtrl', function ($scope, $location, $interval, $window, InterfService, BusinfoService){
     
     /* loading gif control in html */
     $scope.loadctrl = {
@@ -94,22 +94,9 @@ angular.module('hwmobilebusApp')
         InterfService.setmode(newmode);
     };
 
-    /* listen on broadcast msg */
-    BcastSocket.on('my_response', function(msg) {
-        /* need to decode before display */
-        var str = decodeURIComponent(msg.data);
-        console.log('recv: '+str);
-        $scope.mainctl.recvmsg.push(str);
-    });
-
-    /* remove listener when leave the page */
-    $scope.$on('$destroy', function (event) {
-        BcastSocket.removeAllListeners();
-    });
-
-
     /* get all messeage from server */
     var updatemsg = function () {
+        var historymsg = [];
         BusinfoService.getallmsg({}, function(allmsg) {
             /* update user post */
             for (var i=0; i<allmsg.Message.length; i++) {
@@ -117,9 +104,12 @@ angular.module('hwmobilebusApp')
                 msg.body = allmsg.Message[i].body;
                 msg.time = allmsg.Message[i].timestamp;
                 msg.id = allmsg.Message[i].id;
-                $scope.mainctl.historymsg.push(msg);
+                historymsg.push(msg);
             }
         });
+
+        /* append new */
+        $scope.mainctl.historymsg = historymsg;
     };
 
     /* init function */
@@ -142,6 +132,14 @@ angular.module('hwmobilebusApp')
         updatemsg();
     };
 
+    /* stop periodical get after route change */
+    $scope.$on("$destroy", function() {
+        $interval.cancel(myInterval);
+      });
 
     initfunc();
+
+    /* update location for every 1 min */
+    var myInterval = $interval(updatemsg, 60000);
+
 });

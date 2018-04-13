@@ -110,26 +110,6 @@
             <div class="col-xs-12">
                 <table class="table">
                     <tbody>
-                        <tr ng-repeat="msg in mainctl.recvmsg track by $index" 
-                            ng-init="hover=false" ng-mouseenter="hover=true"  
-                            ng-mouseleave="hover=false"   ng-class="{active: hover}">
-                            <td>
-                                <table>
-                                    <tbody>
-                                        <tr>
-                                            <tr style="width:90%; font-weight: bold;">{a msg a}</td>
-                                        </tr>
-                                    </tbody>
-                                </table>
-                                <table>
-                                    <tbody>
-                                        <tr>
-                                            <td style="font-size: 80%">最新发布</td>
-                                        </tr>
-                                    </tbody>
-                                </table>
-                            </td>
-                        </tr>
                         <tr ng-repeat="msg in mainctl.historymsg track by $index" 
                             ng-init="hover=false" ng-mouseenter="hover=true"  
                             ng-mouseleave="hover=false"   ng-class="{active: hover}">
