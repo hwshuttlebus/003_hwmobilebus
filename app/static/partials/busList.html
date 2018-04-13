@@ -29,7 +29,7 @@
 				<table class="table">
 					<tbody>
 						<tr id="smallfont"
-							ng-repeat="bus in allbus track by $index | orderBy: bus.number"
+							ng-repeat="bus in allbus track by $index"
 							ng-click="onselect(bus.id)" 
 							ng-init="hover=false" ng-class="{active: hover}"
 							ng-mouseenter="hover=true" ng-mouseleave="hover=false">
