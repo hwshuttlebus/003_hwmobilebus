@@ -6,16 +6,11 @@ angular.module('hwmobilebusApp')
         id: null,
         role: null
     };
-    var postinfo = {
-        prevpage: 0,
-        nextpage: 0
-    }
 
     $scope.loadctrl = {
         submit: false
     };
 
-    
     $scope.page = {
         Perpage: 0,
         TotalCount: 0,

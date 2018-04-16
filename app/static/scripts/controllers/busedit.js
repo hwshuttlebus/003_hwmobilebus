@@ -9,11 +9,12 @@ angular.module('hwmobilebusApp')
     $scope.loadctrl = {
       submit: true
     };
+    $scope.allbus = [];
 
     /* init function */
     var initfunc = function () {
       /* get all bus info */
-      BusinfoService.getallbus({}, function(allbus) {
+      BusinfoService.getallbusedit({}, function(allbus) {
         allbuslocal = allbus;
         /* for to updateebus in the first time get all bus info */
         updateebus();
@@ -28,6 +29,8 @@ angular.module('hwmobilebusApp')
           $scope.allbus.push(allbuslocal[i]);
         }
       }
+      /* order by bus number */
+      InterfService.orderbus($scope.allbus);
     };
 
     var genmodal = function (template, ctrl, size, resolve) {
@@ -41,6 +44,7 @@ angular.module('hwmobilebusApp')
           resolve: resolve
         });
     };
+    
     var geninfomodal = function (proc, title, content, id, template, ctrl, size) {
       var resolve = {
         items: function () {

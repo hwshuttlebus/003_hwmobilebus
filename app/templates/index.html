@@ -8,20 +8,19 @@
 {% endblock %}
 
 {% block content %}
-    <p>Async mode is: <b>{{ async_mode }}</b></p>
     {% raw %}
         <body ng-app="hwmobilebusApp" ng-controller="MainCtrl">
             <div class="navbar navbar-inverse" role="navigation">
                 <div class="container">
                     <div class="navbar-header pull-left">
                         <ul class="navbar-brand " ng-click="back()">
-                            <span class="glyphicon glyphicon-menu-left"></span>
+                            <span class="glyphicon glyphicon-menu-left">返回</span>
                         </ul>
                         
                     </div>
                     <div class="navbar-header">
                         <ul class="nav pull-left">
-                            <li class="navbar-text pull-left">&nbsp</li>
+                            <li class="navbar-text pull-left">&nbsp&nbsp&nbsp&nbsp&nbsp&nbsp&nbsp&nbsp</li>
                         </ul>
                         <ul class="nav pull-left" ng-init="mainctl.title='Mobilebus'" id="{a mainctl.attr1 a}">
                             <li class="navbar-text pull-left" style="font-size: large;">{a mainctl.title a}</li>
@@ -69,6 +68,7 @@
                 </div>
 
             </div>
+            
         </body>
     {% endraw %}
 {% endblock %}
@@ -92,8 +92,6 @@
     <script src="/static/scripts/services/map-service.js"></script>
     <script src="/static/scripts/services/interf-service.js"></script>
     <script src="/static/scripts/controllers/baidumap.js"></script>
-    <script src="/static/scripts/directives/mbus-baidumap.js"></script>
-    <script src="/static/scripts/directives/mbus-loading.js"></script>
     <script src="/static/scripts/controllers/modalopen.js"></script>
     <script src="/static/scripts/controllers/mapedit.js"></script>
     <script src="/static/scripts/controllers/busedit.js"></script>
@@ -101,8 +99,15 @@
     <script src="/static/scripts/controllers/suggestion.js"></script>
     <script src="/static/scripts/controllers/mybus.js"></script>
     <script src="/static/scripts/controllers/main.js"></script>
-    <script src="/static/scripts/controllers/broadcast.js"></script>
+    
 
+    {% if current_user.is_administrator() %}
+        <script src="/static/scripts/directives/mbus-baidumap.js"></script>
+        <script src="/static/scripts/directives/mbus-loading.js"></script>
+        
+        <script src="/static/scripts/controllers/broadcast.js"></script>
+        <script src="/static/scripts/controllers/employmanage.js"></script>
+    {% endif %}
 {% endblock %}
 
 

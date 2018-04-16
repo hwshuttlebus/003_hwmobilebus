@@ -152,7 +152,39 @@ angular.module('hwmobilebusApp')
         this.genmodal(template, ctrl, size, resolve, scope);
     };
 
+    /* order all bus info by bus number ascend */
+    this.orderbus = function (allbusinfo) {
+        var temp;
+        for (var i=0; i<allbusinfo.length-1; i++) {
+          for (var j=i+1; j<allbusinfo.length; j++) {
+            if (allbusinfo[j].number < allbusinfo[i].number) {
+              temp = allbusinfo[i];
+              allbusinfo[i] = angular.copy(allbusinfo[j]);
+              allbusinfo[j] = temp;
+            }
+          }
+        }
+    };
 
+    /* hard code first function */
+    this.hardcodefirst = function (allbusinfo, targetid) {
+        var first = null;
+        for (var i=0; i<allbusinfo.length; i++) {
+            if (targetid == allbusinfo[i].id) {
+                first = i;
+                break;
+            }
+        }
+
+        if (!first) {
+            return allbusinfo;
+        }
+
+        var firstEl = allbusinfo[first];
+        /* remove find item and append to first */
+        allbusinfo.splice(first, 1);
+        allbusinfo.unshift(firstEl);
+    }
 
     /*
     this.isshuttlebustime = function () {

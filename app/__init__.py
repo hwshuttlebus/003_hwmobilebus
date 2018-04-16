@@ -6,7 +6,7 @@ from flask_sqlalchemy import SQLAlchemy
 from config import config, Config
 from flask_login import LoginManager
 from flask_pagedown import PageDown
-#from .robot import myrobot
+from .robot import myrobot
 from werobot.contrib.flask import make_view
 from celery import Celery
 import os
@@ -43,13 +43,12 @@ def create_celery_app(app=None):
 
 def create_app(config_name):
     app = Flask(__name__)
-    '''
     #support for wechat robot
     app.add_url_rule(rule='/robot/',
                      endpoint='werobot',
                      view_func=make_view(myrobot),
                      methods=['GET','POST'])
-    '''
+                     
     app.config.from_object(config[config_name])
     config[config_name].init_app(app)
     

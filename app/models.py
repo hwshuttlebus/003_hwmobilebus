@@ -740,15 +740,48 @@ class mUser(UserMixin, db.Model):
         return self.stations.filter_by(id=station.id).first() is not None
 
     def to_json(self):
+        bus1 = ""
+        bus2 = ""
+        station1 = ""
+        station2 = ""
+        stations = self.stations.all()
+        if stations is not None:
+            if len(stations) >= 1:
+                if stations[0] is not None:
+                    station1 = stations[0].name
+                    busrec1 = mBus.query.filter_by(id=stations[0].bus_id).first()
+                    if busrec1 is not None:
+                        bus1 = busrec1.name
+            if len(stations) >= 2:
+                if stations[1] is not None:
+                    station2 = stations[1].name
+                    busrec2 = mBus.query.filter_by(id=stations[1].bus_id).first()
+                    if busrec2 is not None:
+                        bus2 = busrec2.name
+            
         json_post = {
             'id' : self.id,
             'mailaddr' : self.mailaddr,
             'campus': self.campus,
             'role_id': self.role_id,
-            'role_name': self.mrole.name
+            'role_name': self.mrole.name,
+            'reg_bus1': bus1,
+            'reg_bus2': bus2,
+            'reg_station1': station1,
+            'reg_station2': station2
         }
         return json_post
 
+    def to_json_apply(self):
+        json_post = {
+            'id': self.id,
+            'mailaddr': self.mailaddr,
+            'applyflag': self.applyflag,
+            'applydesc': self.applydesc,
+            'lat': self.lat,
+            'lon': self.lon
+        }
+        return json_post
 
 class Message(db.Model):
     __tablename__ = 'messages'

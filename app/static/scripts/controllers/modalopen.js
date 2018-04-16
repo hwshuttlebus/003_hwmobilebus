@@ -29,6 +29,9 @@ angular.module('hwmobilebusApp')
                 case "postDel":
                     postdelhandle(items);
                     break;
+                case "applyDel":
+                    applydelhandle(items);
+                    break;
                 case "msgDel":
                     msgdelhandle(items);
                 case "applystation":
@@ -92,6 +95,17 @@ angular.module('hwmobilebusApp')
         var postdelhandle = function (items) {
             $scope.loadctrl.submit = true;
             BusinfoService.delpost({id: items.delid}, function(res) {
+                $scope.loadctrl.submit = false;
+                $window.location.reload();
+            }, function (error) {
+                $scope.loadctrl.submit = false;
+                $window.location.reload();
+            });
+        };
+
+        var applydelhandle = function (items) {
+            $scope.loadctrl.submit = true;
+            BusinfoService.delapply({id: items.delid}, function(res) {
                 $scope.loadctrl.submit = false;
                 $window.location.reload();
             }, function (error) {

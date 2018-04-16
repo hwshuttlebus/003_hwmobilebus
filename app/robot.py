@@ -1,10 +1,44 @@
 from werobot import WeRoBot
 
-'''
-myrobot = WeRoBot(token='hwshuttlebus')
-myrobot.config["APP_ID"] = "wxc13fbfc1f37dc954"
-myrobot.config["APP_SECRET"] = "0eb22811085cf2930becaefb91264f3d"
+myrobot = WeRoBot(token='hwmobilebus')
+myrobot.config["APP_ID"] = "wxd6ac78fadc53c8d5"
+myrobot.config["APP_SECRET"] = "f831286ea21d818221c5df4f5247c98f"
 
+client = myrobot.client
+
+#@myrobot.text
+#def articles(message):
+#    return [
+#        [
+#            "title",
+#            "description",
+#            "img",
+#            "url"
+#        ],
+#        [
+#            "进入Mobilebus",
+#            "Mobilebus",
+#            "https://secure.gravatar.com/avatar/0024710771815ef9b74881ab21ba4173?s=420",
+#            "http://mbus.honeywell.com.cn"
+#        ]
+#    ]
+from werobot.replies import ArticlesReply, Article
+
+
+@myrobot.handler
+def reply(message):
+    reply = ArticlesReply(content="HoneywellMobilebus",message=message)
+    article = Article(
+        title="Mobilebus",
+        description="点击进入Honeywell移动班车系统",
+        img="https://secure.gravatar.com/avatar/0024710771815ef9b74881ab21ba4173?s=420",
+        url="http://mbus.honeywell.com.cn"
+    )
+    reply.add_article(article)
+    return reply
+
+
+'''
 client = myrobot.client
 
 client.create_menu({
@@ -32,9 +66,4 @@ client.create_menu({
         }
     ]
 })
-
-@myrobot.handler
-def hello(message):
-    return '欢迎使用Honeywell移动班车系统!'
-
 '''

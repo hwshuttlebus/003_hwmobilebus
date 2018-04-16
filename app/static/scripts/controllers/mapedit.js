@@ -64,7 +64,7 @@ angular.module('hwmobilebusApp')
       $scope.loadctrl.submit = false;
       $scope.selectedcampus = $scope.campus[0];
       /* store all bus info */
-      BusinfoService.getbusinfo({id:$scope.busid}, function(businfo) {
+      BusinfoService.getbusinfoedit({id:$scope.busid}, function(businfo) {
         $scope.businfo = businfo;
         $scope.oldbusinfo = angular.copy($scope.businfo);
         for (var i=0; i<$scope.campus.length; i++) {
@@ -78,7 +78,7 @@ angular.module('hwmobilebusApp')
       });
 
       /* get all station info */
-      BusinfoService.getstationinfo({id: $scope.busid}, function (inputstationinfo) {
+      BusinfoService.getstationinfoedit({id: $scope.busid}, function (inputstationinfo) {
         var templocal;
         var countup = 0;
         var countdown = 0;

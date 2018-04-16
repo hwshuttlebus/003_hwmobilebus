@@ -59,6 +59,10 @@ angular
       templateUrl: 'static/partials/mybus.html',
       controller: 'MybusCtrl'
     })
+    .when('/employmanage', {
+      templateUrl: 'static/partials/employmanage.html',
+      controller: 'EmploymanageCtrl'
+    })
     .when('/broadcastmsg', {
       templateUrl: 'static/partials/broadcastmsg.html',
       controller: 'BroadcastCtrl'

@@ -100,6 +100,7 @@ def get_user(id):
     user = mUser.query.get_or_404(id)
     return jsonify(user.to_json())
 
+
 @api.route('/mbusdata/users/<int:id>/posts/')
 def get_user_posts(id):
     user = mUser.query.get_or_404(id)
@@ -121,6 +122,31 @@ def get_user_posts(id):
         'prev': prev,
         'next': next,
         'count': pagination.total
+    })
+
+
+@api.route('/mbusdata/getalluser/')
+def get_alluser():
+    page = request.args.get('page', 1, type=int)
+    pagination = mUser.query.paginate(
+        page, per_page=current_app.config['MBUS_POSTS_PER_PAGE'],
+        error_out=False)
+    users = pagination.items
+    prev = None
+    if pagination.has_prev:
+        prev = url_for('api.get_alluser', page=page-1, _external=True)
+    next = None
+    if pagination.has_next:
+        next = url_for('api.get_alluser', page=page+1, _external=True)
+    
+    return jsonify({
+        'users': [user.to_json() for user in users],
+        'prev': prev,
+        'next': next,
+        'prevpage': (page-1),
+        'nextpage': (page+1),
+        'count': pagination.total,
+        'perpage': pagination.per_page
     })
 
 @api.route('/mbusdata/getallposts/')
@@ -168,6 +194,7 @@ def del_post(id):
     db.session.commit()
     return jsonify({'DELETED post': post.to_json()})
 
+
 @api.route('/mbusdata/messages/', methods=['POST'])
 def new_message():
     msg = Message.from_json(request.json)
@@ -186,3 +213,24 @@ def del_msg(id):
     db.session.delete(msg)
     db.session.commit()
     return jsonify({'DELETED msg': msg.to_json()})
+
+@api.route('/mbusdata/getapply/')
+def get_apply():
+    applyrec = mUser.query.filter_by(applyflag=True).all()
+    resitem = []
+    if applyrec is not None:
+        for item in applyrec:
+            if item.mailaddr is not None and item.lat is not None and item.lon is not None:
+                resitem.append(item)
+        return jsonify({'applyresult' : [item2.to_json_apply() for item2 in resitem]})
+    else:
+        return jsonify({'applyresult' : []})
+
+@api.route('/mbusdata/delapply/<int:id>', methods=['POST'])
+def del_apply(id):
+    user = mUser.query.get_or_404(id)
+    user.applyflag = False
+    user.applydesc = ""
+    db.session.add(user)
+    db.session.commit()
+    return jsonify({'User apply change': user.to_json_apply()})

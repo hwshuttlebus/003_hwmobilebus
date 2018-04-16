@@ -1,0 +1,61 @@
+<div class="container" id="smallfont">
+    <div class="row clearfix">
+        <div class="col-xs-12 column">
+            <div class="row clearfix">
+                <div class="panel panel-info">
+                    <div class="panel-heading">人员信息&nbsp&nbsp&nbsp&nbsp&nbsp总注册人数：{a empctl.usercount a}</div>
+                    <table class="table">
+                        <tbody>
+                            <tr>
+                                <th>用户名</th>
+                                <th>上班线路</th>
+                                <th>上班站点</th>
+                                <th>下班线路</th>
+                                <th>下班站点</th>
+                            </tr>
+                            <tr ng-repeat="user in empctl.users track by $index" 
+                                ng-init="hover=false" ng-mouseenter="hover=true"  
+                                ng-mouseleave="hover=false"   ng-class="{active: hover}">
+                                <td style="width:30%;"><a href="mailto:{a user.mailaddr a}">{a user.mailaddr a}</a></td>
+                                <td style="width:15%;">{a user.reg_bus1 a}</td>
+                                <td style="width:20%;">{a user.reg_station1 a}</td>
+                                <td style="width:15%;">{a user.reg_bus2 a}</td>
+                                <td style="width:20%;">{a user.reg_station2 a}</td>
+                            </tr>
+                        </tbody>
+                    </table>
+                    <p></p>
+                    <ul uib-pagination total-items="empctl.page.TotalCount" 
+                        items-per-page="empctl.page.Perpage" ng-model="empctl.page.CurrentPage" 
+                        max-size="page.maxSize" class="pagination-sm"
+                        boundary-link-number="true" rotate="false" ng-change="pageChanged()"
+                        previous-text="上一页", next-text="下一页"></ul>
+                </div>
+                <div class="panel panel-info">
+                    <div class="panel-heading">申请站点信息</div>
+                    <table class="table">
+                        <tbody>
+                            <tr>
+                                <th>用户名</th>
+                                <th>申请站点描述</th>
+                                <th>经度(longitude)</th>
+                                <th>纬度(latitude)</th>
+                            </tr>
+                            <tr ng-repeat="apply in empctl.applys track by $index" 
+                                ng-init="hover2=false" ng-mouseenter="hover2=true"  
+                                ng-mouseleave="hover2=false"   ng-class="{active: hover2}">
+                                <td>{a apply.mailaddr a}</td>
+                                <td>{a apply.applydesc a}</td>
+                                <td>{a apply.lon a}</td>
+                                <td>{a apply.lat a}</td>
+                                <td>
+                                    <button type="button" class="close" ng-click="delconfirm(apply.id)" >&times</button>
+                                </td>
+                            </tr>
+                        </tbody>
+                    </table>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>

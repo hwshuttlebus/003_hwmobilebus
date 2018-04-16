@@ -21,10 +21,13 @@ def user(mailaddr):
     busrec1 = None
     busrec2 = None
     stations = user.stations.all()
-    if stations[0] is not None:
-        busrec1 = mBus.query.filter_by(id=stations[0].bus_id).first()
-    if stations[1] is not None:
-        busrec2 = mBus.query.filter_by(id=stations[1].bus_id).first()
+    if stations is not None:
+        if len(stations) >= 1:
+            if stations[0] is not None:
+                busrec1 = mBus.query.filter_by(id=stations[0].bus_id).first()
+        if len(stations) >= 2:
+            if stations[1] is not None:
+                busrec2 = mBus.query.filter_by(id=stations[1].bus_id).first()
     return render_template('user.html', user=user, bus1=busrec1, bus2=busrec2)
 
 @main.route('/userdel/<int:id>')
