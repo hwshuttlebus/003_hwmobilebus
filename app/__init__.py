@@ -10,6 +10,7 @@ from .robot import myrobot
 from werobot.contrib.flask import make_view
 from celery import Celery
 import os
+import flask_excel as excel
 
 bootstrap = Bootstrap()
 mail = Mail()
@@ -48,7 +49,7 @@ def create_app(config_name):
                      endpoint='werobot',
                      view_func=make_view(myrobot),
                      methods=['GET','POST'])
-                     
+
     app.config.from_object(config[config_name])
     config[config_name].init_app(app)
     
@@ -59,6 +60,7 @@ def create_app(config_name):
     db.init_app(app)
     login_manager.init_app(app)
     pagedown.init_app(app)
+    excel.init_excel(app)
 
     create_celery_app(app)
 

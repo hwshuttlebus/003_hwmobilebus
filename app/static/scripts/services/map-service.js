@@ -2,7 +2,7 @@
 
 angular.module('hwmobilebusApp')
   .service('MapService', function () {
-    var map = {
+    var mapnormal = {
         map: null,
         markerarray: [],
         driving: null,
@@ -22,8 +22,8 @@ angular.module('hwmobilebusApp')
 	}
 
     this.loadmap = function (map, stations, completefunc) {
-        map.map = map;
-        loadroute(map, stations, completefunc);
+        mapnormal.map = map;
+        loadroute(mapnormal, stations, completefunc);
     };
 
     this.loadmapedit = function (map, stations, completefunc) {
@@ -36,7 +36,7 @@ angular.module('hwmobilebusApp')
         if (true == ismapedit) {
             var maplocal = mapedit;
         } else {
-            var maplocal = map;
+            var maplocal = mapnormal;
         }
         /* delete all markers */
         deleteallMarkers(maplocal);
@@ -62,7 +62,7 @@ angular.module('hwmobilebusApp')
 
     /* create route */
     var loadroute = function (mapobj, inputstations, completefunc) {
-        map = mapobj.map;
+        var localmap = mapobj.map;
         var pointArray = new Array();
         var stations = inputstations;
         var markerarray = [];
@@ -77,7 +77,7 @@ angular.module('hwmobilebusApp')
             parray2.push(pointArray[loopi]);
         }
 
-        var driving = new BMap.DrivingRoute(map, {renderOptions:{map: map},autoViewport: true, 
+        var driving = new BMap.DrivingRoute(localmap, {renderOptions:{map: localmap},autoViewport: true, 
             policy: BMAP_TRANSIT_POLICY_LEAST_TIME,
             onMarkersSet: function (res) {
                 //console.log(res)     
@@ -94,12 +94,12 @@ angular.module('hwmobilebusApp')
 
                     if (loopj===0 || loopj===pointArray.length-1) {
                         /* for start and end station */
-                        map.removeOverlay(res[loopj].marker);
-                        map.addOverlay(myPoint);
+                        localmap.removeOverlay(res[loopj].marker);
+                        localmap.addOverlay(myPoint);
                     } else {
                         /* for all the internal stations */
                         res[loopj].Nm.Yc.innerHTML=wayPointIconHtml;
-                        map.addOverlay(myPoint);
+                        localmap.addOverlay(myPoint);
                     }
                     myPoint.addEventListener("click", function () {
                     //console.log(pointArray);
@@ -132,7 +132,7 @@ angular.module('hwmobilebusApp')
             
             /* record all markers */
             markerarray.push(myPoint);
-            map.addOverlay(myPoint);
+            localmap.addOverlay(myPoint);
             mapobj.markerarray = markerarray;
         }
     };
@@ -160,14 +160,14 @@ angular.module('hwmobilebusApp')
             if (true == ismapedit) {
                 mapedit.map.removeOverlay(marker);
             } else {
-                map.map.removeOverlay(marker);
+                mapnormal.map.removeOverlay(marker);
             }
         }
     };
 
     this.getDist = function(ismapedit, point1, point2) {
         if (false == ismapedit) {
-            var maplocal = map.map;
+            var maplocal = mapnormal.map;
         } else {
             var maplocal = mapedit.map;
         }
@@ -189,7 +189,7 @@ angular.module('hwmobilebusApp')
         //var newmarker = new BMap.Marker(point, {icon: IconEntity});
         var newmarker = new BMap.Marker(point);
         if (false == ismapedit) {
-            map.map.addOverlay(newmarker);
+            mapnormal.map.addOverlay(newmarker);
         } else {
             mapedit.map.addOverlay(newmarker);
         }
@@ -211,7 +211,7 @@ angular.module('hwmobilebusApp')
     /* search location complete callback used for map side */
     this.srchloccomplete = function(ismapedit) {
         if (false == ismapedit) {
-            var maplocal = map.map;
+            var maplocal = mapnormal.map;
         } else {
             var maplocal = mapedit.map;
         }
@@ -232,7 +232,7 @@ angular.module('hwmobilebusApp')
     /* search location on map */
     var setsrchplace = function (ismapedit, myValue, srchcompletefunc) {
         if (false == ismapedit) {
-            var maplocal = map.map;
+            var maplocal = mapnormal.map;
         } else {
             var maplocal = mapedit.map;
         }
@@ -253,7 +253,7 @@ angular.module('hwmobilebusApp')
     this.srchloc = function (ismapedit, input, searchResultPanel, srchcompletefunc) {
         var retobj = null;
         if (false == ismapedit) {
-            var maplocal = map.map;
+            var maplocal = mapnormal.map;
         } else {
             var maplocal = mapedit.map;
         }

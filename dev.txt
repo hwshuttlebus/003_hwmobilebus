@@ -14,6 +14,7 @@ dominate==2.3.1
 eventlet==0.22.1
 Flask==0.12.2
 Flask-Bootstrap==3.3.7.1
+Flask-Excel==0.0.7
 Flask-HTTPAuth==3.2.3
 Flask-Login==0.4.1
 Flask-Mail==0.9.1
@@ -32,10 +33,15 @@ itsdangerous==0.24
 Jinja2==2.10
 kombu==4.1.0
 lazy-object-proxy==1.3.1
+lml==0.0.1
 Mako==1.0.7
 Markdown==2.6.10
 MarkupSafe==1.0
 mccabe==0.6.1
+pyexcel==0.5.8
+pyexcel-io==0.5.6
+pyexcel-webio==0.1.4
+pyexcel-xls==0.5.6
 pylint==1.8.1
 PyMySQL==0.8.0
 python-dateutil==2.6.1
@@ -46,6 +52,7 @@ pytz==2018.3
 requests==2.18.4
 six==1.11.0
 SQLAlchemy==1.1.15
+texttable==1.2.1
 urllib3==1.22
 vine==1.1.4
 visitor==0.1.3
@@ -54,4 +61,6 @@ Werkzeug==0.13
 WeRoBot==1.2.0
 wrapt==1.10.11
 WTForms==2.1
+xlrd==1.1.0
+xlwt==1.3.0
 xmltodict==0.11.0

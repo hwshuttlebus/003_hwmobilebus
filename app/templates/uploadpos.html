@@ -1,0 +1,11 @@
+{% extends "base.html" %}
+
+{% block title %}Mobilebus - 上传班车停靠位置 {{ campus }}{% endblock %}
+
+{% block page_content %}
+    <h2 id="smallfont">上传班车停靠位置（{{ campus }}）</h2>
+    <form method=post enctype=multipart/form-data>
+    <p><input type=file name=file>
+        <span><input type=submit value=Upload></span></p>
+    </form>
+{% endblock %}

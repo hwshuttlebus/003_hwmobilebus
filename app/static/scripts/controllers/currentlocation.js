@@ -176,7 +176,7 @@ angular.module('hwmobilebusApp')
           $scope.stations[i].attr3 = "greyout";
           $scope.stations[i].attr2 = "greyout";
           $scope.stations[i].attr1 = "greyout";
-          $scope.stations[i].locinfo = "无班车位置数据"
+          $scope.stations[i].locinfo = "无班车位置数据";
         }
       }
 

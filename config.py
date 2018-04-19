@@ -6,18 +6,22 @@ basedir = os.path.abspath(os.path.dirname(__file__))
 
 class Config:
     SECRET_KEY = os.environ.get('SECRET_KEY') or 'hard to guess string'
+
+    #sqlalchemy configuration
     SQLALCHEMY_COMMIT_ON_TEARDOWN = True
     SQLALCHEMY_TRACK_MODIFICATION = False
 
-    MAIL_SERVER = 'mail.hwmobilebus.tk'
+    #mail configuration
+    MAIL_SERVER = 'mbus.honeywell.com.cn'
     MAIL_PORT = 25
-
     MBUS_MAIL_SUBJECT_PREFIX = '[DoNotreply]'
     MBUS_MAIL_SENDER = 'HoneywellMobileBus'
+
+
     MBUS_ADMIN = os.environ.get('MBUS_ADMIN')
-    
     MBUS_POSTS_PER_PAGE = 20
 
+    #celery process use
     CELERY_BROKER_URL = 'amqp://guest:guest@localhost:5672//'
     CELERY_RESULT_BACKEND = 'amqp://guest:guest@localhost:5672//'
     CELERYBEAT_SCHEDULE = {  
@@ -32,14 +36,18 @@ class Config:
             'schedule': datetime.timedelta(hours=3),
             #'schedule': crontab(minute=0, hour=0),
             'args':("Message",)
+        },
+        'daily-hours': {
+            'task': 'celery_worker.unconfirmemployee',
+            'schedule': datetime.timedelta(days=1),
+            'args':("Message",)
         }
     }
 
-    MBUS_TOWKSTART_TIME = "06:30:00"
-    MBUS_TOWKEND_TIME   = "13:20:00"
-    MBUS_TOHMSTART_TIME = "13:30:00"
-    MBUS_TOHMEND_TIME   = "20:00:00"
-
+    #for upload and download use
+    UPLOAD_FOLDER = 'app/static/'
+    ALLOWED_EXTENSIONS = set(['txt', 'pdf', 'png', 'jpg', 'jpeg', 'gif'])
+    ALLOWED_EXTENSIONS_EXCEL = set(['xls', 'xlsx', 'csv'])
 
     @staticmethod
     def init_app(app):

@@ -1,7 +1,7 @@
 #!/usr/bin/env python
 import os
 from app import create_celery_app, db
-from app.models import get_currbj_time, mBus, mStation, DiagramData, Event, BusDiagramData
+from app.models import get_currbj_time, mBus, mStation, mUser, DiagramData, Event, BusDiagramData
 from datetime import datetime, timedelta
 
 celery = create_celery_app()
@@ -226,5 +226,16 @@ def calcbusdata(inputdata):
         #except Exception as e:
         #    print('%s' %e)
 
-#app = create_app(os.getenv('FLASK_CONFIG') or 'default')
-#app.app_context().push()
+
+@celery.task()
+def unconfirmemployee(inputdata):
+    #get now time
+    nowtime = get_currbj_time()
+    nowtime = nowtime.replace(tzinfo=None)
+
+    allemployee = mUser.query.all()
+    for item in allemployee:
+        #judge register more than half year then clean it
+        if (nowtime - item.member_since > timedelta(days=180)):
+            item.confirmed = False
+            print('Employ:'+item.mailaddr+' is unconfirmed!')

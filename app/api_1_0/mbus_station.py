@@ -266,3 +266,4 @@ def get_bus_related_stations(id):
     #sort by time before response
     returnrec = sorted(returnrec, key=lambda x: x['time'])
     return jsonify(returnrec)
+

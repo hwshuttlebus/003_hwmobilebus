@@ -1,10 +1,15 @@
-from flask import render_template, send_file, make_response, request, url_for, redirect, flash
+from flask import current_app, render_template, send_file, send_from_directory
+from flask import make_response, request, url_for, redirect, flash
 from flask_login import current_user, login_required
+from datetime import datetime
+from werkzeug.utils import secure_filename
 from . import main
 from .forms import EditProfileForm, EditProfileAdminForm, PostForm
 from ..decorators import admin_required, permission_required
-from ..models import mUser, mRole, mPost, Event, mBus
+from ..models import mUser, mRole, mPost, Event, mBus, mStation
 from .. import db
+import flask_excel as excel
+import os
 
 @main.route('/', methods=['GET', 'POST'])
 def index():
@@ -86,3 +91,197 @@ def infoModal():
 @main.route('/ngtemplates/showmaproute.html')
 def showmap():
     return render_template('/ngtemplates/showmaproute.html')
+
+#upload pdf
+def allowed_file(filename, config):
+    return '.' in filename and \
+        filename.rsplit('.', 1)[1].lower() in config
+
+
+@main.route('/uploads/<filename>')
+def uploaded_file(filename):
+    return send_from_directory(current_app.static_folder, filename)
+
+@main.route('/uploadposlb', methods=['GET', 'POST'])
+def uploadposlb():
+    #get query param
+    campus = request.args.get('campus', 1, type=int)
+    if campus == 1:
+        campus = "libingroad"
+    else:
+        campus = "huankeroad"
+
+    if request.method == 'POST':
+        #check if the post request has the file part
+        if 'file' not in request.files:
+            flash('No file part')
+            return redirect(request.url)
+        file = request.files['file']
+        #if user does not select file, browser also 
+        #submit a empty part without filename
+        if file.filename == '':
+            flash('No selected file')
+            return redirect(request.url)
+        if file and allowed_file(file.filename, current_app.config['ALLOWED_EXTENSIONS']):
+            filename = secure_filename(file.filename)
+
+            #judge filename
+            if campus == "libingroad":
+                if filename.rsplit('.', 1)[0] != 'layoutlb':
+                    flash('file name is not layoutlb.pdf!')
+                    return redirect(request.url)
+            else:
+                if filename.rsplit('.', 1)[0] != 'layouthk':
+                    flash('file name is not layouthk!')
+                    return redirect(request.url)
+            file.save(os.path.join(current_app.config['UPLOAD_FOLDER'], filename))
+            flash('upload successfully!')
+            return redirect(url_for('main.uploaded_file',filename=filename, campus=campus))
+        else:
+            flash('file format error!')
+            return redirect(request.url)
+
+    if campus == "huankeroad":
+        return render_template('uploadpos.html', campus="环科路")
+    else:
+        return render_template('uploadpos.html', campus="李冰路")
+
+
+@main.route('/export', methods=['GET'])
+def exportbusstationinfo():
+    #create a list of dictionary with key: busname, station, time    
+    record = []
+
+    #handle for libingroad campus
+    record.append(['李冰路园区'])
+    allbus = mBus.query.filter_by(campus="libingroad").all()
+    if allbus is not None:
+        for bus in allbus:
+            if bus.name is not None:
+                #record bus line with one blank line
+                record.append([''])
+                record.append([bus.name])
+                #record stations, currently only filter to company stations
+                allstations = bus.stations.order_by(mStation.time).all()
+                for station in allstations:
+                    stationrec = []
+                    if station.name is not None:
+                        if True == station.dirtocompany:
+                            stationrec.append(station.name)
+                            stationrec.append(station.time.strftime('%H:%M'))
+                            record.append(stationrec)
+
+    record.append([''])
+    record.append([''])
+    record.append([''])
+    record.append(['环科路园区'])
+    allbus = mBus.query.filter_by(campus="huankeroad").all()
+    if allbus is not None:
+        for bus in allbus:
+            if bus.name is not None:
+                #record bus line with one blank line
+                record.append([''])
+                record.append([bus.name])
+                #record stations, currently only filter to company stations
+                allstations = bus.stations.order_by(mStation.time).all()
+                for station in allstations:
+                    stationrec = []
+                    if station.name is not None:
+                        if True == station.dirtocompany:
+                            stationrec.append(station.name)
+                            stationrec.append(station.time.strftime('%H:%M'))
+                            record.append(stationrec)
+
+
+    return excel.make_response_from_array(record, "xls", file_name="班车站点信息")
+
+
+
+@main.route("/import", methods=['GET', 'POST'])
+def doimport():
+    campus = "libingroad"
+    
+    if request.method == 'POST':
+
+        def mbus_init_func(row):
+            #input check
+            if row['名称'] == "" or row['名称'] is None \
+                or row['编号']=="" or row['编号'] is None:
+                return None
+
+            b = mBus.query.filter_by(name=row['名称'], number=row['编号']).first()
+            if b is not None:
+                b.name = row['名称']
+                b.number = row['编号']
+                b.cz_name = row['车长']
+                b.cz_phone = row['车长手机']
+                b.sj_name = row['司机']
+                b.sj_phone = row['司机手机']
+                b.seat_num = row['座位数']
+                b.campus = campus
+            else:
+                b = mBus(name=row['名称'], number=row['编号'], cz_name=row['车长'], cz_phone=row['车长手机'],
+                        sj_name=row['司机'],sj_phone=row['司机手机'], seat_num=row['座位数'], campus=campus)
+            
+            return b
+ 
+        def station_init_func(row):
+            s = None
+            #input check
+            if row['站点'] == "" or row['站点'] is None or \
+                row['计划发车时间']=="" or row['计划发车时间'] is None:
+                return None
+            
+            print('station:'+row['站点'])
+            if row['站点描述'] is not None:
+                print('desc: '+row['站点描述'])
+
+            timestr = str(row['计划发车时间'])
+            datetimeobj = datetime.strptime(timestr.strip(), '%H:%M:%S').time()
+            latlon = row['站点经纬度信息']
+            lat = None
+            lon = None
+            direction = row['direction']
+            if latlon is not "" and latlon is not None:
+                lon = latlon.strip().split(',')[0]
+                if lon is not None:
+                    lon = float(lon)
+                lat = latlon.strip().split(',')[1]
+                if lat is not None:
+                    lat = float(lat)
+            else:
+                lat = 0.0
+                lon = 0.0
+
+            b = mBus.query.filter_by(name=row['名称'], number=row['编号']).first()
+            if b is not None:
+                s = mStation.query.filter_by(name=row['站点'], bus_id=b.id, dirtocompany=direction).first()
+                if s is not None:
+                    s.name = row['站点']
+                    s.description = row['站点描述']
+                    s.time = datetimeobj
+                    s.dirtocompany = True
+                    s.lat = lat
+                    s.lon = lon
+                    s.campus = campus
+                    s.bus_id = b.id
+                    s.dirtocompany = direction
+                else:
+                    s = mStation(name=row['站点'], description=row['站点描述'], time=datetimeobj,
+                                dirtocompany=direction, lat=lat, lon=lon, campus=campus, bus_id=b.id)
+
+            return s
+       
+        request.save_book_to_database(
+            field_name='file', session=db.session,
+            tables=[mBus, mStation],
+            initializers=[mbus_init_func, station_init_func])
+        return redirect(url_for('.doimport'), code=302)
+    return '''
+    <!doctype html>
+    <title>Upload an excel file</title>
+    <h1>Excel file upload (xls, xlsx, ods please)</h1>
+    <form action="" method=post enctype=multipart/form-data><p>
+    <input type=file name=file><input type=submit value=Upload>
+    </form>
+    '''
