@@ -58,7 +58,7 @@ def register():
         db.session.add(user)
         db.session.commit()
         token = user.generate_confirmation_token()
-        send_email_cloud(newmailaddr, '请确认您的帐号', 'auth/email/confirm',\
+        send_email(newmailaddr, '请确认您的帐号', 'auth/email/confirm',\
                      user=user, token=token)
         flash('验证邮件已经发送至'+newmailaddr+'请点击邮件内连接完成认证')
         return redirect(url_for('main.index'))
@@ -79,7 +79,7 @@ def confirm(token):
 @login_required
 def resend_confirmation():
     token = current_user.generate_confirmation_token()
-    send_email_cloud(current_user.mailaddr, '请确认您的帐号', 'auth/email/confirm',\
+    send_email(current_user.mailaddr, '请确认您的帐号', 'auth/email/confirm',\
                      token=token)
     flash('帐号确认邮件已经发送至:' + current_user.mailaddr)
     return redirect(url_for('main.index'))
@@ -121,7 +121,7 @@ def password_reset_request():
         user = mUser.query.filter_by(mailaddr=newmailaddr).first()
         if user:
             token = user.generate_reset_token()
-            send_email_cloud(newmailaddr, '请重置您的密码',\
+            send_email(newmailaddr, '请重置您的密码',\
                             'auth/email/reset_password',\
                             token=token,\
                             next=request.args.get('next'))
