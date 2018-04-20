@@ -17,18 +17,24 @@ def send_email(to, subject):
 '''
 
 @celery.task
-def send_async_email(msg):
+def send_async_email(params):
+    msg = Message(current_app.config['MBUS_MAIL_SUBJECT_PREFIX'] + ' ' + params['subject'],
+                sender=current_app.config['MBUS_MAIL_SENDER'], recipients=[params['to']])
+    msg.body = params['msg_body']
+    msg.html = params['msg_html']
     mail.send(msg)
 
 
 def send_email(to, subject, template, **kwargs):
-    app = current_app._get_current_object()
-    msg = Message(app.config['MBUS_MAIL_SUBJECT_PREFIX'] + ' ' + subject,
-                  sender=app.config['MBUS_MAIL_SENDER'], recipients=[to])
-    msg.body = render_template(template + '.txt', **kwargs)
-    msg.html = render_template(template + '.html', **kwargs)
     #return mail.send(msg)
-    send_async_email.delay(msg)
+    #celery delay args default serializer is JSON
+    params = {
+        "to": to,   
+        "subject": subject,
+        "msg_body": render_template(template + '.txt', **kwargs),
+        "msg_html": render_template(template + '.html', **kwargs)
+    }
+    send_async_email.delay(params)
 
 
 @celery.task

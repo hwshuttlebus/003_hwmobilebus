@@ -11,7 +11,7 @@ angular.module('hwmobilebusApp')
   .service('BusinfoService', function ($resource, $cacheFactory) {
     var BASE = 'http://localhost:5000/api/v1.0/';
     //var BASE = 'http://www.hwmobilebus.tk:9001/api/v1.0/'
-    //var BASE = 'http://ebus.honeywell.com.cn/api/v1.0/
+    //var BASE = 'http://mbus.honeywell.com.cn/api/v1.0/'
 
     /* define http get that need to be cached */
     var allbuscache = $cacheFactory('allbus');
