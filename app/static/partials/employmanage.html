@@ -16,7 +16,7 @@
                             <tr ng-repeat="user in empctl.users track by $index" 
                                 ng-init="hover=false" ng-mouseenter="hover=true"  
                                 ng-mouseleave="hover=false"   ng-class="{active: hover}">
-                                <td style="width:30%;"><a href="mailto:{a user.mailaddr a}">{a user.mailaddr a}</a></td>
+                                <td style="width:30%;"><a ng-href="/{a user.userlink a}">{a user.mailaddr a}</a></td>
                                 <td style="width:15%;">{a user.reg_bus1 a}</td>
                                 <td style="width:20%;">{a user.reg_station1 a}</td>
                                 <td style="width:15%;">{a user.reg_bus2 a}</td>
@@ -44,7 +44,7 @@
                             <tr ng-repeat="apply in empctl.applys track by $index" 
                                 ng-init="hover2=false" ng-mouseenter="hover2=true"  
                                 ng-mouseleave="hover2=false"   ng-class="{active: hover2}">
-                                <td>{a apply.mailaddr a}</td>
+                                <td><a href="mailto:{a apply.mailaddr a}">{a apply.mailaddr a}</a></td>
                                 <td>{a apply.applydesc a}</td>
                                 <td>{a apply.lon a}</td>
                                 <td>{a apply.lat a}</td>

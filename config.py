@@ -48,6 +48,11 @@ class Config:
     UPLOAD_FOLDER = 'app/static/'
     ALLOWED_EXTENSIONS = set(['txt', 'pdf', 'png', 'jpg', 'jpeg', 'gif'])
     ALLOWED_EXTENSIONS_EXCEL = set(['xls', 'xlsx', 'csv'])
+    #gps allow time
+    MBUS_GPS_TOCOMPANYSTART = "06:30:00"
+    MBUS_GPS_TOCOMPANYEND   = "10:00:00"
+    MBUS_GPS_TOHOMESTART    = "14:00:00"
+    MBUS_GPS_TOHOMEEND      = "20:30:00"
 
     @staticmethod
     def init_app(app):

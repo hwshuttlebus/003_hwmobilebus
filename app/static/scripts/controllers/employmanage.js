@@ -1,7 +1,7 @@
 'use strict';
 
 angular.module('hwmobilebusApp')
-    .controller('EmploymanageCtrl', function ($scope, BusinfoService, InterfService){
+    .controller('EmploymanageCtrl', function ($scope, $location, BusinfoService, InterfService){
 
     /* employee management controller */
     $scope.empctl={
@@ -22,6 +22,7 @@ angular.module('hwmobilebusApp')
         for (var i=0; i<users.length; i++) {
             var user = {};
             user.mailaddr = users[i].mailaddr;
+            user.userlink = 'user/'+user.mailaddr;
             user.reg_bus1 = users[i].reg_bus1;
             user.reg_bus2 = users[i].reg_bus2;
             user.reg_station1 = users[i].reg_station1;

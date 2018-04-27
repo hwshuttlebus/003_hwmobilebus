@@ -199,9 +199,29 @@ def exportbusstationinfo():
 
 @main.route("/import", methods=['GET', 'POST'])
 def doimport():
-    campus = "libingroad"
-    
+    #get query param
+    campus = request.args.get('campus', 1, type=int)
+    if campus == 1:
+        campus = "libingroad"
+    else:
+        campus = "huankeroad"
+     
     if request.method == 'POST':
+        #first delete all bus and stations
+        if (campus == "libingroad"):
+            print('!!!!!!!!!!!!!!!!!!!!!!!!!!!!')
+            stations = mStation.query.all()
+            for item in stations:
+                if item.name != "长兴路98弄" and item.name != "10号线航中路" and item.name != "目的地" and item.name != "出发地":
+                    print('delete station:'+ str(item.name))
+                    db.session.delete(item)
+                    db.session.commit()
+            buses = mBus.query.all()
+            for item in buses:
+                if item.name != "测试线":
+                    print('delete bus:'+ str(item.name))
+                    db.session.delete(item)
+                    db.session.commit()
 
         def mbus_init_func(row):
             #input check
@@ -249,10 +269,13 @@ def doimport():
                 lat = latlon.strip().split(',')[1]
                 if lat is not None:
                     lat = float(lat)
+                #transfer from google coordinate to baidu
+                from ..gpsutil import gcj02tobd09
+                lon, lat = gcj02tobd09(lon, lat)
             else:
                 lat = 0.0
                 lon = 0.0
-
+    
             b = mBus.query.filter_by(name=row['名称'], number=row['编号']).first()
             if b is not None:
                 s = mStation.query.filter_by(name=row['站点'], bus_id=b.id, dirtocompany=direction).first()

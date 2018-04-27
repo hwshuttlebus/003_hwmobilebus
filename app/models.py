@@ -273,32 +273,69 @@ class mBus(db.Model):
         currbeijingtime = get_currbj_time()
         #update date
         mdateobj = currbeijingtime.date()
-
         #in bus time
-        timestr1 = [('07:28:10', 48),('07:45:01',49),('07:46:12',50), ('07:57:02', 51), ('08:04:00', 52), ('08:46:25', 53)]  
-        timestr2 = [('17:42:10', 55),('17:51:01',56),('18:03:12',57)]  
+        timestr1 = [('07:28:10', 729, '2018-04-10', 5),('07:38:10', 729, '2018-04-11', 4),
+                    ('07:33:10', 729, '2018-04-13', 0),('07:32:10', 729, '2018-04-14', 2),
+                    ('07:45:01',730, '2018-04-10', 10 ),
+                    ('07:46:01',731, '2018-04-10', 11 ),
+                    ('08:45:01',735, '2018-04-10', 20 ),('08:25:01',735, '2018-04-11', 22 ),
+                    ('08:20:01',735, '2018-04-12', 30 ),('08:25:01',735, '2018-04-13', 22 ),
+
+                    ('08:28:10', 78, '2018-04-20', 25),('08:38:20', 78, '2018-04-21', 34),
+                    ('08:33:10', 78, '2018-04-23', 20),('08:32:20', 78, '2018-04-24', 12),
+                    ('07:45:01',80, '2018-04-20', 5 ), 
+                    ('07:46:01',81, '2018-04-20', 0 ),
+                    ('08:01:01',82, '2018-04-20', 12 ),('08:05:01',82, '2018-04-21', 12 ),
+                    ('08:20:01',83, '2018-04-22', 3 ),('08:07:01',83, '2018-04-23', 2 )]
+
+        timestr2 = [('17:12:10', 736, '2018-04-10', 22),('17:11:10', 736, '2018-04-11', 20),
+                    ('17:10:10', 736, '2018-04-12', 21),('17:12:10', 736, '2018-04-13', 18),
+                    ('17:51:01',737, '2018-04-10', 0),('17:52:01',737, '2018-04-11', 0),
+                    ('17:52:01',738, '2018-04-10', 0),('17:53:01',739, '2018-04-13', 0),
+                    ('17:55:01',740, '2018-04-10', 0),('17:59:01',740, '2018-04-14', 0),
+
+                    ('17:12:10', 79, '2018-04-20', 32),('17:11:10', 79, '2018-04-21', 20),
+                    ('17:10:10', 79, '2018-04-22', 41),('17:12:10', 79, '2018-04-23', 18),
+                    ('17:51:01',85, '2018-04-20', 0),('17:52:01',85, '2018-04-21', 0),
+                    ('17:52:01',86, '2018-04-20', 0),('17:53:01',86, '2018-04-23', 0),
+                    ('17:55:01',87, '2018-04-20', 0),('17:59:01',87, '2018-04-24', 0)]  
+
+
         timestr1obj = []
         timestr2obj = []
         for item in timestr1:
-            timestr1obj.append((datetime.strptime(item[0], '%H:%M:%S').time(), item[1]))
+            timestr1obj.append((datetime.strptime(item[0], '%H:%M:%S').time(), item[1],
+                                datetime.strptime(item[2], '%Y-%m-%d').date(),item[3]))
         for item2 in timestr2:
-            timestr2obj.append((datetime.strptime(item2[0], '%H:%M:%S').time(), item2[1]))
+            timestr2obj.append((datetime.strptime(item2[0], '%H:%M:%S').time(), item2[1],
+                                datetime.strptime(item2[2], '%Y-%m-%d').date(), item2[3]))
         #duplicate
+        '''
         timestr3 = [('07:40:01', 48),('07:45:03',50)]  
-        timestr4 = [('18:08:12',57)]  
+        timestr4 = [('18:08:12',57)]
         timestr3obj = []
         timestr4obj = []
         for item in timestr3:
             timestr1obj.append((datetime.strptime(item[0], '%H:%M:%S').time(), item[1]))
         for item2 in timestr4:
             timestr2obj.append((datetime.strptime(item2[0], '%H:%M:%S').time(), item2[1]))
+        '''
 
         for item3 in timestr1obj:
-            diagramrec = DiagramData(mdate=mdateobj, arrive_time=item3[0],current_num=0, station_id=item3[1])
+            print(item3)
+            diagramrec = DiagramData(mdate=item3[2], 
+                                     arrive_time=item3[0],
+                                     current_num=item3[3], 
+                                     station_id=item3[1])
             db.session.add(diagramrec)
             db.session.commit()
+
         for item4 in timestr2obj:
-            diagramrec = DiagramData(mdate=mdateobj, arrive_time=item4[0],current_num=0, station_id=item4[1])
+            print(item4)
+            diagramrec = DiagramData(mdate=item4[2], 
+                                     arrive_time=item4[0],
+                                     current_num=item4[3], 
+                                     station_id=item4[1])
             db.session.add(diagramrec)
             db.session.commit()
 

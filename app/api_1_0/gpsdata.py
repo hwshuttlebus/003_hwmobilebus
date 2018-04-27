@@ -1,10 +1,20 @@
 from . import api
 from .. import db
 from ..models import mBus, mStation, mUser
-from flask import request, jsonify
+from flask import request, jsonify, current_app
 from .authentication import auth
 
 import time
+
+@api.route('/mbusdata/gpsconfig/', methods=['GET'])
+def configgps():
+    retjson = {
+        'toworkstart': current_app.config['MBUS_GPS_TOCOMPANYSTART'],
+        'toworkend': current_app.config['MBUS_GPS_TOCOMPANYEND'],
+        'tohomestart': current_app.config['MBUS_GPS_TOHOMESTART'],
+        'tohomeend': current_app.config['MBUS_GPS_TOHOMEEND']
+    }
+    return jsonify(retjson)
 
 @api.route('/mbusdata/gpsdata/', methods=['POST'])
 #@auth.login_required
@@ -13,7 +23,8 @@ def post_gpsdata():
 
     busrec = None
     try:
-        jsonres = request.get_json()
+        #ignore mimetype check for GPS hardware
+        jsonres = request.get_json(force=True)
     except Exception as e:
         print('!!!!!!!raw data!!!!!!!!!')
         print(request.get_data())

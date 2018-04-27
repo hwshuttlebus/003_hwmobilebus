@@ -98,7 +98,7 @@ angular.module('hwmobilebusApp')
                         localmap.addOverlay(myPoint);
                     } else {
                         /* for all the internal stations */
-                        res[loopj].Nm.Yc.innerHTML=wayPointIconHtml;
+                        res[loopj].Pm.Yc.innerHTML=wayPointIconHtml;
                         localmap.addOverlay(myPoint);
                     }
                     myPoint.addEventListener("click", function () {
@@ -107,7 +107,6 @@ angular.module('hwmobilebusApp')
                 }
                 mapobj.markerarray = markerarray;
             }
-            
         });
         
         /* record driving result */

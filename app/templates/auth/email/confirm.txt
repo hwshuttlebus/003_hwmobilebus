@@ -4,8 +4,8 @@
 
 请点击以下链接再次登录Mobilebus完成注册确认：
 
-<b>{{ url_for('auth.confirm', token=token, _external=True) }}</b>
+http://mbus.honeywell.com.cn{{ url_for('auth.confirm', token=token) }}
 
-Mobilebus Team
+Honeywell Facility Mobilebus Team
 
 Note: replies to this email address are not monitored
