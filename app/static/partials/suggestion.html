@@ -1,68 +1,61 @@
+
 <div class="container" id="smallfont">
     <div class="spinner" ng-show="loadctrl.submit">
         <div class="loader" ></div>
     </div>
     <form class="form-horizontal" role="form" name="myform" >
         <div class="form-group">
-            <div class="row clearfix">
-                <div class="col-xs-5">
-                    分类：
-                    <select class="form-control" ng-model="suggesttype" ng-options="opt for opt in options.suggesttype"></select>
-                </div>
+            <div class="col-xs-5">
+                分类：
+                <select class="form-control" ng-model="suggesttype" ng-options="opt for opt in options.suggesttype"></select>
             </div>
         </div>
         <div class="form-group">
-            <div class="row clearfix">
-                <div class="col-xs-9">
-                    内容：
-                    <textarea name="suggest" class="form-control" placeholder="请在此输入文字，字数控制在200字以内" cols="40" rows="10" style="resize: none;"
-                                maxlength="200" required
-                                ng-model="suggestcontxt"></textarea>
-                    
-                </div>
+            <div class="col-xs-9">
+                内容：
+                <textarea name="suggest" class="form-control" placeholder="请在此输入文字，字数控制在200字以内" cols="40" rows="10" style="resize: none;"
+                            maxlength="200" required
+                            ng-model="suggestcontxt"></textarea>
+                
             </div>
         </div>
         <div class="form-group">
-            <div class="row clearfix">
-                <div class="col-xs-3">
-                    <button type="button" class="btn btn-block btn-primary"
-                            ng-disabled="!myform.suggest.$valid" ng-click="submit()">提交</button>
-                </div>
+            <div class="col-xs-3">
+                <button type="button" class="btn btn-block btn-primary"
+                        ng-disabled="!myform.suggest.$valid" ng-click="submit()">提交</button>
             </div>
         </div>
         <div class="form-group">
-            <div class="row clearfix">
-                <div class="col-xs-9">
-                    <table class="table">
-                        <tbody>
-                            <tr ng-repeat="post in userpost track by $index" 
-                                ng-init="hover=false" ng-mouseenter="hover=true"  
-                                ng-mouseleave="hover=false"   ng-class="{active: hover}">
-                                <td>
-                                    <table>
-                                        <tbody>
-                                            <tr>
-                                                <tr style="width:90%; font-weight: bold;">{a post.body a}</td>
-                                            </tr>
-                                        </tbody>
-                                    </table>
-                                    <table>
-                                        <tbody>
-                                            <tr>
-                                                <td style="width:90%; font-size: 80%">{a post.time | date:'MM/dd/yyyy  HH:mm:ss'  a}</td>
-                                                <td style="width:10%; font-size: 80%"><a href="{a post.author a}">{a post.mailaddr a}</a></td>
-                                            </tr>
-                                        </tbody>
-                                    </table>
-                                </td>
-                                <td>
-                                    <button type="button" class="close" ng-click="delconfirm(post.id)" >&times</button>
-                                </td>
-                                
-                            </tr>
-                        </tbody>
-                    </table>
-                </div>
+            <div class="col-xs-9">
+                <table class="table">
+                    <tbody>
+                        <tr ng-repeat="post in userpost track by $index" 
+                            ng-init="hover=false" ng-mouseenter="hover=true"  
+                            ng-mouseleave="hover=false"   ng-class="{active: hover}">
+                            <td>
+                                <table>
+                                    <tbody>
+                                        <tr>
+                                            <tr style="width:90%; font-weight: bold;">{a post.body a}</td>
+                                        </tr>
+                                    </tbody>
+                                </table>
+                                <table>
+                                    <tbody>
+                                        <tr>
+                                            <td style="width:90%; font-size: 80%">{a post.time | date:'MM/dd/yyyy  HH:mm:ss'  a}</td>
+                                            <td style="width:10%; font-size: 80%"><a href="{a post.author a}">{a post.mailaddr a}</a></td>
+                                        </tr>
+                                    </tbody>
+                                </table>
+                            </td>
+                            <td>
+                                <button type="button" class="close" ng-click="delconfirm(post.id)" >&times</button>
+                            </td>
+                            
+                        </tr>
+                    </tbody>
+                </table>
             </div>
         </div>
     </form>

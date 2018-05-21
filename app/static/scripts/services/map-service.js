@@ -98,7 +98,14 @@ angular.module('hwmobilebusApp')
                         localmap.addOverlay(myPoint);
                     } else {
                         /* for all the internal stations */
-                        res[loopj].Pm.Yc.innerHTML=wayPointIconHtml;
+                        /* I know its a hacky waty but seems baidumap do not provide api 
+                            for changing the internal stations' mark */
+                        console.log(res[loopj].hasOwnProperty('Om'));
+                        if (res[loopj].hasOwnProperty('Om')) {
+                            if (res[loopj].Om.hasOwnProperty('Yc')) {
+                                res[loopj].Om.Yc.innerHTML=wayPointIconHtml;
+                            }
+                        }
                         localmap.addOverlay(myPoint);
                     }
                     myPoint.addEventListener("click", function () {
@@ -260,7 +267,7 @@ angular.module('hwmobilebusApp')
         /* set up a autocomplete object */
         var ac = new BMap.Autocomplete(
             {"input" : input
-            ,"location" : map
+            ,"location" : maplocal
         });
         /* mouse under pulldown menu event handle */
         ac.addEventListener("onhighlight", function(e) { 

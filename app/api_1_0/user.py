@@ -5,6 +5,7 @@ from .. models import mBus, mStation, mUser, mPost, db, Message
 
 
 @api.route('/mbusdata/getregbus/')
+@login_required
 def getregbus():
     tocompstation = None
     tohomestation = None
@@ -17,27 +18,31 @@ def getregbus():
             if station.dirtocompany == True:
                 tocompstation = station
                 #get bus
-                userrec = mUser.query.filter_by(id=station.bus_id).first()
-                if userrec is not None:
-                    tocompbus = userrec
+                busrec = mBus.query.filter_by(id=station.bus_id).first()
+                if busrec is not None:
+                    tocompbus = busrec
             else:
                 tohomestation = station
                 #get bus
-                userrec = mUser.query.filter_by(id=station.bus_id).first()
-                if userrec is not None:
-                    tohomebus = userrec
+                busrec = mBus.query.filter_by(id=station.bus_id).first()
+                if busrec is not None:
+                    tohomebus = busrec
             
     if tocompstation is not None and tohomestation is not None \
         and tocompbus is not None and tohomebus is not None:
         return jsonify({'tocompbus': tocompbus.to_json(),
                         'tocompstation': tocompstation.to_json(),
+                        'tocompcampus': tocompbus.campus,
                         'tohomebus': tohomebus.to_json(),
-                        'tohomestation': tohomestation.to_json()})
+                        'tohomestation': tohomestation.to_json(),
+                        'tohomecampus': tohomebus.campus})
     else:
         return jsonify({'tocompbus': '',
                         'tocompstation': '',
+                        'tocompcampus': '',
                         'tohomebus': '',
-                        'tohomestation': ''})
+                        'tohomestation': '',
+                        'tohomecampus': ''})
 
 @api.route('/mbusdata/applystation/', methods=['POST'])
 def applystation():
@@ -61,6 +66,7 @@ def applystation():
             return jsonify(userrec.to_json())
 
 @api.route('/mbusdata/postregbus/', methods=['POST'])
+@login_required
 def post_regbus():
     userrec = mUser.query.filter_by(id=current_user.id).first()
 

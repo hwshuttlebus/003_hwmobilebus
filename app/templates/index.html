@@ -14,9 +14,8 @@
                 <div class="container">
                     <div class="navbar-header pull-left">
                         <ul class="navbar-brand " ng-click="back()">
-                            <span class="glyphicon glyphicon-menu-left">返回</span>
+                            <span class="glyphicon glyphicon-menu-left"></span>
                         </ul>
-                        
                     </div>
                     <div class="navbar-header">
                         <ul class="nav pull-left">
@@ -45,6 +44,7 @@
     {% raw %}
                                     <li><a href="/auth/logout">切换帐号</a></li>
                                 </ul>
+                               
                             </li>
                         </ul>
                     </div>
@@ -61,12 +61,9 @@
             {% endfor %}
 
     {% raw %}
-            <div class="container-fluid" id="main">
-                <div  ng-view="true"
-                    ng-class="pageClass"
-                    style="position: absolute">
-                </div>
-
+            <div  ng-view="true"
+                ng-class="pageClass"
+                style="position: absolute">
             </div>
             
         </body>

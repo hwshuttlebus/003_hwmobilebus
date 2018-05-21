@@ -2,266 +2,265 @@
 	<div class="spinner" ng-show="loadctrl.businfo||loadctrl.stationinfo||loadctrl.mapinfo||loadctrl.submit">
 		<div class="loader" ></div>
 	</div>
-	<div class="row clearfix">
-		<div class="col-md-4 column">
-			<form class="form-horizontal" role="form" name="busList">
-				<div class="form-group">
-					<label class="col-xs-4 control-label" for="busName">班车名：<span class="asteriskField" style="color: red">*</span></label>
-					<div class="col-xs-8">
-						<input class="form-control input-sm" id="busName" 
-							   ng-disabled="'newaddbus'!= busid" ng-model="businfo.name" ng-change="buschange()" placeholder="例：徐汇线" required>
-							   <span ng-show="businfo.name.$error.required">Email is required</span>
-						</input>
-					</div>
+	<div class="col-md-4 column">
+		<form class="form-horizontal" role="form" name="busList">
+			<div class="form-group">
+				<label class="col-xs-4 control-label" for="busName">班车名：<span class="asteriskField" style="color: red">*</span></label>
+				<div class="col-xs-8">
+					<input class="form-control input-sm" id="busName" 
+							ng-disabled="'newaddbus'!= busid" ng-model="businfo.name" ng-change="buschange()" placeholder="例：徐汇线" required>
+							<span ng-show="businfo.name.$error.required">Email is required</span>
+					</input>
 				</div>
-				<div class="form-group">
-					<label class="col-xs-4 control-label">班车号：<span class="asteriskField" style="color: red">*</span></label>
-					<div class="col-xs-8">
-						<input class="form-control input-sm" type="number" 
-							   ng-model="businfo.number" required
-							   ng-change="buschange()">
-						</input>
-					</div>
+			</div>
+			<div class="form-group">
+				<label class="col-xs-4 control-label">班车号：<span class="asteriskField" style="color: red">*</span></label>
+				<div class="col-xs-8">
+					<input class="form-control input-sm" type="number" 
+							ng-model="businfo.number" required
+							ng-change="buschange()">
+					</input>
 				</div>
-				<div class="form-group">
-					<label class="col-xs-4 control-label" for="buslicense">班车牌照：</label>
-					<div class="col-xs-8">
-						<input class="form-control input-sm" id="buslicense" type="text" 
-							ng-model="businfo.buslicense" 
+			</div>
+			<div class="form-group">
+				<label class="col-xs-4 control-label" for="buslicense">班车牌照：</label>
+				<div class="col-xs-8">
+					<input class="form-control input-sm" id="buslicense" type="text" 
+						ng-model="businfo.buslicense" 
+						ng-model-options="{ updateOn: 'default' }"
+						ng-change="buschange()"
+						placeholder="例：沪A1C234"/>
+				</div>
+			</div>
+			<div class="form-group">
+				<label class="col-xs-4 control-label" for="buscolor">班车颜色：</label>
+				<div class="col-xs-8">
+					<input class="form-control input-sm" id="buscolor" type="text" 
+						ng-model="businfo.color" 
+						ng-model-options="{ updateOn: 'default' }"
+						ng-change="buschange()"
+						placeholder="例：红色">
+				</div>
+			</div>
+			<div class="form-group">
+				<label class="col-xs-4 control-label" for="bussite">办公地点：</label>
+				<div class="col-xs-8">
+					<select class="form-control input-sm" id="bussite" type="text" 
+							ng-model="selectedcampus"
+							ng-options="item.Name for item in campus"
 							ng-model-options="{ updateOn: 'default' }"
+							ng-change="buschange()">
+					</select>
+				</div>
+			</div>
+			<div class="form-group">
+				<label class="col-xs-4 control-label" for="seatNo">座位数：</label>
+				<div class="col-xs-8">
+					<input class="form-control input-sm" id="seatNo" type="number" 
+							ng-model="businfo.seat_num"
+							ng-model-options="{ updateOn: 'default' }" 
+							ng-change="buschange()">
+				</div>
+			</div>
+			<div class="form-group">
+				<label class="col-xs-4 control-label" for="chezhangname">车长姓名：</label>
+				<div class="col-xs-8">
+					<input class="form-control input-sm" id="chezhangname" type="text" 
+							ng-model="businfo.cz_name" 
+							ng-model-options="{ updateOn: 'default' }" 
 							ng-change="buschange()"
-							placeholder="例：沪A1C234"/>
-					</div>
+							placeholder="例：高小强"/>
 				</div>
-				<div class="form-group">
-					<label class="col-xs-4 control-label" for="buscolor">班车颜色：</label>
-					<div class="col-xs-8">
-						<input class="form-control input-sm" id="buscolor" type="text" 
-							ng-model="businfo.color" 
-							ng-model-options="{ updateOn: 'default' }"
+			</div>
+			<div class="form-group">
+				<label class="col-xs-4 control-label" for="chezhangphone">车长手机：</label>
+				<div class="col-xs-8">
+					<input class="form-control input-sm" id="chezhangphone" type="tel" 
+							ng-model="businfo.cz_phone" 
+							ng-model-options="{ updateOn: 'default' }" 
 							ng-change="buschange()"
-							placeholder="例：红色">
-					</div>
-				</div>
-				<div class="form-group">
-					<label class="col-xs-4 control-label" for="bussite">办公地点：</label>
-					<div class="col-xs-8">
-						<select class="form-control input-sm" id="bussite" type="text" 
-								ng-model="selectedcampus"
-								ng-options="item.Name for item in campus"
-								ng-model-options="{ updateOn: 'default' }"
-								ng-change="buschange()">
-						</select>
-					</div>
-				</div>
-				<div class="form-group">
-					<label class="col-xs-4 control-label" for="seatNo">座位数：</label>
-					<div class="col-xs-8">
-						<input class="form-control input-sm" id="seatNo" type="number" 
-							   ng-model="businfo.seat_num"
-							   ng-model-options="{ updateOn: 'default' }" 
-							   ng-change="buschange()">
-					</div>
-				</div>
-				<div class="form-group">
-					<label class="col-xs-4 control-label" for="chezhangname">车长姓名：</label>
-					<div class="col-xs-8">
-						<input class="form-control input-sm" id="chezhangname" type="text" 
-							   ng-model="businfo.cz_name" 
-							   ng-model-options="{ updateOn: 'default' }" 
-							   ng-change="buschange()"
-							   placeholder="例：高小强"/>
-					</div>
-				</div>
-				<div class="form-group">
-					<label class="col-xs-4 control-label" for="chezhangphone">车长手机：</label>
-					<div class="col-xs-8">
-						<input class="form-control input-sm" id="chezhangphone" type="tel" 
-							   ng-model="businfo.cz_phone" 
-							   ng-model-options="{ updateOn: 'default' }" 
-							   ng-change="buschange()"
-							   placeholder="例：13812345678"/>
-					</div>
-				</div>
-				<div class="form-group">
-					<label class="col-xs-4 control-label" for="sijiname">司机姓名：</label>
-					<div class="col-xs-8">
-						<input class="form-control input-sm" id="sijiname" type="text" 
-							   ng-model="businfo.sj_name" 
-							   ng-model-options="{ updateOn: 'default' }" 
-							   ng-change="buschange()"
-							   placeholder="例：高大强"/>
-					</div>
-				</div>
-				<div class="form-group">
-					<label class="col-xs-4 control-label" for="sijiphone">司机手机：</label>
-					<div class="col-xs-8">
-						<input class="form-control input-sm" id="sijiphone" type="tel" 
-							   ng-model="businfo.sj_phone" 
-							   ng-model-options="{ updateOn: 'default' }" 
-							   ng-change="buschange()"
-							   placeholder="例：13812345678"/>
-					</div>
-				</div>
-				<div class="form-group">
-					<label class="col-xs-4 control-label" for="equipid">GPS设备ID：</label>
-					<div class="col-xs-8">
-						<input class="form-control input-sm" id="equipid" type="number"
-							   ng-model="businfo.equip_id"
-							   ng-model-options="{updateOn: 'default'}"
-							   ng-change="buschange()"
-							   placeholder="修改时请确保各班车GPS设备ID唯一性"/>
-					</div>
-				</div>
-			</form>
-			<div class="tabtable">
-				<uib-tabset active="active">
-					<uib-tab index="0" heading="上行" select="tocomptabselect()" disable="editctrl.mapeditenable"
-					uib-tooltip="请先确认站点地图位置修改后再修改上行站点信息" tooltip-enable="editctrl.mapeditenable" tooltip-placement="above">
-						<table class="table" style="vertical-align='middle'">
-							<tbody>
-								<tr ng-repeat="station in tocompanystations track by $index"  ng-click="select($index)" ng-class="{active: $index == selected}">
-									<td>
-										<img ng-src="{a station.icon a}">
-									</td>
-									<td>
-										<div uib-timepicker ng-model="station.datetime" ng-model-options="{ updateOn: 'default' }" ng-change="buschange()" show-meridian="false" mousewheel="false"></div>
-									</td>
-									<td>
-										<table>
-											<div>
-												<tbody>
-													<tr>
-														<td>
-															<input class="form-control input"  type="text" 
-																   ng-model="station.name" 
-																   ng-model-options="{ updateOn: 'default' }" 
-																   ng-change="buschange()" placeholder="填写车站名">
-														</td>
-													</tr>
-													<tr>
-														<td>
-															<input class="form-control input"  type="text" 
-																   ng-model="station.description" 
-																   ng-model-options="{ updateOn: 'default' }" 
-																   ng-change="buschange()" placeholder="填写车站描述"/>
-														</td>
-													</tr>
-													<tr>
-														<td>
-															<button type="button" class="btn btn-primary btn-sm" 
-																	ng-disabled="editctrl.mapeditenable" 
-																	ng-click="editmapenable(station.id, $index)">编辑站点位置</button>
-														</td>
-													</tr>
-												</tbody>
-											</div>
-										</table>
-									</td>
-									<td>
-										<button type="button" class="close" ng-click="delconfirm(station.id, station.datetime, $index)" >&times</button>
-									</td>
-								</tr>
-							</tbody>
-						</table>
-					</uib-tab>
-					<uib-tab index="1" heading="下行" select="tohometabselect()" disable="editctrl.mapeditenable"
-					uib-tooltip="请先确认站点地图位置修改后再修改上行站点信息" tooltip-enable="editctrl.mapeditenable"  tooltip-placement="right">
-						<table class="table" style="vertical-align='middle'">
-							<tbody>
-								<tr ng-repeat="station in tohomestations track by $index"  ng-click="select($index)" ng-class="{active: $index == selected}">
-									<td>
-										<img ng-src="{a station.icon a}">
-									</td>
-									<td>
-										<div uib-timepicker ng-model="station.datetime" ng-model-options="{ updateOn: 'default' }" ng-change="buschange()" show-meridian="false" mousewheel="false"></div>
-									</td>
-									<td>
-										<table>
-											<div>
-												<tbody>
-													<tr>
-														<td>
-															<input class="form-control input" type="text" ng-model="station.name" ng-model-options="{ updateOn: 'default' }" ng-change="buschange()" placeholder="填写车站名">
-														</td>
-													</tr>
-													<tr>
-														<td>
-															<input class="form-control input" type="text" ng-model="station.description" ng-model-options="{ updateOn: 'default' }" ng-change="buschange()" placeholder="填写车站描述"/>
-														</td>
-													</tr>
-													<tr>
-														<td>
-															<button type="button" class="btn btn-primary btn-sm" ng-disabled="editctrl.mapeditenable" ng-click="editmapenable(station.id, $index)">编辑站点位置</button>
-														</td>
-													</tr>
-												</tbody>
-											</div>
-										</table>
-									</td>
-									<td>
-										<button type="button" class="close" ng-click="delconfirm(station.id, station.datetime, $index)" >&times</button>
-									</td>
-								</tr>
-							</tbody>
-						</table>
-					</uib-tab>
-				</uib-tabset>
-				<div class="col-md-12">
-					<label class="text"></label>
-				</div>
-				<div class="col-md-12">
-					<button type="button" class="btn btn-primary btn-block" ng-click="addnewstation()" ng-disabled="editctrl.addnewdisable" uib-tooltip="新增站后，点击地图底部确认按钮后所有站点会自动根据时间排列，故对于“+新增站点”设置顺序推荐：1)点击新增站点;2)设置新增站点时间;3)操作地图设置新增站点位置" tooltip-placement="top"  >
-						<span class="glyphicon glyphicon-plus"></span>新增站点
-					</button>
+							placeholder="例：13812345678"/>
 				</div>
 			</div>
-			<div class="row clearfix">
-				<div class="col-md-12 column">
-					<label class="text"></label>
+			<div class="form-group">
+				<label class="col-xs-4 control-label" for="sijiname">司机姓名：</label>
+				<div class="col-xs-8">
+					<input class="form-control input-sm" id="sijiname" type="text" 
+							ng-model="businfo.sj_name" 
+							ng-model-options="{ updateOn: 'default' }" 
+							ng-change="buschange()"
+							placeholder="例：高大强"/>
 				</div>
 			</div>
-			<div class="col-md-6">
+			<div class="form-group">
+				<label class="col-xs-4 control-label" for="sijiphone">司机手机：</label>
+				<div class="col-xs-8">
+					<input class="form-control input-sm" id="sijiphone" type="tel" 
+							ng-model="businfo.sj_phone" 
+							ng-model-options="{ updateOn: 'default' }" 
+							ng-change="buschange()"
+							placeholder="例：13812345678"/>
+				</div>
+			</div>
+			<div class="form-group">
+				<label class="col-xs-4 control-label" for="equipid">GPS设备ID：</label>
+				<div class="col-xs-8">
+					<input class="form-control input-sm" id="equipid" type="number"
+							ng-model="businfo.equip_id"
+							ng-model-options="{updateOn: 'default'}"
+							ng-change="buschange()"
+							placeholder="修改时请确保各班车GPS设备ID唯一性"/>
+				</div>
+			</div>
+		</form>
+		<div class="tabtable">
+			<uib-tabset active="active">
+				<uib-tab index="0" heading="上行" select="tocomptabselect()" disable="editctrl.mapeditenable"
+				uib-tooltip="请先确认站点地图位置修改后再修改上行站点信息" tooltip-enable="editctrl.mapeditenable" tooltip-placement="above">
+					<table class="table" style="vertical-align='middle'">
+						<tbody>
+							<tr ng-repeat="station in tocompanystations track by $index"  ng-click="select($index)" ng-class="{active: $index == selected}">
+								<td>
+									<img ng-src="{a station.icon a}">
+								</td>
+								<td>
+									<div uib-timepicker ng-model="station.datetime" ng-model-options="{ updateOn: 'default' }" ng-change="buschange()" show-meridian="false" mousewheel="false"></div>
+								</td>
+								<td>
+									<table>
+										<div>
+											<tbody>
+												<tr>
+													<td>
+														<input class="form-control input"  type="text" 
+																ng-model="station.name" 
+																ng-model-options="{ updateOn: 'default' }" 
+																ng-change="buschange()" placeholder="填写车站名">
+													</td>
+												</tr>
+												<tr>
+													<td>
+														<input class="form-control input"  type="text" 
+																ng-model="station.description" 
+																ng-model-options="{ updateOn: 'default' }" 
+																ng-change="buschange()" placeholder="填写车站描述"/>
+													</td>
+												</tr>
+												<tr>
+													<td>
+														<button type="button" class="btn btn-primary btn-sm" 
+																ng-disabled="editctrl.mapeditenable" 
+																ng-click="editmapenable(station.id, $index)">编辑站点位置</button>
+													</td>
+												</tr>
+											</tbody>
+										</div>
+									</table>
+								</td>
+								<td>
+									<button type="button" class="close" ng-click="delconfirm(station.id, station.datetime, $index)" >&times</button>
+								</td>
+							</tr>
+						</tbody>
+					</table>
+				</uib-tab>
+				<uib-tab index="1" heading="下行" select="tohometabselect()" disable="editctrl.mapeditenable"
+				uib-tooltip="请先确认站点地图位置修改后再修改上行站点信息" tooltip-enable="editctrl.mapeditenable"  tooltip-placement="right">
+					<table class="table" style="vertical-align='middle'">
+						<tbody>
+							<tr ng-repeat="station in tohomestations track by $index"  ng-click="select($index)" ng-class="{active: $index == selected}">
+								<td>
+									<img ng-src="{a station.icon a}">
+								</td>
+								<td>
+									<div uib-timepicker ng-model="station.datetime" ng-model-options="{ updateOn: 'default' }" ng-change="buschange()" show-meridian="false" mousewheel="false"></div>
+								</td>
+								<td>
+									<table>
+										<div>
+											<tbody>
+												<tr>
+													<td>
+														<input class="form-control input" type="text" ng-model="station.name" ng-model-options="{ updateOn: 'default' }" ng-change="buschange()" placeholder="填写车站名">
+													</td>
+												</tr>
+												<tr>
+													<td>
+														<input class="form-control input" type="text" ng-model="station.description" ng-model-options="{ updateOn: 'default' }" ng-change="buschange()" placeholder="填写车站描述"/>
+													</td>
+												</tr>
+												<tr>
+													<td>
+														<button type="button" class="btn btn-primary btn-sm" ng-disabled="editctrl.mapeditenable" ng-click="editmapenable(station.id, $index)">编辑站点位置</button>
+													</td>
+												</tr>
+											</tbody>
+										</div>
+									</table>
+								</td>
+								<td>
+									<button type="button" class="close" ng-click="delconfirm(station.id, station.datetime, $index)" >&times</button>
+								</td>
+							</tr>
+						</tbody>
+					</table>
+				</uib-tab>
+			</uib-tabset>
+			<div class="col-md-12">
 				<label class="text"></label>
 			</div>
-			<div class="col-md-6">
-				<label class="text"></label>
+			<div class="col-md-12">
+				<button type="button" class="btn btn-primary btn-block" ng-click="addnewstation()" ng-disabled="editctrl.addnewdisable" uib-tooltip="新增站后，点击地图底部确认按钮后所有站点会自动根据时间排列，故对于“+新增站点”设置顺序推荐：1)点击新增站点;2)设置新增站点时间;3)操作地图设置新增站点位置" tooltip-placement="top"  >
+					<span class="glyphicon glyphicon-plus"></span>新增站点
+				</button>
 			</div>
-			<div class="col-md-6">
-				<button type="button" class="btn btn-block btn-danger " ng-disabled="!editctrl.cancel" ng-click="cancelmodify()">取消</button>
-			</div>
-			<div class="col-md-6">
-				<button type="button" class="btn btn-primary btn-block" ng-disabled="!editctrl.submit || editctrl.mapeditenable || !busList.$valid" ng-click="submit()"
-				uib-tooltip = "请先确认地图位置修改再操作提交" tooltip-enable="editctrl.mapeditenable" tooltip-placement="buttom">提交</button>
-			</div>
-			<div class="col-md-6">
-				<label class="text"></label>
-			</div>
-			<div class="col-md-6">
-				<label class="text"></label>
-			</div>
-			<div class="col-md-6">
+		</div>
+		<div class="row clearfix">
+			<div class="col-md-12 column">
 				<label class="text"></label>
 			</div>
 		</div>
-		<div class="col-md-8 column">
+		<div class="col-md-6">
 			<label class="text"></label>
 		</div>
-		<div class="col-md-8 column">
-			<baidu-map map-options="mapOptions" loaded="loadmapedit(map)" 
-				offline="offlineOpts" click="clicklatlon(e)">
-			</baidu-map>
+		<div class="col-md-6">
+			<label class="text"></label>
 		</div>
-		<div class="col-md-4 column">
-			<button type="button" class="btn btn-block btn-danger " ng-disabled="!editctrl.mapeditenable" ng-click="editmapcancel()" >取消</button>
+		<div class="col-md-6">
+			<button type="button" class="btn btn-block btn-danger " ng-disabled="!editctrl.cancel" ng-click="cancelmodify()">取消</button>
 		</div>
-		<div class="col-md-4 column">
-			<button type="button" class="btn btn-primary btn-block" ng-disabled="!editctrl.mapeditenable" ng-click="editmapsubmit()"
-			uib-tooltip="拖动地图上的新增红点到新位置而后点击确认以修改" tooltip-is-open="tooltipctrl.mapeditenablett" tooltip-placement="bottom">确定</button>
+		<div class="col-md-6">
+			<button type="button" class="btn btn-primary btn-block" ng-disabled="!editctrl.submit || editctrl.mapeditenable || !busList.$valid" ng-click="submit()"
+			uib-tooltip = "请先确认地图位置修改再操作提交" tooltip-enable="editctrl.mapeditenable" tooltip-placement="buttom">提交</button>
 		</div>
-		<div class="col-md-8 column">
-			<p>线路总长：{a driveinfo.distance a}</p>
-			<p>预计时间：{a driveinfo.time a}</p>
+		<div class="col-md-6">
+			<label class="text"></label>
+		</div>
+		<div class="col-md-6">
+			<label class="text"></label>
+		</div>
+		<div class="col-md-6">
+			<label class="text"></label>
 		</div>
 	</div>
+	<div class="col-md-8 column">
+		<label class="text"></label>
+	</div>
+	<div class="col-md-8 column">
+		<baidu-map map-options="mapOptions" loaded="loadmapedit(map)" 
+			offline="offlineOpts" click="clicklatlon(e)">
+		</baidu-map>
+	</div>
+	<div class="col-md-4 column">
+		<button type="button" class="btn btn-block btn-danger " ng-disabled="!editctrl.mapeditenable" ng-click="editmapcancel()" >取消</button>
+	</div>
+	<div class="col-md-4 column">
+		<button type="button" class="btn btn-primary btn-block" ng-disabled="!editctrl.mapeditenable" ng-click="editmapsubmit()"
+		uib-tooltip="拖动地图上的新增红点到新位置而后点击确认以修改" tooltip-is-open="tooltipctrl.mapeditenablett" tooltip-placement="bottom">确定</button>
+	</div>
+	<div class="col-md-8 column">
+		<p>线路总长：{a driveinfo.distance a}</p>
+		<p>预计时间：{a driveinfo.time a}</p>
+	</div>
+
 </div>

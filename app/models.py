@@ -30,8 +30,6 @@ def haversine(lon1, lat1, lon2, lat2):
     return c * r * 1000 # meters for unit
 
 def get_currbj_time():
-    
-
     #get current Beijing time
     from_zone = tz.gettz('UTC')
     to_zone = tz.gettz('Asia/Shanghai')
@@ -41,7 +39,6 @@ def get_currbj_time():
 
     #utcnowtime = datetime.strptime('2018-04-03T07:35:21', '%Y-%m-%dT%H:%M:%S')
     #nowtime = utcnowtime
-
     return nowtime
 
 
@@ -562,10 +559,16 @@ class mBus(db.Model):
         lon, lat = gcj02tobd09(lnggc02, latgc02)
 
         recordtime = json_post.get('bus_recordtime')
-        print('!!!current gps data: '+str(latwsg)+', '+str(lngwsg)+', '+ str(recordtime))
 
         if recordtime is not None:
+            #transfer from UTC to Asia/Shanghai native time
+            from_zone = tz.gettz('UTC')
+            to_zone = tz.gettz('Asia/Shanghai')
             datetimeobj = datetime.strptime(recordtime.strip(), '%Y-%m-%dT%H:%M:%S')
+            datetimeobj = datetimeobj.replace(tzinfo=from_zone)
+            datetimeobj = datetimeobj.astimezone(to_zone)
+            datetimeobj = datetimeobj.replace(tzinfo=None)
+            print('!!!current gps data: '+str(latwsg)+', '+str(lngwsg)+', '+ str(datetimeobj))
         else:
             datetimeobj = datetime.strptime('2000-01-01T12:12:12', '%Y-%m-%dT%H:%M:%S')
 

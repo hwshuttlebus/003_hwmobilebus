@@ -132,7 +132,7 @@ def uploadposlb():
                     return redirect(request.url)
             else:
                 if filename.rsplit('.', 1)[0] != 'layouthk':
-                    flash('file name is not layouthk!')
+                    flash('file name is not layouthk.pdf!')
                     return redirect(request.url)
             file.save(os.path.join(current_app.config['UPLOAD_FOLDER'], filename))
             flash('upload successfully!')
@@ -212,16 +212,14 @@ def doimport():
             print('!!!!!!!!!!!!!!!!!!!!!!!!!!!!')
             stations = mStation.query.all()
             for item in stations:
-                if item.name != "长兴路98弄" and item.name != "10号线航中路" and item.name != "目的地" and item.name != "出发地":
-                    print('delete station:'+ str(item.name))
-                    db.session.delete(item)
-                    db.session.commit()
+                print('delete station:'+ str(item.name))
+                db.session.delete(item)
+                db.session.commit()
             buses = mBus.query.all()
             for item in buses:
-                if item.name != "测试线":
-                    print('delete bus:'+ str(item.name))
-                    db.session.delete(item)
-                    db.session.commit()
+                print('delete bus:'+ str(item.name))
+                db.session.delete(item)
+                db.session.commit()
 
         def mbus_init_func(row):
             #input check

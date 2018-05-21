@@ -2,68 +2,64 @@
     <div class="spinner" ng-show="loadctrl.businfo||loadctrl.stationinfo||loadctrl.mapinfo||loadctrl.submit">
         <div class="loader" ></div>
     </div>
-    <div class="row clearfix">
-        <div class="col-md-4 column">
-            <div class="row clearfix">
-                <div class="panel panel-info">
-                    <div class="panel-heading">住址</div>
-                    <div class="panel-body table-responsive">
-                        <div class="col-xs-12">
-                            <input class="form-control input-xs" id="suggestId" type="text" />
-                            <div id="searchResultPanel" style="border:1px solid #C0C0C0;width:150px;height:auto; display:none;"></div>
-                        </div>
-                        <div class="col-xs-12">
-                            <label class="text"></label>
-                        </div>
-                        <div class="col-xs-6">
-                            <button type="button" class="btn btn-primary" 
-                                ng-click="recroute()" ng-disabled="loadctrl.disablesrch" >推荐线路</button>
-                        </div>
-                        <div class="col-xs-6">
-                            <button type="button" class="btn btn-danger" 
-                            ng-click="applystation()" ng-disabled="loadctrl.disablesrch">申请站点</button>
-                        </div>
-                    </div>
-                </div>
-                <div class="panel panel-info">
-                    <div class="panel-heading">上行</div>
-                    <div class="panel-body table-responsive">
-                        班车路线
-                        <select ng-model="regbus.tocomp" ng-options="optbus as optbus.name for optbus in options.allbus"
-                                ng-change="compbuschange(true)"></select>
-                    </div>
-                    <div class="panel-body table-responsive">
-                        站点
-                        <select ng-model="regstation.tocomp" ng-options="optcpstation as optcpstation.name for optcpstation in options.tocompstations"></select>
-                    </div>
-                </div>
-                <div class="panel panel-info">
-                    <div class="panel-heading">下行</div>
-                    <div class="panel-body table-responsive">
-                        班车路线
-                        <select ng-model="regbus.tohome" ng-options="optbus as optbus.name for optbus in options.allbus"
-                                ng-change="compbuschange(false)"></select>
-                    </div>
-                    <div class="panel-body table-responsive">
-                        站点
-                        <select ng-model="regstation.tohome" ng-options="opthmstation as opthmstation.name for opthmstation in options.tohomestations"></select>
-                    </div>
+    <div class="col-md-4 column">
+        <div class="panel panel-info">
+            <div class="panel-heading">住址</div>
+            <div class="panel-body table-responsive">
+                <div class="col-xs-12">
+                    <input class="form-control input-xs" id="suggestId" type="text" />
+                    <div id="searchResultPanel" style="border:1px solid #C0C0C0;width:150px;height:auto; display:none;"></div>
                 </div>
                 <div class="col-xs-12">
-                    <button type="button" class="btn btn-primary btn-block" ng-click="regsubmit()">提交我的班车</button>
+                    <label class="text"></label>
+                </div>
+                <div class="col-xs-6">
+                    <button type="button" class="btn btn-primary" 
+                        ng-click="recroute()" ng-disabled="loadctrl.disablesrch" >推荐线路</button>
+                </div>
+                <div class="col-xs-6">
+                    <button type="button" class="btn btn-danger" 
+                    ng-click="applystation()" ng-disabled="loadctrl.disablesrch">申请站点</button>
                 </div>
             </div>
         </div>
-    
-        <div class="col-md-6">
-            <label class="text"></label>
+        <div class="panel panel-info">
+            <div class="panel-heading">上行</div>
+            <div class="panel-body table-responsive">
+                班车路线
+                <select ng-model="regbus.tocomp" ng-options="optbus as optbus.name for optbus in options.allbus"
+                        ng-change="compbuschange(true)"></select>
+            </div>
+            <div class="panel-body table-responsive">
+                站点
+                <select ng-model="regstation.tocomp" ng-options="optcpstation as optcpstation.name for optcpstation in options.tocompstations"></select>
+            </div>
         </div>
-        <div class="col-md-8 column">
-            <baidu-map map-options="mapOptions" loaded="loadmapedit(map)" 
-                offline="offlineOpts" click="clicklatlon(e)">
-            </baidu-map>
+        <div class="panel panel-info">
+            <div class="panel-heading">下行</div>
+            <div class="panel-body table-responsive">
+                班车路线
+                <select ng-model="regbus.tohome" ng-options="optbus as optbus.name for optbus in options.allbus"
+                        ng-change="compbuschange(false)"></select>
+            </div>
+            <div class="panel-body table-responsive">
+                站点
+                <select ng-model="regstation.tohome" ng-options="opthmstation as opthmstation.name for opthmstation in options.tohomestations"></select>
+            </div>
+        </div>
+        <div class="col-md-12">
+            <button type="button" class="btn btn-primary btn-block" ng-click="regsubmit()">提交我的班车</button>
         </div>
     </div>
-    
-    
+
+    <div class="col-md-6">
+        <label class="text"></label>
+    </div>
+    <div class="col-md-8 column">
+        <baidu-map map-options="mapOptions" loaded="loadmapedit(map)" 
+            offline="offlineOpts" click="clicklatlon(e)">
+        </baidu-map>
+    </div>
+
+
 </div>

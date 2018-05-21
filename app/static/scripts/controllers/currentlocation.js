@@ -40,18 +40,24 @@ angular.module('hwmobilebusApp')
     };
 
     var getbus = function (isinit) {
-      BusinfoService.getbusinfo({id:$scope.busid}, function(businfo) {
-        $scope.businfo = businfo;
-        $scope.loadctrl.businfo = false;
-
-        /* during periodic procedure, update location after get bus info */
-        if (false == isinit) {
+      if (false == isinit) {
+        BusinfoService.getbusinfoedit({id:$scope.busid}, function(businfo) {
+          $scope.businfo = businfo;
+          $scope.loadctrl.businfo = false;
+          /* during periodic procedure, update location after get bus info */
           /* update current html attribute */
           updateattr();
-        }
-      }, function (error) {
-        console.log('error:'+error.status);
-      });
+        }, function (error) {
+          console.log('error:'+error.status);
+        });
+      } else {
+        BusinfoService.getbusinfo({id:$scope.busid}, function(businfo) {
+          $scope.businfo = businfo;
+          $scope.loadctrl.businfo = false;
+        }, function (error) {
+          console.log('error:'+error.status);
+        });
+      }
     };
 
     var initbusstation = function () {

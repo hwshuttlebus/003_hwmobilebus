@@ -1,6 +1,7 @@
 from . import api
 from flask import jsonify, request
 from datetime import datetime
+from flask_login import current_user
 from .authentication import auth
 from .. models import db, mStation, mBus, haversine
 
@@ -216,8 +217,12 @@ def cal_recommand_route():
     lng = request.json.get('lng')
     lat = request.json.get('lat')
 
-    #iterate all stations and find the near station
-    stations = mStation.query.all()
+    #get current user's campus
+    campus = current_user.campus
+    if campus is not None or campus is not "":
+        #iterate all stations and find the near station
+        stations = mStation.query.filter_by(campus=campus).all()
+
     idx, dist = mBus.getnearsation_excomp(stations, lng, lat, True)
     #get related bus and all stations
     tocompstation = None
