@@ -1,0 +1,151 @@
+<div class="container">
+		<div class="spinner" ng-show="loadctrl.submit">
+				<div class="loader" ></div>
+			</div>
+	<div class="btn-group btn-group-justified">
+		<label class="btn btn-info btn-custom radioBtnActive" ng-model="obj.datatype" uib-btn-radio="'arrivalrate'">准点率</label>
+		<label class="btn btn-info btn-custom radioBtnActive" ng-model="obj.datatype" uib-btn-radio="'seatrate'" >上座率</label>
+	</div>
+	
+	<div ng-if="obj.datatype == 'arrivalrate'">
+			<div class="row clearfix">
+					<div class="col-md-12 column">
+							<label class="text"></label>
+						</div>
+						<div class="col-xs-6">
+							<select class="form-control-inline right" ng-model="obj.arrivalOrder">
+								<option href="#panel-982212" value="busNo">排序：按车次</option>
+								<option href="#panel-982212" value="high">排序：从早到晚</option>
+								<option href="#panel-982212" value="low">排序：从晚到早</option>
+							</select>   
+							</div>
+
+					<div class="col-xs-6">
+					<div class="pull-right">
+					<div class="btn-group"> 
+						<label class="btn btn-info btn-custom btn-xs radioBtnActive" ng-model="obj.arrivalCycle" uib-btn-radio="'week'">周</label>
+						<label class="btn btn-info btn-custom btn-xs radioBtnActive" ng-model="obj.arrivalCycle" uib-btn-radio="'month'">月</label>
+						<label class="btn btn-info btn-custom btn-xs radioBtnActive" ng-model="obj.arrivalCycle" uib-btn-radio="'hyear'">半年</label>
+					</div>
+					</div>
+					</div>
+
+
+
+					</div>
+			<table class="table">
+					<tbody style="border-bottom:1px solid #ddd">
+						<tr ng-repeat="x in arrivalBuslist track by $index" ng-init="hover=false" ng-mouseenter="hover=true" ng-mouseleave="hover=false" ng-class="{active: hover}">
+
+							<td vertical-align="middle" width="6%" ng-click="onselect(x.id,x.number,0,x.name)">
+								<div class="label label-as-badge round-custom">{a x.number a}</div>
+							</td>	
+
+							<td width="65%" ng-click="onselect(x.id,x.number,0,x.name)">
+								<strong class="text-muted">{a x.name a}</strong>
+								<div>
+									<uib-progressbar animate="false" max="30" value="x.arrivalData.result" type="{a x.arrivalData.type a}" > </uib-progressbar>
+								</div>
+							</td>
+							<td width="10%" align="left"  style="vertical-align:middle;padding:0px">
+								<small class="text-muted">{a x.arrivalData.text a}</small>
+							</td>
+
+							<td  width="5%" align="right" ng-click="onselect(x.id,x.number,0,x.name)"  style="vertical-align:middle;padding:0ch" >
+								<a><i class="glyphicon glyphicon-chevron-right" color="#707070"></i></a>
+							</td>
+						</tr>
+					</tbody>
+				</table>
+	</div>
+
+
+	<div ng-if="obj.datatype == 'seatrate'">
+			<div class = "row clearfix">
+					<div class="col-md-12 column">
+							<label class="text"></label>
+						</div>
+						<div class="col-xs-6">
+								<div class="pull-left">
+							<select class="form-control-inline" ng-model="obj.seatOrder" ng-options="opt.id as opt.value for opt in options.seatOrder"></select>
+					</div>
+						</div>
+
+						
+
+						<div class="col-xs-3">
+								<div class="pull-left">
+								<div class="btn-group"> 
+									<label class="btn btn-info btn-custom btn-xs radioBtnActive" ng-model="obj.istoCompany" uib-btn-radio="'tocom'">上行</label>
+									<label class="btn btn-info btn-custom btn-xs radioBtnActive" ng-model="obj.istoCompany" uib-btn-radio="'tohome'">下行</label>
+								</div>
+								</div>
+								</div>
+
+					<div class="col-xs-3">
+					<div class="pull-right">
+					<div class="btn-group">
+						
+						<label class="btn btn-info btn-custom btn-xs radioBtnActive" ng-model="obj.seatCycle" uib-btn-radio="'week'">周</label>
+						<label class="btn btn-info btn-custom btn-xs radioBtnActive" ng-model="obj.seatCycle" uib-btn-radio="'month'">月</label>
+						<label class="btn btn-info btn-custom btn-xs radioBtnActive" ng-model="obj.seatCycle" uib-btn-radio="'hyear'">半年</label>
+						</div>
+					</div>
+					</div>
+					</div>
+					
+
+
+
+			<div ng-if = "obj.istoCompany == 'tocom'">
+			<table class="table">
+					<tbody style="border-bottom:1px solid #ddd">
+						<tr ng-repeat="x in seatBuslist" ng-init="hover=false" ng-mouseenter="hover=true" ng-mouseleave="hover=false" ng-class="{active: hover}">
+							<td vertical-align="middle" width="6%" ng-click="onselect(x.id,x.number,0,x.name)">
+								<div class="label label-as-badge round-custom">{a x.number a}</div>
+							</td>									
+							<td width="65%" ng-click="onselect(x.id,x.number,0,x.name)">
+								<strong class="text-muted" text-align="left">{a x.name a} </strong>
+								<div>
+									<uib-progressbar animate="false" max="100" value="x.seatDataup.val" type="info" style="animation:false"></uib-progressbar>
+								</div>
+							</td>
+							<td width="10%" align="left"  style="vertical-align:middle; padding:0px">
+								<small class="text-muted">{a x.seatDataup.text a}</small>
+							</td>
+							<td width="5%" align="right" ng-click="onselect(x.id,x.number,0,x.name)" style="vertical-align:middle;padding:0ch">
+								<a><i class="glyphicon glyphicon-chevron-right" color="#707070"></i></a>
+							</td>
+						</tr>
+					</tbody>
+			</table>
+		</div>
+
+		<div ng-if = "obj.istoCompany == 'tohome'">
+				<table class="table">
+						<tbody style="border-bottom:1px solid #ddd">
+							<tr ng-repeat="x in seatBuslist" ng-init="hover=false" ng-mouseenter="hover=true" ng-mouseleave="hover=false" ng-class="{active: hover}">
+								<td vertical-align="middle" width="6%" ng-click="onselect(x.id,x.number,0,x.name)">
+									<div class="label label-as-badge round-custom">{a x.number a}</div>
+								</td>									
+								<td width="65%" ng-click="onselect(x.id,x.number,0,x.name)">
+									<strong class="text-muted" text-align="left">{a x.name a} </strong>
+									<div>
+										<uib-progressbar animate="false" max="100" value="x.seatDatadown.val" type="info" style="animation:false"></uib-progressbar>
+									</div>
+								</td>
+								<td width="10%" align="left"  style="vertical-align:middle; padding:0px">
+									<small class="text-muted">{a x.seatDatadown.text a}</small>
+								</td>
+								<td width="5%" align="right" ng-click="onselect(x.id,x.number,0,x.name)" style="vertical-align:middle;padding:0ch">
+									<a><i class="glyphicon glyphicon-chevron-right" color="#707070"></i></a>
+								</td>
+							</tr>
+						</tbody>
+				</table>
+			</div>
+
+
+    </div>
+</div>
+</div>

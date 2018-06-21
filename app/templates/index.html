@@ -96,7 +96,7 @@
     <script src="/static/scripts/controllers/suggestion.js"></script>
     <script src="/static/scripts/controllers/mybus.js"></script>
     <script src="/static/scripts/controllers/main.js"></script>
-    
+	
 
     {% if current_user.is_administrator() %}
         <script src="/static/scripts/directives/mbus-baidumap.js"></script>
@@ -104,6 +104,10 @@
         
         <script src="/static/scripts/controllers/broadcast.js"></script>
         <script src="/static/scripts/controllers/employmanage.js"></script>
+
+        <script src="/static/scripts/services/dataA-service.js"></script>
+        <script src="/static/scripts/controllers/processdemotime.js"></script>
+        <script src="/static/scripts/controllers/stationAnalysis.js"></script>
     {% endif %}
 {% endblock %}
 

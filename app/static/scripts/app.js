@@ -51,6 +51,14 @@ angular
       templateUrl: 'static/partials/busListEdit.html',
       controller: 'BuseditCtrl'
     })
+    .when('/dataanalysis',{
+      templateUrl: 'static/partials/dataanalysis.html',
+      controller: 'busAnalysisCtrl'
+    })
+    .when('/stationAnalysis',{
+      templateUrl: 'static/partials/stationAnalysis.html',
+      controller: 'stationAnalysisCtrl'
+    })
     .when('/suggestion', {
       templateUrl: 'static/partials/suggestion.html',
       controller: 'SuggestionCtrl'

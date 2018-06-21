@@ -171,6 +171,18 @@ angular.module('hwmobilebusApp')
           params: {
             id: '@id'
           }
+        },
+        getBusDiag: {
+          method: 'GET',
+          url: BASE+'mbusdata/busdataanalysis\\/'
+        },
+
+        getStationDiag: {
+          method: 'GET',
+          url: BASE+'mbusdata/stationdataanalysis/:id',
+          params: {
+            id: '@id'
+          }
         }
       });
   });

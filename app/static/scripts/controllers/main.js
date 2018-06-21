@@ -66,6 +66,10 @@ angular.module('hwmobilebusApp')
                     $scope.mainctl.title = "班车管理";
                     $scope.mainctl.attr1 = "smallfont";
                     break;
+                case "/dataanalysis":
+                    $scope.mainctl.title = "数据分析";
+                    $scope.mainctl.attr1 = "smallfont";
+                    break;    
                 case "/home":
                     $scope.mainctl.back ="";
                     $scope.mainctl.title = "Mobilebus";

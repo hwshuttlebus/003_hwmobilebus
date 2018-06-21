@@ -1,0 +1,105 @@
+<div class="container">
+	<div class="spinner" ng-show="loadctrl.submit">
+	<div class="loader" ></div>
+	</div>
+    <div class="row clearfix">
+		<div class="col-md-12 column">
+			<table class="table table-hover">
+				<tbody  style="border-top:1px solid #ddd;border-bottom:1px solid #ddd">
+				<tr style="color:royalblue;background-color:rgba(236, 237, 245, 0.829)">
+					<td width="10%">
+						<div class="label label-as-badge round-custom">{a initbus.bus_num a}</div>
+					</td>
+					<td  width="90%" colspan="2" style="text-align:left; vertical-align:middle">
+						<div><strong>{a initbus.bus_name a}</strong></div>
+					</td>
+				</tr>
+				</tbody>
+			</table>
+		</div>		
+    </div>
+	<div class="btn-group btn-group-justified">
+				<label class="btn btn-info btn-custom radioBtnActive" ng-model="obj.datatype" uib-btn-radio="'arrivalrate'">准点率</label>
+				<label class="btn btn-info btn-custom radioBtnActive" ng-model="obj.datatype" uib-btn-radio="'seatrate'" >上座率</label>
+	</div>
+		<div ng-if="obj.datatype == 'arrivalrate'">
+				<div class="row">
+						<div class="col-md-12 column">
+								<label class="text"></label>
+							</div>
+					
+						<div class="col-xs-12">
+						<div class="pull-right">
+						<div class="btn-group"> 
+							<label class="btn btn-info btn-custom btn-xs radioBtnActive" ng-model="obj.arrivalCycle" uib-btn-radio="'week'">周</label>
+							<label class="btn btn-info btn-custom btn-xs radioBtnActive" ng-model="obj.arrivalCycle" uib-btn-radio="'month'">月</label>
+							<label class="btn btn-info btn-custom btn-xs radioBtnActive" ng-model="obj.arrivalCycle" uib-btn-radio="'hyear'">半年</label>
+						</div>
+						</div>
+						</div>
+						</div>
+						<table class="table">
+							<tbody style="border-bottom:1px solid #ddd">
+								<tr ng-repeat="station in stations track by $index"  ng-init="hover=false" ng-mouseenter="hover=true" ng-mouseleave="hover=false" ng-class="{active: hover}">
+									<td width="6%" style="vertical-align:middle;padding:0ch">
+											<div ng-attr-id="{a station.attr3 a}" class="label label-as-badge pin-custom">
+													<span>{a station.char a}</span>
+												</div>
+									</td>
+									<td width="65%">
+										<strong class="text-muted">{a station.name a}</strong>
+										<div>
+											<uib-progressbar animate="false" max="30" value="station.arrivalData.result" type="{a station.arrivalData.type a}" > </uib-progressbar>
+										</div>
+									</td>
+									<td width="15%" align="left"  style="vertical-align:middle;padding:0px">
+										<small class="text-muted">{a station.arrivalData.text a}</small>
+									</td>
+								</tr>
+							</tbody>
+						</table>				
+		</div>
+
+		<div ng-if="obj.datatype == 'seatrate'">
+				<div class = "row">
+						<div class="col-md-12 column">
+								<label class="text"></label>
+							</div>
+					
+						<div class="col-xs-12">
+						<div class="pull-right">
+						<div class="btn-group">
+							
+							<label class="btn btn-info btn-custom btn-xs radioBtnActive" ng-model="obj.seatCycle" uib-btn-radio="'week'">周</label>
+							<label class="btn btn-info btn-custom btn-xs radioBtnActive" ng-model="obj.seatCycle" uib-btn-radio="'month'">月</label>
+							<label class="btn btn-info btn-custom btn-xs radioBtnActive" ng-model="obj.seatCycle" uib-btn-radio="'hyear'">半年</label>
+						</div>
+						</div>
+						</div>
+						</div>
+						<table class="table">
+							<tbody style="border-bottom:1px solid #ddd">
+								<tr ng-repeat="station in stations track by $index"  ng-init="hover=false" ng-mouseenter="hover=true" ng-mouseleave="hover=false" ng-class="{active: hover}">
+									<td width="6%" style="vertical-align:middle;padding:0ch">
+										<div ng-attr-id="{a station.attr3 a}" class="label label-as-badge pin-custom">
+											<span>{a station.char a}</span>
+										</div>
+									</td>									
+									<td width="65%">
+										<strong class="text-muted" text-align="left">{a station.name a}</strong>
+										<div>
+											<uib-progressbar animate="false" max="100" value="station.seatDataup.val" type="info" style="animation:false"></uib-progressbar>
+										</div>
+									</td>
+									<td width="15%" align="left"  style="vertical-align:middle; padding:0px">
+										<small class="text-muted">{a station.seatDataup.text a} </small>
+									</td>
+								</tr>
+							</tbody>
+						</table>			
+		</div>
+		<div class="col-md-12 column">
+
+		</div>
+
+</div>
