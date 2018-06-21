@@ -100,12 +100,13 @@ angular.module('hwmobilebusApp')
                         /* for all the internal stations */
                         /* I know its a hacky waty but seems baidumap do not provide api 
                             for changing the internal stations' mark */
-                        console.log(res[loopj].hasOwnProperty('Om'));
-                        if (res[loopj].hasOwnProperty('Om')) {
-                            if (res[loopj].Om.hasOwnProperty('Yc')) {
-                                res[loopj].Om.Yc.innerHTML=wayPointIconHtml;
+                        console.log(res[loopj].hasOwnProperty('Pm'));
+                        if (res[loopj].hasOwnProperty('Pm')) {
+                            if (res[loopj].Pm.hasOwnProperty('Yc')) {
+                                res[loopj].Pm.Yc.innerHTML=wayPointIconHtml;
                             }
                         }
+
                         localmap.addOverlay(myPoint);
                     }
                     myPoint.addEventListener("click", function () {

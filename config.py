@@ -15,7 +15,7 @@ class Config:
     MAIL_SERVER = 'mbus.honeywell.com.cn'
     MAIL_PORT = 25
     MBUS_MAIL_SUBJECT_PREFIX = '[DoNotreply]'
-    MBUS_MAIL_SENDER = 'HoneywellMobileBus'
+    MBUS_MAIL_SENDER = 'HoneywellMobileBus@mbus.honeywell.com.cn'
 
 
     MBUS_ADMIN = os.environ.get('MBUS_ADMIN')

@@ -23,7 +23,7 @@ angular.module('hwmobilebusApp')
       routeloaded: false
     };
     
-    var loadmapcomplete = function () {
+    var loadmapcomplete = function (results) {
       $scope.loadctrl.mapinfo = false;
       $scope.$apply();
     };

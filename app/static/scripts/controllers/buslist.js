@@ -45,18 +45,22 @@ angular.module('hwmobilebusApp')
             BusinfoService.getregbus({}, function(regbus) {
                 $scope.loadctrl.submit = false;
                 /* update register bus element in html */
-                if ((regbus.tocompbus != "") && (regbus.tocompcampus == $scope.campusradio)) {
-                    busidcomp = regbus.tocompbus.id;
-                    InterfService.hardcodefirst($scope.allbus, busidcomp);
-                    $scope.allbus[0].attr = "normal";
-                    $scope.allbus[0].mybusname = "（我的班车）";
+                if (regbus.tocompbus != "")  {
+                    if (regbus.tocompcampus == $scope.campusradio) {
+                        busidcomp = regbus.tocompbus.id;
+                        InterfService.hardcodefirst($scope.allbus, busidcomp);
+                        $scope.allbus[0].attr = "normal";
+                        $scope.allbus[0].mybusname = "（我的班车）";
+                    }
                 }
-                if ((regbus.tohomebus != "") && (regbus.tohomebus.id != busidcomp) && (regbus.tohomecampus == $scope.campusradio)) {
-                    busidhome = regbus.tohomebus.id;
-                    InterfService.hardcodefirst($scope.allbus, busidhome);
-                    $scope.allbus[0].attr = "normal";
-                    $scope.allbus[0].mybusname = "（我的班车）";
-                }
+                if (regbus.tohomebus != "") {
+                    if ((regbus.tohomebus.id != busidcomp) && (regbus.tohomecampus == $scope.campusradio)) {
+                        busidhome = regbus.tohomebus.id;
+                        InterfService.hardcodefirst($scope.allbus, busidhome);
+                        $scope.allbus[0].attr = "normal";
+                        $scope.allbus[0].mybusname = "（我的班车）";
+                    }
+                } 
 
             });
         }
