@@ -52,7 +52,7 @@ angular
       controller: 'BuseditCtrl'
     })
     .when('/dataanalysis',{
-      templateUrl: 'static/partials/dataanalysis.html',
+      templateUrl: 'static/partials/dataAnalysis.html',
       controller: 'busAnalysisCtrl'
     })
     .when('/stationAnalysis',{
