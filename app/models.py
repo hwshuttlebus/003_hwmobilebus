@@ -15,17 +15,17 @@ from config import Config
 
 def haversine(lon1, lat1, lon2, lat2):
     """
-    Calculate the great circle distance between two points 
+    Calculate the great circle distance between two points
     on the earth (specified in decimal degrees)
     """
-    # convert decimal degrees to radians 
+    # convert decimal degrees to radians
     lon1, lat1, lon2, lat2 = map(radians, [lon1, lat1, lon2, lat2])
 
-    # haversine formula 
-    dlon = lon2 - lon1 
-    dlat = lat2 - lat1 
+    # haversine formula
+    dlon = lon2 - lon1
+    dlat = lat2 - lat1
     a = sin(dlat/2)**2 + cos(lat1) * cos(lat2) * sin(dlon/2)**2
-    c = 2 * asin(sqrt(a)) 
+    c = 2 * asin(sqrt(a))
     r = 6371 # Radius of earth in kilometers. Use 3956 for miles
     return c * r * 1000 # meters for unit
 
@@ -246,12 +246,12 @@ class mBus(db.Model):
         color = json_post.get('bus_color')
         buslicense = json_post.get('bus_buslicense')
         campus = json_post.get('bus_campus')
- 
-        return mBus(name=name, cz_name=cz_name, cz_phone=cz_phone,sj_name=sj_name, 
+
+        return mBus(name=name, cz_name=cz_name, cz_phone=cz_phone,sj_name=sj_name,
                     sj_phone=sj_phone, equip_id=equip_id,seat_num=seat_num,
                     color=color, buslicense=buslicense, campus=campus, number=number)
-    
-    
+
+
     @staticmethod
     def updatediagram(station, busrec):
         currbeijingtime = get_currbj_time()
@@ -280,7 +280,7 @@ class mBus(db.Model):
 
                     ('08:28:10', 78, '2018-04-20', 25),('08:38:20', 78, '2018-04-21', 34),
                     ('08:33:10', 78, '2018-04-23', 20),('08:32:20', 78, '2018-04-24', 12),
-                    ('07:45:01',80, '2018-04-20', 5 ), 
+                    ('07:45:01',80, '2018-04-20', 5 ),
                     ('07:46:01',81, '2018-04-20', 0 ),
                     ('08:01:01',82, '2018-04-20', 12 ),('08:05:01',82, '2018-04-21', 12 ),
                     ('08:20:01',83, '2018-04-22', 3 ),('08:07:01',83, '2018-04-23', 2 )]
@@ -295,7 +295,7 @@ class mBus(db.Model):
                     ('17:10:10', 79, '2018-04-22', 41),('17:12:10', 79, '2018-04-23', 18),
                     ('17:51:01',85, '2018-04-20', 0),('17:52:01',85, '2018-04-21', 0),
                     ('17:52:01',86, '2018-04-20', 0),('17:53:01',86, '2018-04-23', 0),
-                    ('17:55:01',87, '2018-04-20', 0),('17:59:01',87, '2018-04-24', 0)]  
+                    ('17:55:01',87, '2018-04-20', 0),('17:59:01',87, '2018-04-24', 0)]
 
 
         timestr1obj = []
@@ -308,7 +308,7 @@ class mBus(db.Model):
                                 datetime.strptime(item2[2], '%Y-%m-%d').date(), item2[3]))
         #duplicate
         '''
-        timestr3 = [('07:40:01', 48),('07:45:03',50)]  
+        timestr3 = [('07:40:01', 48),('07:45:03',50)]
         timestr4 = [('18:08:12',57)]
         timestr3obj = []
         timestr4obj = []
@@ -320,18 +320,18 @@ class mBus(db.Model):
 
         for item3 in timestr1obj:
             print(item3)
-            diagramrec = DiagramData(mdate=item3[2], 
+            diagramrec = DiagramData(mdate=item3[2],
                                      arrive_time=item3[0],
-                                     current_num=item3[3], 
+                                     current_num=item3[3],
                                      station_id=item3[1])
             db.session.add(diagramrec)
             db.session.commit()
 
         for item4 in timestr2obj:
             print(item4)
-            diagramrec = DiagramData(mdate=item4[2], 
+            diagramrec = DiagramData(mdate=item4[2],
                                      arrive_time=item4[0],
-                                     current_num=item4[3], 
+                                     current_num=item4[3],
                                      station_id=item4[1])
             db.session.add(diagramrec)
             db.session.commit()
@@ -401,7 +401,7 @@ class mBus(db.Model):
                     abnleftDist = 0.0
                 if leftdist <= 100.0:
                     #arrived and index to next station
-                    currentidx = currentidx+1      
+                    currentidx = currentidx+1
                     print('!!!#arrived and index to next station index:　'+str(currentidx))
                     mBus.updatediagram(station[currentidx], busrec)
                     if currentidx <= (len(station)-2):
@@ -409,7 +409,7 @@ class mBus(db.Model):
                         lefttime = (leftdist*1.5/averagespeed)/60 # unit-->minute
 
         return currentidx, lefttime, abntime, abnleftDist
-    
+
     @staticmethod
     def getnearstation(stations, lon, lat):
         distold = 0
@@ -456,7 +456,7 @@ class mBus(db.Model):
         abnleftDist = 0
         stationup = []
         stationdown = []
-        
+
         #get the to company and to home stations
         stations = busrec.stations.order_by(mStation.time).all()
         for item in stations:
@@ -498,7 +498,7 @@ class mBus(db.Model):
         print(nowtime)
         nowtime = nowtime.replace(tzinfo=None)
 
-        #ENTER CORE ASSESSMENT ALGUORITHM 
+        #ENTER CORE ASSESSMENT ALGUORITHM
         if (((nowtime >= towkstartoffsetobj) and (nowtime <= towkendoffsetobj)) or
              ((nowtime >= tohmstartoffsetobj) and (nowtime <= tohmendoffsetobj))):
             print('!!! recv GPS data in shuttlebus time!')
@@ -544,7 +544,7 @@ class mBus(db.Model):
         else:
             #not in shuttle bus time, return invalid data
             print('!!!not in shuttle bus time, return invalid data')
-        
+
         return currentidx, lefttime, abntime, abnleftDist, currdir
 
     @staticmethod
@@ -554,7 +554,7 @@ class mBus(db.Model):
         latwsg = json_post.get('bus_lat')
         lngwsg = json_post.get('bus_lon')
 
-        #only for test use, transmit gps data from WSG84 to BD-09 
+        #only for test use, transmit gps data from WSG84 to BD-09
         lnggc02, latgc02 = wgs84togcj02(lngwsg, latwsg)
         lon, lat = gcj02tobd09(lnggc02, latgc02)
 
@@ -564,7 +564,13 @@ class mBus(db.Model):
             #transfer from UTC to Asia/Shanghai native time
             from_zone = tz.gettz('UTC')
             to_zone = tz.gettz('Asia/Shanghai')
-            datetimeobj = datetime.strptime(recordtime.strip(), '%Y-%m-%dT%H:%M:%S')
+            try:
+                datetimeobj = datetime.strptime(recordtime.strip(), '%Y-%m-%dT%H:%M:%S')
+            except ValueError:
+                #if the timestamp of gps device don't send date, the utc date will be used as current date.
+                datetimeobj = datetime.strptime(recordtime.strip(), '%H:%M:%S')
+                utcnowtime= datetime.utcnow()
+                datetimeobj = datetimeobj.replace(year=utcnowtime.year, month=utcnowtime.month, day=utcnowtime.day)
             datetimeobj = datetimeobj.replace(tzinfo=from_zone)
             datetimeobj = datetimeobj.astimezone(to_zone)
             datetimeobj = datetimeobj.replace(tzinfo=None)
@@ -676,7 +682,7 @@ class mUser(UserMixin, db.Model):
                                lazy='dynamic')
     member_since = db.Column(db.DateTime(), default=datetime.utcnow)
     last_seen = db.Column(db.DateTime(), default=datetime.utcnow)
-    
+
     #user applied station information
     applyflag = db.Column(db.Boolean, default=False)
     applydesc = db.Column(db.String(64), default="")
@@ -763,12 +769,12 @@ class mUser(UserMixin, db.Model):
             return False
         self.confirmed = True
         db.session.add(self)
-        return True   
+        return True
 
     def can(self, permissions):
         return self.mrole is not None and \
             (self.mrole.permissions & permissions) == permissions
-    
+
     def is_administrator(self):
         return self.can(Permission.ADMINISTER)
 
@@ -798,7 +804,7 @@ class mUser(UserMixin, db.Model):
                     busrec2 = mBus.query.filter_by(id=stations[1].bus_id).first()
                     if busrec2 is not None:
                         bus2 = busrec2.name
-            
+
         json_post = {
             'id' : self.id,
             'mailaddr' : self.mailaddr,
@@ -828,7 +834,7 @@ class Message(db.Model):
     id = db.Column(db.Integer, primary_key=True)
     body = db.Column(db.Text)
     timestamp = db.Column(db.DateTime, index=True, default=datetime.utcnow)
-    
+
     def to_json(self):
         json_post = {
             'id': self.id,
@@ -843,7 +849,7 @@ class Message(db.Model):
         if body is None or body == '':
             raise ValidationError('post does not have a body')
         return Message(body=body)
-        
+
 
 
 class mPost(db.Model):
@@ -928,7 +934,7 @@ class BusDiagramData(db.Model):
             if busrec.seat_num is None:
                 totalnumber = 0
             else:
-                totalnumber = busrec.seat_num 
+                totalnumber = busrec.seat_num
             if bustime is not None:
                 json_post = {
                     'bid': self.bus_id,
@@ -960,7 +966,7 @@ class DiagramData(db.Model):
             if stationrec.mbus.seat_num is None:
                 totalnumber = 0
             else:
-                totalnumber = stationrec.mbus.seat_num 
+                totalnumber = stationrec.mbus.seat_num
             if bustime is not None:
                 json_post = {
                     'sid': self.station_id,
