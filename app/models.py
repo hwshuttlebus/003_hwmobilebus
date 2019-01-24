@@ -367,6 +367,7 @@ class mBus(db.Model):
         else:
             busreclefttime = busrec.lefttime
 
+        abnleftDist = 0
         if currentidx <= (len(station)-2):
             abnormal = False
             leftdist = haversine(lon, lat, station[currentidx+1].lon, station[currentidx+1].lat)
@@ -389,9 +390,6 @@ class mBus(db.Model):
                 if pre_abnleftDist > 100 and dist_to_cur_station < pre_abnleftDist - averagespeed:
                     print('!!!ABNORMAL: To current station, distance={}, previous distance={}'.format(dist_to_cur_station, pre_abnleftDist))
                     abnormal = True
-            else:
-                abnleftDist = 0
-
 
             if abnormal:
                 # In abnormal case, handle based on abnormal duration.
@@ -581,7 +579,6 @@ class mBus(db.Model):
         global pre_gps_timestamp
         now_ts = datetime.timestamp(nowtime)
         pre_gps_timestamp[busrec.number] = now_ts
-        mBus.check_timeout(now_ts)
         # if (pre_gps_timestamp[busrec.number] == 0) or (pre_gps_timestamp[busrec.number] != 0 and now_ts - pre_gps_timestamp[busrec.number] > 30):
             # print('gps timestamp: bus number={}, pre={}, cur={}'.format(busrec.number, pre_gps_timestamp[busrec.number], now_ts))
 
@@ -618,7 +615,7 @@ class mBus(db.Model):
                 else:
                     #GPS data recv after the first stop
                     #should find the nearest station index for current bus location
-                    currentidx = mBus.getcurstation(station, lon, lat)
+                    currentidx = mBus.getcurstation(currentidx, station, lon, lat)
                     mBus.updatediagram(station[currentidx], busrec)
                     print('!!!GPS data recv after the first stop latest index is:' +str(currentidx))
             else:
@@ -629,6 +626,7 @@ class mBus(db.Model):
                 currentidx, lefttime, abntime, abnleftDist = mBus.locCoreAlgorithm(currentidx, lefttime, busrec, station, lon, lat)
 
         else:
+            mBus.check_timeout(now_ts)
             #not in shuttle bus time, return invalid data
             print('!!!not in shuttle bus time, return invalid data, currentidx={}'.format(currentidx))
 

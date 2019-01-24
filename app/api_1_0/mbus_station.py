@@ -29,7 +29,7 @@ def update_mbusinfo(id):
         busrec.campus = bus.campus
     except Exception as e:
         return jsonify({'ERROR occur when try to parse station_to_company structure!': '%s' %e})
-    
+
     #handle station information next
     #delete all the related station
     stations = busrec.stations.all()
@@ -62,7 +62,7 @@ def update_mbusinfo(id):
                 stationrec2.append(temp)
         except Exception as e:
             return jsonify({'ERROR occur when try to parse station_tohome structure!':'%s' %e })
-    
+
     db.session.add(busrec)
     db.session.commit()
 
@@ -72,7 +72,7 @@ def update_mbusinfo(id):
         db.session.add(item3)
     db.session.commit()
 
-    return jsonify({'added bus record: ': busrec.to_json(), 
+    return jsonify({'added bus record: ': busrec.to_json(),
                     'added station1 record: ': [item.to_json() for item in stationrec1],
                     'added station2 record: ': [item.to_json() for item in stationrec2]})
 
@@ -106,7 +106,7 @@ def post_mbusinfo():
             busrec = bus
     except Exception as e:
         return jsonify({'ERROR occur when try to parse station_to_company structure!': '%s' %e})
-    
+
     #handle station information next
     #direction: to company
     station_tocompany = request.json.get('station_tocompany')
@@ -155,7 +155,7 @@ def post_mbusinfo():
                 stationrec2.append(temp)
         except Exception as e:
             return jsonify({'ERROR occur when try to parse station_tohome structure!':'%s' %e })
-    
+
     db.session.add(busrec)
     try:
         db.session.commit()
@@ -174,7 +174,7 @@ def post_mbusinfo():
         db.session.rollback()
         return jsonify({'ERROR occur when try to parse station_tohome structure!':'%s' %e })
 
-    return jsonify({'added bus record: ': busrec.to_json(), 
+    return jsonify({'added bus record: ': busrec.to_json(),
                     'added station1 record: ': [item.to_json() for item in stationrec1],
                     'added station2 record: ': [item.to_json() for item in stationrec2]})
 
@@ -182,6 +182,7 @@ def post_mbusinfo():
 @api.route('/mbusdata/BusStation/bus/<int:id>', methods=['GET'])
 def get_bus(id):
     busrec = mBus.query.get_or_404(id)
+    print(busrec.to_json())
     return jsonify(busrec.to_json())
 
 @api.route('/mbusdata/BusStation/businfo/', methods=['GET'])

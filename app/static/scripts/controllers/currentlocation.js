@@ -197,8 +197,8 @@ angular.module('hwmobilebusApp')
       getbus(false);
     };
 
-    /* update location for every 1 min */
-    var myInterval = $interval(updateloc, 15000);
+    /* update location for every 8 sec */
+    var myInterval = $interval(updateloc, 8000);
 
     $scope.usedseat= "";
     $scope.tocompanystations = [];

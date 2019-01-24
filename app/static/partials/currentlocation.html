@@ -32,7 +32,7 @@
                                 <td style="width:60%; vertical-align: middle">{a businfo.name a}</td>
                                 <td style="width:35%; vertical-align: middle; font-size:12px; color: #008EE8">详细信息</td>
                                 <td style="vertical-align: middle">
-                                    <i class="pull-right glyphicon" 
+                                    <i class="pull-right glyphicon"
                                        ng-class="{'glyphicon-menu-down': accordionstatus.openbusinfo, 'glyphicon-menu-right': !accordionstatus.openbusinfo}">
                                     </i>
                                 </td>
@@ -69,16 +69,16 @@
             </uib-accordion>
 
             <div class="btn-group btn-group-justified">
-                <label class="btn btn-info btn-custom radioBtnActive" ng-model="isDirToCompany" 
+                <label class="btn btn-info btn-custom radioBtnActive" ng-model="isDirToCompany"
                     uib-btn-radio="true">上行</label>
-                <label class="btn btn-info btn-custom radioBtnActive" ng-model="isDirToCompany" 
+                <label class="btn btn-info btn-custom radioBtnActive" ng-model="isDirToCompany"
                     uib-btn-radio="false" >下行</label>
             </div>
 
             <table class="table">
                 <tbody>
                     <tr ng-repeat="station in stations track by $index" ng-click="clickupdate()"
-                        ng-init="hover=false" ng-mouseenter="hover=true"  
+                        ng-init="hover=false" ng-mouseenter="hover=true"
                         ng-mouseleave="hover=false"   ng-class="{active: hover}">
                         <th style="width:5%">
                             <div ng-attr-id="{a station.attr3 a}" class="label label-as-badge pin-custom">
@@ -98,8 +98,8 @@
             </table>
         </div>
         <div class="col-md-8 column">
-            <button type="button" class="btn btn-primary btn-block" ng-disabled="true">地图上若有红点代表班车当前位置</button>
-            <baidu-map map-options="mapOptions" loaded="loadmap(map)" 
+            <button type="button" class="btn btn-primary btn-block" ng-disabled="true">地图上若有红点代表班车当前位置<span ng-if="businfo.number!='2'">:GPS</span></button>
+            <baidu-map map-options="mapOptions" loaded="loadmap(map)"
                 offline="offlineOpts" click="clicklatlon(e)">
             </baidu-map>
         </div>
