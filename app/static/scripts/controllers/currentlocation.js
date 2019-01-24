@@ -22,7 +22,7 @@ angular.module('hwmobilebusApp')
       stationget: false,
       routeloaded: false
     };
-    
+
     var loadmapcomplete = function (results) {
       $scope.loadctrl.mapinfo = false;
       $scope.$apply();
@@ -176,7 +176,7 @@ angular.module('hwmobilebusApp')
                 lefttime = Math.ceil(lefttime+distance*1.5/15/60);
                 $scope.stations[i].locinfo = "约"+lefttime+"分钟";
               }
-            } 
+            }
           }
         } else {
           $scope.stations[i].attr3 = "greyout";
@@ -198,7 +198,7 @@ angular.module('hwmobilebusApp')
     };
 
     /* update location for every 1 min */
-    var myInterval = $interval(updateloc, 60000);
+    var myInterval = $interval(updateloc, 15000);
 
     $scope.usedseat= "";
     $scope.tocompanystations = [];
@@ -216,7 +216,7 @@ angular.module('hwmobilebusApp')
     $scope.busid = InterfService.getbusid();
     initbusstation();
 
-    
+
     $scope.offlineOpts = {
       /* no network condition */
       retryInterval: 10000,

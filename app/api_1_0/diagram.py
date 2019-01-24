@@ -13,6 +13,7 @@ def dataanalysis(daysdelta, targetstation):
         count = 0
         count2 = 0
         totalnum = 0
+        targetnum = 0
         totalarrtime = 0
         for item2 in diagrams:
             #arrive number
@@ -36,12 +37,12 @@ def dataanalysis(daysdelta, targetstation):
                 targetnum = totalnum/count
             busrec = mBus.query.filter_by(id=item.bus_id).first()
             seat_num = busrec.seat_num
-            resultarray.append((item.id, item.bus_id, targetarrtime, 
+            resultarray.append((item.id, item.bus_id, targetarrtime,
                                 targetnum, item.dirtocompany, seat_num, item.time.strftime('%H:%M')))
     return resultarray
 
 
-#append data in source to target, input srcdata should be list type 
+#append data in source to target, input srcdata should be list type
 def appenddata(srcdata, isappendbus):
     tgtdata = []
     if True == isappendbus:
@@ -105,7 +106,7 @@ def bus_analysis():
     #analysis data
     dataresult = dataanalysis(daysdelta, targetstation)
     print(dataresult)
-    
+
     #transfer to json format
     retarray = appenddata(dataresult, True)
     return jsonify({'busdataanalysis':retarray})

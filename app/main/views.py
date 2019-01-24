@@ -71,7 +71,8 @@ def edit_profile_admin(id):
     if form.validate_on_submit():
         user.mailaddr = form.mailaddr.data
         user.confirmed = form.confirmed.data
-        user.role = mRole.query.get(form.role.data)
+        #user.role = mRole.query.get(form.role.data)
+        user.role_id = form.role.data
         user.name = form.name.data
         user.campus = form.campus.data
         db.session.add(user)

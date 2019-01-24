@@ -45,4 +45,4 @@ def post_gpsdata():
         print('!!!!!!!!!!!!!!!!!!!!!!! handle time:'+str(nowtimetk2-nowtimetk1))
         return jsonify(busrec.to_json())
     else:
-        return jsonify({'ERROR!': 'no such equipment id'})
+        return jsonify({'ERROR!': 'no such equipment id or gps data is incorrect'})
