@@ -4,6 +4,7 @@ from datetime import datetime
 from flask_login import current_user
 from .authentication import auth
 from .. models import db, mStation, mBus, haversine
+import time
 
 #update as per bus id
 @api.route('/mbusdata/BusStation/<int:id>', methods=['POST'])
@@ -182,8 +183,22 @@ def post_mbusinfo():
 @api.route('/mbusdata/BusStation/bus/<int:id>', methods=['GET'])
 def get_bus(id):
     busrec = mBus.query.get_or_404(id)
-    print(busrec.to_json())
-    return jsonify(busrec.to_json())
+    msg = ""
+    if busrec.is_working_time():
+        if busrec.curridx != 0xFF:
+            deltatime = (time.time() - busrec.recordtime.timestamp())/60 # unit minute
+            if deltatime > 1:
+                msg = ":车辆GPS信号丢失,持续{}分钟{}秒".format(
+                        int(deltatime), int(60*(deltatime - int(deltatime))))
+    else:
+        if busrec.curridx != 0xFF:
+            busrec.curridx = 0xFF
+            db.session.add(busrec)
+            db.session.commit()
+        msg = ":非上下班时间"
+    json_dict = busrec.to_json()
+    json_dict['msg'] = msg
+    return jsonify(json_dict)
 
 @api.route('/mbusdata/BusStation/businfo/', methods=['GET'])
 def get_allbus():

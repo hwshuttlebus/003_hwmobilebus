@@ -13,8 +13,8 @@ from .gpsutil import wgs84togcj02, gcj02tobd09
 from . import celery
 from config import Config
 
-pre_gps_timestamp = [0] * 301
-timeout_check = 0
+# pre_gps_timestamp = [0] * 301
+# timeout_check = 0
 
 def haversine(lon1, lat1, lon2, lat2):
     """
@@ -372,23 +372,25 @@ class mBus(db.Model):
             abnormal = False
             leftdist = haversine(lon, lat, station[currentidx+1].lon, station[currentidx+1].lat)
             lefttime = (leftdist*1.5/averagespeed)/60 # unit-->minute
+            print('!!ZZZ!bus_number={}, leftdist={}, lefttime={}, busreclefttime={}, pre_abnleftDist={}'.format(busrec.number,leftdist, lefttime, busreclefttime, pre_abnleftDist))
 
             # If remaining time to next station is greater than the remaining time in last frame of GPS,
             # it means the bus is further away from the next station. It's a abnormal condition. 0.1 and 1/60
             # is used to exclude debounce of GPS.
             if (busreclefttime > 0.1) and (busreclefttime + 1/60  < lefttime):
-                print('!!!ABNORMAL: To next station, distance={}, time={}, previous time={}'.format(leftdist, lefttime, busreclefttime))
+                print('!!!ABNORMAL: To next station, busnumber={}, distance={}, time={}, previous time={}'.format(busrec.number, leftdist, lefttime, busreclefttime))
                 abnormal = True
 
             if currentidx != -1:
                 dist_to_cur_station = haversine(lon, lat, station[currentidx].lon, station[currentidx].lat)
                 abnleftDist = dist_to_cur_station
+                print('!!ZZZ!,dist_to_cur_station={}'.format(dist_to_cur_station))
                 # If the distance to current station is less than the distance in last frame of GPS, it means
                 # the bus is getting closer to the station that it should apart from. It's another abnormal condition.
                 # We consider this condition only after we have got the first station and when the bus left the
                 # current station more than 100 meters. And minus 1 seconds distance is used to exclude debounce of GPS.
                 if pre_abnleftDist > 100 and dist_to_cur_station < pre_abnleftDist - averagespeed:
-                    print('!!!ABNORMAL: To current station, distance={}, previous distance={}'.format(dist_to_cur_station, pre_abnleftDist))
+                    print('!!!ABNORMAL: To current station, busnumber={}, distance={}, previous distance={}'.format(busrec.number, dist_to_cur_station, pre_abnleftDist))
                     abnormal = True
 
             if abnormal:
@@ -420,7 +422,7 @@ class mBus(db.Model):
                 print(nowtimetk)
                 print(abntime)
                 # if ((nowtimetk-abntime)<=10) and (abntime!=0):
-                print('!!! re-enter normal state')
+                print('!!! re-enter normal state, bus_number={}'.format(busrec.number))
                 abntime = 0.0
                 if leftdist <= 100.0 or (currentidx == -1 and leftdist <= 300.0):
                     #arrived and index to next station
@@ -502,28 +504,70 @@ class mBus(db.Model):
 
         return retindex, distold
 
-    @staticmethod
-    def check_timeout(now_ts):
-        global pre_gps_timestamp, timeout_check
-        if timeout_check == 0:
-            timeout_check = now_ts
-            return
-        if now_ts - timeout_check <= 60:
-            return
+    # @staticmethod
+    # def check_timeout(now_ts):
+        # global pre_gps_timestamp, timeout_check
+        # if timeout_check == 0:
+            # timeout_check = now_ts
+            # return
+        # if now_ts - timeout_check <= 60:
+            # return
 
-        updatedb = False
-        buses = mBus.query.all()
-        for busrec in buses:
-            if busrec.curridx != 0xFF and now_ts - pre_gps_timestamp[busrec.number] > 60:
-                #timeout
-                busrec.curridx = 0xFF
-                pre_gps_timestamp[busrec.number] = 0
-                db.session.add(busrec)
-                updatedb = True
-                print("!!!TIMEOUT: bus number:{}, previous GPS signal timestamp:{}".format(busrec.number, pre_gps_timestamp[busrec.number]))
-        if updatedb:
-            db.session.commit()
-        timeout_check = now_ts
+        # updatedb = False
+        # buses = mBus.query.all()
+        # for busrec in buses:
+            # if busrec.curridx != 0xFF and now_ts - pre_gps_timestamp[busrec.number] > 60:
+                # #timeout
+                # busrec.curridx = 0xFF
+                # pre_gps_timestamp[busrec.number] = 0
+                # db.session.add(busrec)
+                # updatedb = True
+                # print("!!!TIMEOUT: bus number:{}, previous GPS signal timestamp:{}".format(busrec.number, pre_gps_timestamp[busrec.number]))
+        # if updatedb:
+            # db.session.commit()
+        # timeout_check = now_ts
+
+    def is_working_time(self):
+        stationup = []
+        stationdown = []
+        stations = self.stations.order_by(mStation.time).all()
+        for item in stations:
+            if (True == item.dirtocompany):
+                stationup.append(item)
+            else:
+                stationdown.append(item)
+
+        #get current Beijing time
+        from_zone = tz.gettz('UTC')
+        to_zone = tz.gettz('Asia/Shanghai')
+
+        utcnowtime= datetime.utcnow()
+        utcnowtime = utcnowtime.replace(tzinfo=from_zone)
+        nowtime = utcnowtime.astimezone(to_zone)
+
+        #define string const for time
+        towkstart = stationup[0].time.strftime('%H:%M:%S')
+        towkend = stationup[-1].time.strftime('%H:%M:%S')
+        tohmstart = stationdown[0].time.strftime('%H:%M:%S')
+        tohmend = stationdown[-1].time.strftime('%H:%M:%S')
+
+        #transfer to datetime object
+        strprefix = nowtime.strftime('%Y-%m-%dT')
+        towkstartobj = datetime.strptime(strprefix+towkstart, '%Y-%m-%dT%H:%M:%S')
+        towkendobj = datetime.strptime(strprefix+towkend, '%Y-%m-%dT%H:%M:%S')
+        tohmstartobj = datetime.strptime(strprefix+tohmstart, '%Y-%m-%dT%H:%M:%S')
+        tohmendobj = datetime.strptime(strprefix+tohmend, '%Y-%m-%dT%H:%M:%S')
+        #add tolerance offset for time
+        towkendoffsetobj = towkendobj + timedelta(minutes=60)
+        tohmendoffsetobj = tohmendobj + timedelta(minutes=60)
+        towkstartoffsetobj = towkstartobj - timedelta(minutes=10)
+        tohmstartoffsetobj = tohmstartobj - timedelta(minutes=10)
+        nowtime = nowtime.replace(tzinfo=None)
+        if (((nowtime >= towkstartoffsetobj) and (nowtime <= towkendoffsetobj)) or
+             ((nowtime >= tohmstartoffsetobj) and (nowtime <= tohmendoffsetobj))):
+            return True
+        else:
+            return False
 
     @staticmethod
     def calbuslocation(busrec, lon, lat, datetimeobj):
@@ -576,11 +620,9 @@ class mBus(db.Model):
         print('!!!!!! current time:{}'.format(nowtime))
         nowtime = nowtime.replace(tzinfo=None)
 
-        global pre_gps_timestamp
-        now_ts = datetime.timestamp(nowtime)
-        pre_gps_timestamp[busrec.number] = now_ts
-        # if (pre_gps_timestamp[busrec.number] == 0) or (pre_gps_timestamp[busrec.number] != 0 and now_ts - pre_gps_timestamp[busrec.number] > 30):
-            # print('gps timestamp: bus number={}, pre={}, cur={}'.format(busrec.number, pre_gps_timestamp[busrec.number], now_ts))
+        # global pre_gps_timestamp
+        # now_ts = datetime.timestamp(nowtime)
+        # pre_gps_timestamp[busrec.number] = now_ts
 
         #ENTER CORE ASSESSMENT ALGUORITHM
         if (((nowtime >= towkstartoffsetobj) and (nowtime <= towkendoffsetobj)) or
@@ -626,7 +668,7 @@ class mBus(db.Model):
                 currentidx, lefttime, abntime, abnleftDist = mBus.locCoreAlgorithm(currentidx, lefttime, busrec, station, lon, lat)
 
         else:
-            mBus.check_timeout(now_ts)
+            # mBus.check_timeout(now_ts)
             #not in shuttle bus time, return invalid data
             print('!!!not in shuttle bus time, return invalid data, currentidx={}'.format(currentidx))
 
