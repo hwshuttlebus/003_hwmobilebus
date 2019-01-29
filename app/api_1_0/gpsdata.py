@@ -42,7 +42,7 @@ def post_gpsdata():
         db.session.add(busrec)
         db.session.commit()
         nowtimetk2 = time.time()
-        print('!!!!!!!!!!!!!!!!!!!!!!! handle time:'+str(nowtimetk2-nowtimetk1))
+        print('!!!Completed to handle a GPS signal: handle time={}, bus_number={}'.format(nowtimetk2-nowtimetk1, busrec.number))
         return jsonify(busrec.to_json())
     else:
         return jsonify({'ERROR!': 'no such equipment id or gps data is incorrect'})

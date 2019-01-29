@@ -186,10 +186,11 @@ def get_bus(id):
     msg = ""
     if busrec.is_working_time():
         if busrec.curridx != 0xFF:
-            deltatime = (time.time() - busrec.recordtime.timestamp())/60 # unit minute
-            if deltatime > 1:
-                msg = ":车辆GPS信号丢失,持续{}分钟{}秒".format(
-                        int(deltatime), int(60*(deltatime - int(deltatime))))
+            if busrec.recordtime is not None:
+                deltatime = (time.time() - busrec.recordtime.timestamp())/60 # unit minute
+                if deltatime > 1:
+                    msg = ":车辆GPS信号丢失,持续{}分钟{}秒".format(
+                            int(deltatime), int(60*(deltatime - int(deltatime))))
     else:
         if busrec.curridx != 0xFF:
             busrec.curridx = 0xFF
@@ -198,6 +199,7 @@ def get_bus(id):
         msg = ":非上下班时间"
     json_dict = busrec.to_json()
     json_dict['msg'] = msg
+    #print("!!!bus_number={}, json={}".format(busrec.number, json_dict))
     return jsonify(json_dict)
 
 @api.route('/mbusdata/BusStation/businfo/', methods=['GET'])
