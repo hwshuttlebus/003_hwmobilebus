@@ -1,5 +1,6 @@
-from flask import render_template, redirect, request, url_for, flash
-from flask_login import login_user, logout_user, current_user, login_required, login_user, logout_user
+from datetime import datetime, timedelta
+from flask import render_template, redirect, request, url_for, flash, session, current_app
+from flask_login import login_user, logout_user, current_user, login_required
 from . import auth
 from .. import db
 from ..models import mUser
@@ -13,9 +14,12 @@ def before_request():
     if current_user.is_authenticated:
         current_user.ping()
         if not current_user.confirmed \
-            and request.endpoint \
-            and request.endpoint[:5] != 'auth.' \
-            and request.endpoint != 'static':
+                and request.endpoint \
+                and request.endpoint[:5] != 'auth.' \
+                and request.endpoint != 'static':
+            # print("!!ZZZ1! next={}".format(request.args.get('next')))
+            # if (request.args.get('next') is not None) and (not request.args.get('next').startswith(r'/auth/confirm')):
+                # return redirect(request.args.get('next'))
             return redirect(url_for('auth.unconfirmed'))
 
 
@@ -33,7 +37,20 @@ def login():
         mailform = form.mailaddr.data+'@honeywell.com'
         user = mUser.query.filter_by(mailaddr=mailform).first()
         if user is not None and user.verify_password(form.password.data):
+            current_app.config['REMEMBER_COOKIE_DURATION'] = timedelta(30)
             login_user(user, remember = form.remember_me.data)
+            session.permanent = True
+            if datetime.utcnow() - current_user.member_since > timedelta(180):
+                if (request.args.get('next') is not None) and request.args.get('next').startswith(r'/auth/confirm'):
+                    return redirect(request.args.get('next'))
+                current_user.confirmed = False
+                db.session.add(current_user)
+                db.session.commit()
+                token = current_user.generate_confirmation_token()
+                send_email(current_user.mailaddr, '请确认您的帐号', 'auth/email/confirm',\
+                             user=current_user, token=token)
+                flash('验证邮件已经发送至' + current_user.mailaddr + '请点击邮件内连接完成认证')
+                return redirect(url_for('auth.unconfirmed'))
             return redirect(request.args.get('next') or url_for('main.index'))
         flash('无效的用户名或者密码')
     return render_template('auth/login.html', form=form)

@@ -952,7 +952,9 @@ class mUser(UserMixin, db.Model):
         if data.get('confirm') != self.id:
             return False
         self.confirmed = True
+        self.member_since = datetime.utcnow()
         db.session.add(self)
+        db.session.commit()
         return True
 
     def can(self, permissions):
