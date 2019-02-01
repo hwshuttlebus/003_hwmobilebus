@@ -1,13 +1,145 @@
 from flask import jsonify, request, current_app, url_for
 from . import api
-from .. models import DiagramData, db, BusDiagramData, get_currbj_time, mBus, mStation
-from datetime import timedelta
+from .. models import DiagramData, db, BusDiagramData, get_currbj_time, mBus, mStation, Event
+from datetime import datetime, timedelta, date
 import datetime as dt
 import time
 
+latest_update_date=date(2019,1,1)
+
+def remove_duplicatedate(inputDiagram):
+    newrec = []
+    for item in inputDiagram:
+        if 0 == len(newrec):
+            newrec.append(item)
+        else:
+            for item2 in newrec:
+                findflag = False
+                if item2.station_id == item.station_id:
+                    findflag = True
+                    #find duplicate one, save latter time one
+                    if item2.arrive_time < item.arrive_time:
+                        newrec.remove(item2)
+                        newrec.append(item)
+            if False == findflag:
+                newrec.append(item)
+    #print('remove duplicate diagram result:')
+    #for item2 in newrec:
+    #    print(str(item2.arrive_time))
+    return newrec
+
+
+def updateNumberForBusDate(bus, expectedDate, tocompany):
+    diagrams = []
+    totalNum = 0
+    currentNum = 0
+    stations = bus.stations.filter_by(dirtocompany=tocompany).order_by(mStation.time).all()
+    #get all the diagram related to one bus line:
+    for station in stations:
+        #print('!!!!!!!!!!!current station:'+station.name)
+        #find all the diagramdata today
+        strprefix = expectedDate.strftime('%Y-%m-%dT')
+
+        diagramrec = station.diagrams.filter_by(mdate=expectedDate).all()
+        #print('diagramrec result:')
+        for item in diagramrec:
+            diagrams.append(item)
+            #print('record:')
+            #print(str(item.arrive_time))
+
+    #handle for all the get diagram data:
+    #calculate current number based on remote EVENT table
+    newdiagram = remove_duplicatedate(diagrams)
+    #set current number for each item
+    for idx, item in enumerate(newdiagram):
+        #print('diagram item id:'+ str(item.id))
+        if len(newdiagram) > 1:
+            if idx == 0:
+                arriveboj = item.arrive_time.strftime('%H:%M:%S')
+                timestartobj = datetime.strptime(strprefix+arriveboj, '%Y-%m-%dT%H:%M:%S')
+                timestartobj = timestartobj-timedelta(minutes=30)
+                arriveboj2 = newdiagram[idx+1].arrive_time.strftime('%H:%M:%S')
+                timeendobj = datetime.strptime(strprefix+arriveboj2, '%Y-%m-%dT%H:%M:%S')
+                #print(str(timestartobj))
+                #print(str(timeendobj))
+                currentNum =  Event.query.filter(Event.DateTimes.between(timestartobj,timeendobj)).filter_by(CarID=bus.number).count()
+                totalNum += currentNum
+                #print('44444: '+str(currentNum))
+            elif idx <= (len(newdiagram)-2):
+                arriveboj = item.arrive_time.strftime('%H:%M:%S')
+                timestartobj = datetime.strptime(strprefix+arriveboj, '%Y-%m-%dT%H:%M:%S')
+                arriveboj2 = newdiagram[idx+1].arrive_time.strftime('%H:%M:%S')
+                timeendobj = datetime.strptime(strprefix+arriveboj2, '%Y-%m-%dT%H:%M:%S')
+                #print(str(timestartobj))
+                #print(str(timeendobj))
+                currentNum =  Event.query.filter(Event.DateTimes.between(timestartobj,timeendobj)).filter_by(CarID=bus.number).count()
+                totalNum += currentNum
+                #print('55555: '+str(currentNum))
+        else:
+            #there only one record
+            arriveboj = item.arrive_time.strftime('%H:%M:%S')
+            timestartobj = datetime.strptime(strprefix+arriveboj, '%Y-%m-%dT%H:%M:%S')
+            timeendobj = timestartobj + timedelta(minutes=30)
+            #print(str(timestartobj))
+            #print(str(timeendobj))
+            currentNum =  Event.query.filter(Event.DateTimes.between(timestartobj,timeendobj)).filter_by(CarID=bus.number).count()
+            totalNum = currentNum
+            #print('66666: '+str(currentNum))
+
+        if currentNum != 0:
+            item.current_num = currentNum
+            db.session.add(item)
+            db.session.commit()
+    #print('add to database:')
+    #print(item.to_json())
+
+    #update bus diagram
+    busid = stations[0].bus_id
+    if True == stations[0].dirtocompany:
+        busdiagram = stations[-1].diagrams.filter_by(mdate=expectedDate).first()
+    else:
+        busdiagram = stations[0].diagrams.filter_by(mdate=expectedDate).first()
+
+    if busdiagram is not None:
+        print('busdiagram is not None!!')
+        print('busdiagram.id:'+str(busdiagram.id))
+        busdatarec = BusDiagramData.query.filter_by(mdate=busdiagram.mdate, bus_id=busid).first()
+        if busdatarec is not None:
+            #update
+            busdatarec.tocomp_num = totalNum
+        else:
+            #new
+            if True == stations[0].dirtocompany:
+                busdatarec = BusDiagramData(mdate=busdiagram.mdate, arrive_time=busdiagram.arrive_time,
+                                            tocomp_num=totalNum, tohome_num=0, bus_id=busid)
+
+            else:
+                busdatarec = BusDiagramData(mdate=busdiagram.mdate, arrive_time=busdiagram.arrive_time,
+                                            tocomp_num=0, tohome_num=totalNum, bus_id=busid)
+        db.session.add(busdatarec)
+        db.session.commit()
+        print('bus diagram add to database, bus number:{}'.format(bus.number))
+        print(busdatarec.to_json())
+
+def updateNumber():
+    global latest_update_date
+    nowtime = get_currbj_time()
+    today = nowtime.date()
+    latest_update_date2 = DiagramData.query.order_by(db.desc(DiagramData.mdate)).filter(DiagramData.current_num != 0).first().mdate
+    daynumber = min(today - latest_update_date, today - latest_update_date2, timedelta(days=180))
+    daynumber = max(daynumber.days, 0)
+    busrec = mBus.query.all()
+    for bus in busrec:
+        for d in (today - timedelta(n) for n in range(daynumber)):
+            updateNumberForBusDate(bus, d, 1)
+            updateNumberForBusDate(bus, d, 0)
+    latest_update_date = today
+
 def dataanalysis(daysdelta, targetstation):
+    updateNumber()
     nowtime = get_currbj_time()
     resultarray = []
+
     for item in targetstation:
         diagrams = DiagramData.query.filter(DiagramData.mdate.between((nowtime.date()-timedelta(days=daysdelta)), nowtime.date())).filter_by(station_id=item.id)
         count = 0

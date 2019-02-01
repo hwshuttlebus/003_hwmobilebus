@@ -1,6 +1,6 @@
 from . import db
 from . import login_manager
-from datetime import datetime, timedelta
+from datetime import datetime, timedelta, date
 from .exceptions import ValidationError
 from flask_login import UserMixin, AnonymousUserMixin
 from werkzeug.security import generate_password_hash, check_password_hash
@@ -257,17 +257,30 @@ class mBus(db.Model):
 
 
     @staticmethod
-    def updatediagram(station, busrec):
+    def updatediagram(station):
         currbeijingtime = get_currbj_time()
         #update date
         mdateobj = currbeijingtime.date()
         #update time
         mtimeobj = currbeijingtime.time()
-        #current number will update in celery task
-        diagramrec = DiagramData(mdate=mdateobj, arrive_time=mtimeobj,current_num=0, station_id=station.id)
-        # print(diagramrec.to_json())
-        db.session.add(diagramrec)
-        db.session.commit()
+
+        diagramrec = DiagramData.query.filter_by(mdate=mdateobj, station_id=station.id).all()
+
+        def deltaFromArrivalTime(dia):
+            # station = mStation.query.filter_by(id=dia.station_id).first()
+            t1 = station.time
+            t2 = dia.arrive_time
+            return abs(datetime.combine(date.today(),t1)-datetime.combine(date.today(),t2))
+
+        nearestTime = min(diagramrec, key=deltaFromArrivalTime)
+
+        # if new arrival time is nearer to expected arrival time than existing record.
+        new_diagramrec = DiagramData(mdate=mdateobj, arrive_time=mtimeobj,current_num=0, station_id=station.id)
+        if nearestTime > deltaFromArrivalTime(new_diagramrec):
+            #current number will update in celery task
+            # print(new_diagramrec.to_json())
+            db.session.add(new_diagramrec)
+            db.session.commit()
 
     @staticmethod
     def fakediagram():
@@ -421,7 +434,7 @@ class mBus(db.Model):
                         next_station_index = current_station_index + 1
                         if current_station_index != -1:
                             dist_to_cur_station = haversine(lon, lat, station[current_station_index].lon, station[current_station_index].lat)
-                        mBus.updatediagram(station[current_station_index], busrec)
+                            mBus.updatediagram(station[current_station_index])
                         if current_station_index < final_station_index:
                             dist_to_next_station = haversine(lon, lat, station[next_station_index].lon, station[next_station_index].lat)
                             lefttime = (dist_to_next_station*1.5/averagespeed)/60
@@ -442,7 +455,7 @@ class mBus(db.Model):
                     current_station_index = next_station_index
                     dist_to_cur_station = haversine(lon, lat, station[current_station_index].lon, station[current_station_index].lat)
                     print('!!!#arrived to next station: bus_number={},station index={}'.format(busrec.number,current_station_index))
-                    mBus.updatediagram(station[current_station_index], busrec)
+                    mBus.updatediagram(station[current_station_index])
                     if current_station_index < final_station_index:
                         dist_to_next_station = haversine(lon, lat, station[next_station_index].lon, station[next_station_index].lat)
                         lefttime = (dist_to_next_station*1.5/averagespeed)/60 # unit-->minute
@@ -711,7 +724,7 @@ class mBus(db.Model):
                     #GPS data recv after the first stop
                     #should find the nearest station index for current bus location
                     currentidx = mBus.getcurstation(currentidx, station, lon, lat)
-                    mBus.updatediagram(station[currentidx], busrec)
+                    mBus.updatediagram(station[currentidx])
                     print('!!!GPS data recv after the first stop latest index is:' +str(currentidx))
             else:
                 #already recv valid gps data after enter shuttle bus time

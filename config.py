@@ -24,24 +24,26 @@ class Config:
     #celery process use
     CELERY_BROKER_URL = 'amqp://guest:guest@localhost:5672//'
     CELERY_RESULT_BACKEND = 'amqp://guest:guest@localhost:5672//'
-    CELERYBEAT_SCHEDULE = {  
-        'every-15-minutes': {
-            'task': 'celery_worker.cleangps',
-            #'schedule': datetime.timedelta(seconds=3),
-            'schedule': crontab('*/15'),
-            'args':("Message",)
-        },
-        'daily-at-midnight': {
-            'task': 'celery_worker.calcbusdata',
-            'schedule': datetime.timedelta(hours=3),
-            #'schedule': crontab(minute=0, hour=0),
-            'args':("Message",)
-        },
-        'daily-hours': {
-            'task': 'celery_worker.unconfirmemployee',
-            'schedule': datetime.timedelta(days=1),
-            'args':("Message",)
-        }
+
+    #deprecate celery
+    CELERYBEAT_SCHEDULE = {
+        # 'every-15-minutes': {
+            # 'task': 'celery_worker.cleangps',
+            # #'schedule': datetime.timedelta(seconds=3),
+            # 'schedule': crontab('*/15'),
+            # 'args':("Message",)
+        # },
+        # 'daily-at-midnight': {
+            # 'task': 'celery_worker.calcbusdata',
+            # 'schedule': datetime.timedelta(hours=3),
+            # #'schedule': crontab(minute=0, hour=0),
+            # 'args':("Message",)
+        # },
+        # 'daily-hours': {
+            # 'task': 'celery_worker.unconfirmemployee',
+            # 'schedule': datetime.timedelta(days=1),
+            # 'args':("Message",)
+        # }
     }
 
     #for upload and download use
