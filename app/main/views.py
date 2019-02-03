@@ -8,6 +8,7 @@ from .forms import EditProfileForm, EditProfileAdminForm, PostForm
 from ..decorators import admin_required, permission_required
 from ..models import mUser, mRole, mPost, Event, mBus, mStation
 from .. import db
+from ..api_1_0.diagram import updateNumber
 import flask_excel as excel
 import os
 
@@ -18,6 +19,13 @@ def index():
     return render_template('index.html')
     #return make_response(open('app/templates/index.html').read())
 
+@main.route('/collectcardnum/')
+@login_required
+@admin_required
+def updatecardnum():
+    updateNumber()
+    flash('更新乘客打卡信息!')
+    return redirect(url_for('main.index'))
 
 @main.route('/user/<mailaddr>')
 def user(mailaddr):
@@ -47,6 +55,7 @@ def del_user(id):
     except:
         db.session.rollback()
     return redirect(url_for('main.index'))
+
 
 @main.route('/edit-profile', methods=['GET', 'POST'])
 @login_required
@@ -118,7 +127,7 @@ def uploadposlb():
             flash('No file part')
             return redirect(request.url)
         file = request.files['file']
-        #if user does not select file, browser also 
+        #if user does not select file, browser also
         #submit a empty part without filename
         if file.filename == '':
             flash('No selected file')
@@ -150,7 +159,7 @@ def uploadposlb():
 
 @main.route('/export', methods=['GET'])
 def exportbusstationinfo():
-    #create a list of dictionary with key: busname, station, time    
+    #create a list of dictionary with key: busname, station, time
     record = []
 
     #handle for libingroad campus
@@ -206,7 +215,7 @@ def doimport():
         campus = "libingroad"
     else:
         campus = "huankeroad"
-     
+
     if request.method == 'POST':
         #first delete all bus and stations
         if (campus == "libingroad"):
@@ -241,16 +250,16 @@ def doimport():
             else:
                 b = mBus(name=row['名称'], number=row['编号'], cz_name=row['车长'], cz_phone=row['车长手机'],
                         sj_name=row['司机'],sj_phone=row['司机手机'], seat_num=row['座位数'], campus=campus)
-            
+
             return b
- 
+
         def station_init_func(row):
             s = None
             #input check
             if row['站点'] == "" or row['站点'] is None or \
                 row['计划发车时间']=="" or row['计划发车时间'] is None:
                 return None
-            
+
             print('station:'+row['站点'])
             if row['站点描述'] is not None:
                 print('desc: '+row['站点描述'])
@@ -274,7 +283,7 @@ def doimport():
             else:
                 lat = 0.0
                 lon = 0.0
-    
+
             b = mBus.query.filter_by(name=row['名称'], number=row['编号']).first()
             if b is not None:
                 s = mStation.query.filter_by(name=row['站点'], bus_id=b.id, dirtocompany=direction).first()
@@ -293,7 +302,7 @@ def doimport():
                                 dirtocompany=direction, lat=lat, lon=lon, campus=campus, bus_id=b.id)
 
             return s
-       
+
         request.save_book_to_database(
             field_name='file', session=db.session,
             tables=[mBus, mStation],

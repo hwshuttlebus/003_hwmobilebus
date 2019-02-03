@@ -28,12 +28,16 @@ def remove_duplicatedate(inputDiagram):
     #    print(str(item2.arrive_time))
     return newrec
 
-
 def updateNumberForBusDate(bus, expectedDate, tocompany):
     diagrams = []
     totalNum = 0
     currentNum = 0
     stations = bus.stations.filter_by(dirtocompany=tocompany).order_by(mStation.time).all()
+    huanke_base_num = mBus.query.filter_by(campus='libingroad').filter(mBus.name!='测试线').count()
+
+    carid = bus.number
+    if bus.campus == 'huankeroad':
+        carid += huanke_base_num
     #get all the diagram related to one bus line:
     for station in stations:
         #print('!!!!!!!!!!!current station:'+station.name)
@@ -62,7 +66,7 @@ def updateNumberForBusDate(bus, expectedDate, tocompany):
                 timeendobj = datetime.strptime(strprefix+arriveboj2, '%Y-%m-%dT%H:%M:%S')
                 #print(str(timestartobj))
                 #print(str(timeendobj))
-                currentNum =  Event.query.filter(Event.DateTimes.between(timestartobj,timeendobj)).filter_by(CarID=bus.number).count()
+                currentNum =  Event.query.filter(Event.DateTimes.between(timestartobj,timeendobj)).filter_by(CarID=carid).count()
                 totalNum += currentNum
                 #print('44444: '+str(currentNum))
             elif idx <= (len(newdiagram)-2):
@@ -72,7 +76,7 @@ def updateNumberForBusDate(bus, expectedDate, tocompany):
                 timeendobj = datetime.strptime(strprefix+arriveboj2, '%Y-%m-%dT%H:%M:%S')
                 #print(str(timestartobj))
                 #print(str(timeendobj))
-                currentNum =  Event.query.filter(Event.DateTimes.between(timestartobj,timeendobj)).filter_by(CarID=bus.number).count()
+                currentNum =  Event.query.filter(Event.DateTimes.between(timestartobj,timeendobj)).filter_by(CarID=carid).count()
                 totalNum += currentNum
                 #print('55555: '+str(currentNum))
         else:
@@ -82,7 +86,7 @@ def updateNumberForBusDate(bus, expectedDate, tocompany):
             timeendobj = timestartobj + timedelta(minutes=30)
             #print(str(timestartobj))
             #print(str(timeendobj))
-            currentNum =  Event.query.filter(Event.DateTimes.between(timestartobj,timeendobj)).filter_by(CarID=bus.number).count()
+            currentNum =  Event.query.filter(Event.DateTimes.between(timestartobj,timeendobj)).filter_by(CarID=carid).count()
             totalNum = currentNum
             #print('66666: '+str(currentNum))
 
@@ -101,8 +105,8 @@ def updateNumberForBusDate(bus, expectedDate, tocompany):
         busdiagram = stations[0].diagrams.filter_by(mdate=expectedDate).first()
 
     if busdiagram is not None:
-        print('busdiagram is not None!!')
-        print('busdiagram.id:'+str(busdiagram.id))
+        # print('busdiagram is not None!!')
+        # print('busdiagram.id:'+str(busdiagram.id))
         busdatarec = BusDiagramData.query.filter_by(mdate=busdiagram.mdate, bus_id=busid).first()
         if busdatarec is not None:
             #update
@@ -127,7 +131,8 @@ def updateNumber():
     today = nowtime.date()
     latest_update_date2 = DiagramData.query.order_by(db.desc(DiagramData.mdate)).filter(DiagramData.current_num != 0).first().mdate
     daynumber = min(today - latest_update_date, today - latest_update_date2, timedelta(days=180))
-    daynumber = max(daynumber.days, 0)
+    daynumber = max(daynumber.days, 0) + 1
+    print("!!!UPDATE card number for {} days including today".format(daynumber))
     busrec = mBus.query.all()
     for bus in busrec:
         for d in (today - timedelta(n) for n in range(daynumber)):
@@ -136,7 +141,7 @@ def updateNumber():
     latest_update_date = today
 
 def dataanalysis(daysdelta, targetstation):
-    updateNumber()
+    # updateNumber()
     nowtime = get_currbj_time()
     resultarray = []
 
@@ -157,12 +162,12 @@ def dataanalysis(daysdelta, targetstation):
             t1 = time.mktime(t1.timetuple())
             t2 = dt.datetime.combine(dt.date(2018,1,1), item.time)
             t2 = time.mktime(t2.timetuple())
-            print('t2: '+ str(t2))
-            print('t1:' + str(t1))
+            # print('t2: '+ str(t2))
+            # print('t1:' + str(t1))
             arrtime = (t2 - t1)/60
             totalarrtime += arrtime
             count2 += 1
-            print('arrtime: '+str(arrtime))
+            # print('arrtime: '+str(arrtime))
         if count2 != 0:
             targetarrtime = totalarrtime/count2
             if count != 0:
@@ -210,6 +215,7 @@ def appenddata(srcdata, isappendbus):
             tgtdata.append(singlejson)
     return tgtdata
 
+
 @api.route('/mbusdata/busdataanalysis/')
 def bus_analysis():
     #get all target station id list
@@ -237,7 +243,7 @@ def bus_analysis():
 
     #analysis data
     dataresult = dataanalysis(daysdelta, targetstation)
-    print(dataresult)
+    # print(dataresult)
 
     #transfer to json format
     retarray = appenddata(dataresult, True)

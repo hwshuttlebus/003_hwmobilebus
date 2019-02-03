@@ -264,7 +264,7 @@ class mBus(db.Model):
         #update time
         mtimeobj = currbeijingtime.time()
 
-        diagramrec = DiagramData.query.filter_by(mdate=mdateobj, station_id=station.id).all()
+        new_diagramrec = DiagramData(mdate=mdateobj, arrive_time=mtimeobj,current_num=0, station_id=station.id)
 
         def deltaFromArrivalTime(dia):
             # station = mStation.query.filter_by(id=dia.station_id).first()
@@ -272,15 +272,22 @@ class mBus(db.Model):
             t2 = dia.arrive_time
             return abs(datetime.combine(date.today(),t1)-datetime.combine(date.today(),t2))
 
-        nearestTime = min(diagramrec, key=deltaFromArrivalTime)
+        diagramrec = DiagramData.query.filter_by(mdate=mdateobj, station_id=station.id).all()
 
-        # if new arrival time is nearer to expected arrival time than existing record.
-        new_diagramrec = DiagramData(mdate=mdateobj, arrive_time=mtimeobj,current_num=0, station_id=station.id)
-        if nearestTime > deltaFromArrivalTime(new_diagramrec):
-            #current number will update in celery task
-            # print(new_diagramrec.to_json())
-            db.session.add(new_diagramrec)
-            db.session.commit()
+        if diagramrec:
+            nearestTime = min(diagramrec, key=deltaFromArrivalTime)
+            # if new arrival time is nearer to expected arrival time than existing record.
+            if diagramrec or nearestTime > deltaFromArrivalTime(new_diagramrec):
+                #current number will update in celery task
+                # print(new_diagramrec.to_json())
+                print("UpdateDiagram, station_id={},date={},time={}".format(new_diagramrec.station_id,new_diagramrec.mdate,new_diagramrec,arrive_time))
+                db.session.add(new_diagramrec)
+                db.session.commit()
+        else:
+                print("UpdateDiagram, station_id={},date={},time={}".format(new_diagramrec.station_id,new_diagramrec.mdate,new_diagramrec,arrive_time))
+                db.session.add(new_diagramrec)
+                db.session.commit()
+
 
     @staticmethod
     def fakediagram():

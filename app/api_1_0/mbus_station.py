@@ -251,7 +251,7 @@ def cal_recommand_route():
         stations2 = bus.stations.all()
         idx2, dist2 = mBus.getnearsation_excomp(stations2, lng, lat, False)
         tohomestation = stations2[idx2]
-        print(tohomestation.to_json())
+        # print(tohomestation.to_json())
         return jsonify({'tocompbus': bus.to_json(),
                         'tocompstation': tocompstation.to_json(),
                         'tohomebus': bus.to_json(),
