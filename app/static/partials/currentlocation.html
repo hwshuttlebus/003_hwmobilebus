@@ -98,7 +98,8 @@
             </table>
         </div>
         <div class="col-md-8 column">
-            <button type="button" class="btn btn-primary btn-block" ng-disabled="true">地图上若有红点代表班车当前位置{a businfo.msg a}</button>
+            <!--<button type="button" class="btn btn-primary btn-block" ng-disabled="true">地图上若有红点代表班车当前位置</button>-->
+            <button type="button" class="btn btn-primary btn-block" ng-disabled="true">车辆状态:{a businfo.statusmsg a}</button>
             <baidu-map map-options="mapOptions" loaded="loadmap(map)"
                 offline="offlineOpts" click="clicklatlon(e)">
             </baidu-map>

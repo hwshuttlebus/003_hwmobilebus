@@ -183,22 +183,35 @@ def post_mbusinfo():
 @api.route('/mbusdata/BusStation/bus/<int:id>', methods=['GET'])
 def get_bus(id):
     busrec = mBus.query.get_or_404(id)
-    msg = ""
+    statusmsg = ""
+    reset_station_idx=False
     if busrec.is_working_time():
-        if busrec.curridx != 0xFF:
-            if busrec.recordtime is not None:
-                deltatime = (time.time() - busrec.recordtime.timestamp())/60 # unit minute
-                if deltatime > 1:
-                    msg = ":车辆GPS信号丢失,持续{}分钟{}秒".format(
-                            int(deltatime), int(60*(deltatime - int(deltatime))))
+        if busrec.curridx == 0xFF or busrec.recordtime is None:
+            statusmsg = "未收到GPS信号, 无法定位"
+            reset_station_idx = True
+        else:
+            deltatime = (time.time() - busrec.recordtime.timestamp())/60 # unit minute
+            if deltatime > 180:
+                statusmsg = "未收到GPS信号, 无法定位"
+                reset_station_idx = True
+            elif deltatime > 30:
+                statusmsg = "车辆GPS信号丢失超过30分钟"
+            elif deltatime > 1:
+                statusmsg = "车辆GPS信号丢失,持续{}分钟{}秒".format(
+                        int(deltatime), int(60*(deltatime - int(deltatime))))
+            else:
+                statusmsg = "车辆GPS信号正常"
     else:
+        reset_station_idx = True
+        statusmsg = "非上下班时间"
+    if reset_station_idx:
         if busrec.curridx != 0xFF:
             busrec.curridx = 0xFF
             db.session.add(busrec)
             db.session.commit()
-        msg = ":非上下班时间"
+
     json_dict = busrec.to_json()
-    json_dict['msg'] = msg
+    json_dict['statusmsg'] = statusmsg
     #print("!!!bus_number={}, json={}".format(busrec.number, json_dict))
     return jsonify(json_dict)
 

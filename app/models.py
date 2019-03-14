@@ -280,11 +280,11 @@ class mBus(db.Model):
             if diagramrec or nearestTime > deltaFromArrivalTime(new_diagramrec):
                 #current number will update in celery task
                 # print(new_diagramrec.to_json())
-                print("UpdateDiagram, station_id={},date={},time={}".format(new_diagramrec.station_id,new_diagramrec.mdate,new_diagramrec,arrive_time))
+                print("UpdateDiagram, station_id={},date={},time={}".format(new_diagramrec.station_id,new_diagramrec.mdate,new_diagramrec,new_diagramrec.arrive_time))
                 db.session.add(new_diagramrec)
                 db.session.commit()
         else:
-                print("UpdateDiagram, station_id={},date={},time={}".format(new_diagramrec.station_id,new_diagramrec.mdate,new_diagramrec,arrive_time))
+                print("UpdateDiagram, station_id={},date={},time={}".format(new_diagramrec.station_id,new_diagramrec.mdate,new_diagramrec,new_diagramrec.arrive_time))
                 db.session.add(new_diagramrec)
                 db.session.commit()
 
@@ -363,7 +363,7 @@ class mBus(db.Model):
     @staticmethod
     def locCoreAlgorithm(current_station_index, lefttime, busrec, station, lon, lat):
 
-        global gPreCurDist
+        # global gPreCurDist
         next_station_index = current_station_index + 1
         number_of_stations = len(station)
         final_station_index = number_of_stations - 1
@@ -400,22 +400,23 @@ class mBus(db.Model):
 
             dist_to_next_station = haversine(lon, lat, station[next_station_index].lon, station[next_station_index].lat)
             lefttime = (dist_to_next_station*1.5/averagespeed)/60 # unit-->minute
-            print('!!!starting calcuate: bus_number={}, dist_to_next_station={}, lefttime={}, busreclefttime={}'.format(busrec.number,dist_to_next_station, lefttime, busreclefttime))
+            # print('!!!starting calcuate: bus_number={}, dist_to_next_station={}, lefttime={}, busreclefttime={}'.format(busrec.number,dist_to_next_station, lefttime, busreclefttime))
 
             # If remaining time to next station is greater than the remaining time in last frame of GPS,
             # it means the bus is further away from the next station. It's a abnormal condition. 0.1 and 1/60
             # is used to exclude debounce of GPS.
             if (busreclefttime > 0.1) and (busreclefttime + 1/60  < lefttime):
-                print('!!!ABNORMAL: To next station, busnumber={}, distance={}, time={}, previous time={}'.format(busrec.number, dist_to_next_station, lefttime, busreclefttime))
+                print('!!!ABNORMAL: To next station, busnumber={}, distance={}, lefttime={}, previous lefttime={}'.format(busrec.number, dist_to_next_station, lefttime, busreclefttime))
                 abnormal = True
 
             if current_station_index != -1:
-                if busrec.id not in gPreCurDist.keys():
-                    gPreCurDist[busrec.id] = 10000
-                pre_dist_to_cur_station = gPreCurDist[busrec.id]
+                # if busrec.id not in gPreCurDist.keys():
+                    # gPreCurDist[busrec.id] = 10000
+                # pre_dist_to_cur_station = gPreCurDist[busrec.id]
+                pre_dist_to_cur_station = abnleftDist
 
                 dist_to_cur_station = haversine(lon, lat, station[current_station_index].lon, station[current_station_index].lat)
-                print('!!!starting calcuate 2: bus_number={}, dist_to_cur_station={}, pre_dist_to_cur_station={}'.format(busrec.number,dist_to_cur_station,pre_dist_to_cur_station))
+                # print('!!!starting calcuate 2: bus_number={}, dist_to_cur_station={}, pre_dist_to_cur_station={}'.format(busrec.number,dist_to_cur_station,pre_dist_to_cur_station))
                 # If the distance to current station is less than the distance in last frame of GPS, it means
                 # the bus is getting closer to the station that it should apart from. It's another abnormal condition.
                 # We consider this condition only after we have got the first station and when the bus left the
@@ -432,8 +433,8 @@ class mBus(db.Model):
                     print('!!!first time enter abnormal, bus_number={}, timestamp={}'.format(busrec.number, abntime))
                 else:
                     print('!!!abnormal status, bus_number={}, duration={}'.format(busrec.number, int(nowtimetk - abntime)))
-                    if ((nowtimetk - abntime) >= 30):
-                        # Abnormal duration last more than 30 seconds, the bus is always far from dest station
+                    if ((nowtimetk - abntime) >= 12):
+                        # Abnormal duration last more than 12 seconds(3 gps signals), the bus is always far from dest station
                         # recalculate the current station once
                         abntime = nowtimetk
                         old_index = current_station_index
@@ -441,11 +442,12 @@ class mBus(db.Model):
                         next_station_index = current_station_index + 1
                         if current_station_index != -1:
                             dist_to_cur_station = haversine(lon, lat, station[current_station_index].lon, station[current_station_index].lat)
-                            mBus.updatediagram(station[current_station_index])
+                            # mBus.updatediagram(station[current_station_index])
                         if current_station_index < final_station_index:
                             dist_to_next_station = haversine(lon, lat, station[next_station_index].lon, station[next_station_index].lat)
                             lefttime = (dist_to_next_station*1.5/averagespeed)/60
                         else:
+                            dist_to_next_station = 0
                             lefttime = 0
                         print('!!!ABNORMAL recalculate: bus_number={}, oldcurindex={}, newcurindex={},dist_to_next_station={},lefttime={}'.format(busrec.number, old_index, current_station_index, dist_to_next_station, lefttime))
             else:
@@ -453,7 +455,7 @@ class mBus(db.Model):
                 #if in abnormal case before, regard enter normal state when following condition meet:
                 #   during 10 seconds the bus location is near to dest station
                 # if ((nowtimetk-abntime)<=10) and (abntime!=0):
-                print('!!!normal state, bus_number={}, now={}, abntime={}, dir={}, curindex={}, disttonext={}'.format(busrec.number, nowtimetk, abntime, busrec.currdir, current_station_index, dist_to_next_station))
+                print('!!!Normal state, bus_number={}, now={}, abntime={}, dir={}, curindex={}, disttonext={}, disttocur={}, lefttime={}'.format(busrec.number, nowtimetk, abntime, busrec.currdir, current_station_index, dist_to_next_station,dist_to_cur_station, lefttime))
                 abntime = 0.0
                 if dist_to_next_station <= 100.0 \
                         or (busrec.currdir == False and current_station_index == -1 and dist_to_next_station <= 300.0)\
@@ -461,15 +463,17 @@ class mBus(db.Model):
                     #arrived and index to next station
                     current_station_index = next_station_index
                     dist_to_cur_station = haversine(lon, lat, station[current_station_index].lon, station[current_station_index].lat)
-                    print('!!!#arrived to next station: bus_number={},station index={}'.format(busrec.number,current_station_index))
                     mBus.updatediagram(station[current_station_index])
                     if current_station_index < final_station_index:
+                        next_station_index = current_station_index + 1
                         dist_to_next_station = haversine(lon, lat, station[next_station_index].lon, station[next_station_index].lat)
                         lefttime = (dist_to_next_station*1.5/averagespeed)/60 # unit-->minute
                     else:
+                        dist_to_next_station = 0
                         lefttime = 0
-        gPreCurDist[busrec.id] = dist_to_cur_station
-        # abnleftDist = dist_to_cur_station
+                    print('!!!Arrived to next station: bus_number={},station index={}, disttocur={}, disttonext={}, lefttime={}'.format(busrec.number,current_station_index, dist_to_cur_station, dist_to_next_station, lefttime))
+        # gPreCurDist[busrec.id] = dist_to_cur_station
+        abnleftDist = dist_to_cur_station
         return current_station_index, lefttime, abntime, abnleftDist
 
     @staticmethod
@@ -685,7 +689,7 @@ class mBus(db.Model):
         towkstartoffsetobj = towkstartobj - timedelta(minutes=10)
         tohmstartoffsetobj = tohmstartobj - timedelta(minutes=10)
 
-        print('!!!current time:{}'.format(nowtime))
+        # print('!!!current time:{}'.format(nowtime))
         nowtime = nowtime.replace(tzinfo=None)
 
         # global pre_gps_timestamp
@@ -700,10 +704,14 @@ class mBus(db.Model):
         #ENTER CORE ASSESSMENT ALGUORITHM
         if (((nowtime >= towkstartoffsetobj) and (nowtime <= towkendoffsetobj)) or
              ((nowtime >= tohmstartoffsetobj) and (nowtime <= tohmendoffsetobj))) or TESTING:
-            print('!!! recv GPS data in shuttlebus time!')
+            # print('!!!recv GPS data in shuttlebus time!')
+            delta_min = (datetimeobj - busrec.recordtime).seconds/60
+            if delta_min > 1:
+                print('!!!lost GPS for {} mins'.format(delta_min))
+
             if ((nowtime >= towkstartoffsetobj) and (nowtime <= towkendoffsetobj)):
                 if (datetimeobj >= towkstartoffsetobj) and (datetimeobj <= towkendoffsetobj):
-                    print('!!!enter to company procedure')
+                    # print('!!!enter to company procedure')
                     station = stationup
                     currdir = True
                 else:
@@ -712,7 +720,7 @@ class mBus(db.Model):
                     return busrec.curridx, busrec.lefttime, busrec.abntime, busrec.abnleftDist, busrec.currdir
             else:
                 if ((datetimeobj >= tohmstartoffsetobj) and (datetimeobj <= tohmendoffsetobj)) or TESTING:
-                    print('!!!enter to home procedure')
+                    # print('!!!enter to home procedure')
                     station = stationdown
                     currdir = False
                 else:
@@ -737,9 +745,9 @@ class mBus(db.Model):
                 #already recv valid gps data after enter shuttle bus time
                 #re-calculate the left distance and left time
                 currentidx = busrec.curridx
-                print('!!!normal case before:bus_number={}, curindex={}, lefttime={}, abntime={}, distocur={}'.format(busrec.number, busrec.curridx, busrec.lefttime, busrec.abntime, busrec.abnleftDist))
+                # print('!!!normal case before:bus_number={}, curindex={}, lefttime={}, abntime={}, distocur={}'.format(busrec.number, busrec.curridx, busrec.lefttime, busrec.abntime, busrec.abnleftDist))
                 currentidx, lefttime, abntime, abnleftDist = mBus.locCoreAlgorithm(currentidx, lefttime, busrec, station, lon, lat)
-                print('!!!normal case after:bus_number={}, curindex={}, lefttime={}, abntime={}, distocur={}, currdir={}'.format(busrec.number, currentidx, lefttime, abntime, abnleftDist, currdir))
+                # print('!!!normal case after:bus_number={}, curindex={}, lefttime={}, abntime={}, distocur={}, currdir={}'.format(busrec.number, currentidx, lefttime, abntime, abnleftDist, currdir))
 
         else:
             # mBus.check_timeout(now_ts)
@@ -775,12 +783,17 @@ class mBus(db.Model):
             datetimeobj = datetimeobj.replace(tzinfo=from_zone)
             datetimeobj = datetimeobj.astimezone(to_zone)
             datetimeobj = datetimeobj.replace(tzinfo=None)
-            print('!!!current gps data: '+ str(equip_id) + ', ' +str(latwsg)+', '+str(lngwsg)+', '+ str(datetimeobj))
         else:
             datetimeobj = datetime.strptime('2000-01-01T12:12:12', '%Y-%m-%dT%H:%M:%S')
 
         #update
         busrec = mBus.query.filter_by(equip_id=equip_id).first()
+
+        if busrec is not None:
+            print('!!!GPS data: bus_number={}, equip_id={}, lat={}, long={}, time={}'.format(busrec.number, equip_id, latwsg, lngwsg, datetimeobj))
+        else:
+            print('!!!GPS data: bus_number is None, equip_id={}, lat={}, long={}, time={}'.format(equip_id, latwsg, lngwsg, datetimeobj))
+
         if busrec is not None:
             station = busrec.stations.first()
             if haversine(lon, lat, station.lon, station.lat) > 100000:

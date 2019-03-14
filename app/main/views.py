@@ -16,6 +16,7 @@ import os
 def index():
     if False == current_user.is_authenticated:
         return redirect(url_for('auth.login'))
+    print("!!!login:{}, time:{}".format(current_user.mailaddr, datetime.now().isoformat()))
     return render_template('index.html')
     #return make_response(open('app/templates/index.html').read())
 

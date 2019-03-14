@@ -27,7 +27,7 @@ def getregbus():
                 busrec = mBus.query.filter_by(id=station.bus_id).first()
                 if busrec is not None:
                     tohomebus = busrec
-            
+
     if tocompstation is not None and tohomestation is not None \
         and tocompbus is not None and tohomebus is not None:
         return jsonify({'tocompbus': tocompbus.to_json(),
@@ -134,6 +134,7 @@ def get_user_posts(id):
 @api.route('/mbusdata/getalluser/')
 def get_alluser():
     page = request.args.get('page', 1, type=int)
+    usercount = mUser.query.count()
     pagination = mUser.query.paginate(
         page, per_page=current_app.config['MBUS_POSTS_PER_PAGE'],
         error_out=False)
@@ -144,7 +145,7 @@ def get_alluser():
     next = None
     if pagination.has_next:
         next = url_for('api.get_alluser', page=page+1, _external=True)
-    
+
     return jsonify({
         'users': [user.to_json() for user in users],
         'prev': prev,
@@ -152,7 +153,8 @@ def get_alluser():
         'prevpage': (page-1),
         'nextpage': (page+1),
         'count': pagination.total,
-        'perpage': pagination.per_page
+        'perpage': pagination.per_page,
+        'usercount': usercount,
     })
 
 @api.route('/mbusdata/getallposts/')
@@ -168,7 +170,7 @@ def get_posts():
     next = None
     if pagination.has_next:
         next = url_for('api.get_posts', page=page+1, _external=True)
-    
+
     return jsonify({
         'posts': [post.to_json() for post in posts],
         'prev': prev,

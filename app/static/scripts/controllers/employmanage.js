@@ -30,7 +30,7 @@ angular.module('hwmobilebusApp')
             $scope.empctl.users.push(user);
         }
 
-        $scope.empctl.usercount = $scope.empctl.users.length;
+        //$scope.empctl.usercount = $scope.empctl.users.length;
     };
 
     /* record apply info */
@@ -39,7 +39,7 @@ angular.module('hwmobilebusApp')
         for (var i=0; i<applys.length; i++) {
             var apply = {};
             apply.mailaddr = applys[i].mailaddr;
-            
+
             /* exclude invalid one */
             if ((true == applys[i].applyflag) && (applys[i].applydesc != "")) {
                 apply.id = applys[i].id;
@@ -74,6 +74,7 @@ angular.module('hwmobilebusApp')
         BusinfoService.getalluser(qparam, function(allusers) {
             /* record user post to local */
             recordusers(allusers.users);
+            $scope.empctl.usercount = allusers.usercount;
             /* update page info */
             updatepageinfo(allusers.prevpage, allusers.count, allusers.perpage);
         });
@@ -85,8 +86,8 @@ angular.module('hwmobilebusApp')
             recordapply(applyinfo.applyresult);
         });
     }
-    
-    
+
+
     $scope.pageChanged = function () {
         updateusers();
     };
@@ -102,7 +103,7 @@ angular.module('hwmobilebusApp')
                     delid: userid,
                     title: titlelocal,
                     content: contentlocal
-                };                
+                };
             }
         };
         InterfService.genmodal('infoModal.html', 'modalOpenCtrl', 'sm', resolve, $scope);
